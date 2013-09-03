@@ -1,7 +1,7 @@
 /*
  * Copyright 2013 Andrew Everitt, Andrew Heckford, Daniele Daniele
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 \(the "License"\);
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -13,9 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Maven plugin for building Visual Studio solutions and projects with msbuild.
- * <p>
- * This plugin is designed for Maven 3.
- */
-package uk.org.raje.maven.plugin.msbuild;

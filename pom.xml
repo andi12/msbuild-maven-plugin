@@ -87,7 +87,7 @@
             <!--  Below configuration and executions definition workaround issue described at:
                   http://jira.codehaus.org/browse/MNG-5346 -->
             <configuration>
-               <goalPrefix>configurator</goalPrefix>
+               <goalPrefix>msbuild</goalPrefix>
             </configuration>
             <executions>
                <execution>
@@ -111,11 +111,14 @@
             <artifactId>maven-checkstyle-plugin</artifactId>
             <version>${maven-checkstyle-plugin.version}</version>
             <configuration>
+               <configLocation>style/maven_checks.xml</configLocation>
+               <headerLocation>style/checkstyle-header.java</headerLocation>
                <consoleOutput>true</consoleOutput>
+               <includeTestSourceDirectory>true</includeTestSourceDirectory>
             </configuration>
             <executions>
                <execution>
-                  <phase>process-sources</phase>
+                  <phase>validate</phase>
                   <goals>
                      <goal>check</goal>
                   </goals>

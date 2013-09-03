@@ -1,4 +1,3 @@
-package uk.org.raje.maven.plugin.msbuild;
 /*
  * Copyright 2013 Andrew Everitt, Andrew Heckford, Daniele Daniele
  *
@@ -14,6 +13,7 @@ package uk.org.raje.maven.plugin.msbuild;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,42 +30,51 @@ import org.apache.maven.plugins.annotations.Parameter;;
 /**
  * Mojo to execute MSBuild to build the required platform/configuration pairs.
  */
-@Mojo(name = "msbuild",
-        defaultPhase = LifecyclePhase.COMPILE)
+@Mojo( name = "msbuild",
+        defaultPhase = LifecyclePhase.COMPILE )
 //@Execute(phase = LifecyclePhase.COMPILE)
-public class MSBuildMojo extends AbstractMojo {
+public class MSBuildMojo extends AbstractMojo 
+{
 
     /**
      * @throws MojoExecutionException if execution fails
      */
-    public final void execute() throws MojoExecutionException {
+    public final void execute() throws MojoExecutionException 
+    {
         dumpConfiguration();
         findMSBuild();
         validateProjectFile();
         validatePlatforms();
         validateConfigurations();
 
-        for (String platform: platforms) {
-            for (String configuration : configurations) {
+        for ( String platform: platforms ) 
+        {
+            for ( String configuration : configurations ) 
+            {
                 List<String> command = new ArrayList<String>();
-                command.add(msbuildPath.getAbsolutePath());
-                command.add("/maxcpucount");
-                command.add("/p:Configuration=" + configuration);
-                command.add("/p:Platform=" + platform);
+                command.add( msbuildPath.getAbsolutePath() );
+                command.add( "/maxcpucount" );
+                command.add( "/p:Configuration=" + configuration );
+                command.add( "/p:Platform=" + platform );
                 //.append("/t:${msbuild-build.targets}")
-                command.add(projectFile.getAbsolutePath());
+                command.add( projectFile.getAbsolutePath() );
 
-                try {
-                    ProcessBuilder pb = new ProcessBuilder(command);
+                try 
+                {
+                    ProcessBuilder pb = new ProcessBuilder( command );
                     Process proc = pb.start();
                     int exitCode = proc.waitFor();
-                    getLog().info("MSBuild returned " + exitCode);
-                } catch (IOException ioe) {
+                    getLog().info( "MSBuild returned " + exitCode );
+                }
+                catch ( IOException ioe ) 
+                {
                     throw new MojoExecutionException(
-                            "MSBUild execution failed", ioe);
-                } catch (InterruptedException ie) {
-                    throw new MojoExecutionException("Interrupted waiting for "
-                            + "MSBUild execution to complete", ie);
+                            "MSBUild execution failed", ioe );
+                }
+                catch ( InterruptedException ie )
+                {
+                    throw new MojoExecutionException( "Interrupted waiting for "
+                            + "MSBUild execution to complete", ie );
                 }
             }
         }
@@ -77,18 +86,22 @@ public class MSBuildMojo extends AbstractMojo {
      * the system environment.
      * @throws MojoExecutionException if MSBuild cannot be located
      */
-    private void findMSBuild() throws MojoExecutionException {
-        if (msbuildPath == null) {
+    private void findMSBuild() throws MojoExecutionException
+    {
+        if ( msbuildPath == null )
+        {
             // not set in configuration try system environment
-            String msbuildEnv = System.getenv(ENV_MSBUILD_PATH);
-            if (msbuildEnv != null) {
-                msbuildPath = new File(msbuildEnv);
+            String msbuildEnv = System.getenv( ENV_MSBUILD_PATH );
+            if ( msbuildEnv != null )
+            {
+                msbuildPath = new File( msbuildEnv );
             }
         }
-        if (msbuildPath != null
+        if ( msbuildPath != null
                 && msbuildPath.exists()
-                && msbuildPath.isFile()) {
-            getLog().debug("Using MSBuild at " + msbuildPath);
+                && msbuildPath.isFile() )
+        {
+            getLog().debug( "Using MSBuild at " + msbuildPath );
             // TODO: Could check that this is really MSBuild
             return;
         }
@@ -98,27 +111,30 @@ public class MSBuildMojo extends AbstractMojo {
                 + "<msbuild.path>...</msbuild.path> or "
                 + "<properties><msbuild.path>...</msbuild.path></properties> "
                 + "or on command-line using -Dmsbuild.path=... or by setting "
-                + "the environment variable " + ENV_MSBUILD_PATH);
+                + "the environment variable " + ENV_MSBUILD_PATH );
     }
 
     /**
      * Check that we have a valid project or solution file.
      * @throws MojoExecutionException if the specified projectFile is invalid.
      */
-    private void validateProjectFile() throws MojoExecutionException {
-        if (projectFile != null
+    private void validateProjectFile() throws MojoExecutionException
+    {
+        if ( projectFile != null
                 && projectFile.exists()
-                && projectFile.isFile()) {
-            getLog().debug("Project file validated at " + projectFile);
+                && projectFile.isFile() )
+        {
+            getLog().debug( "Project file validated at " + projectFile );
             return;
         }
         String prefix = "Missing projectFile";
-        if (projectFile != null) {
+        if ( projectFile != null )
+        {
             prefix = "The specified projectFile '" + projectFile
                     + "' is not valid";
         }
-        throw new MojoExecutionException(prefix
-                + ", please check your configuration");
+        throw new MojoExecutionException( prefix
+                + ", please check your configuration" );
     }
 
     /**
@@ -126,8 +142,10 @@ public class MSBuildMojo extends AbstractMojo {
      * If no platforms are configured we apply the default of 'Win32'.
      * @throws MojoExecutionException if the configuration is invalid.
      */
-    private void validatePlatforms() throws MojoExecutionException {
-        if (platforms == null) {
+    private void validatePlatforms() throws MojoExecutionException
+    {
+        if ( platforms == null )
+        {
             platforms = new String[1];
             platforms[0] = "Win32";
         }
@@ -138,8 +156,10 @@ public class MSBuildMojo extends AbstractMojo {
      * If no configurations are configured we apply the default of 'Release'.
      * @throws MojoExecutionException if the configuration is invalid.
      */
-    private void validateConfigurations() throws MojoExecutionException {
-        if (configurations == null) {
+    private void validateConfigurations() throws MojoExecutionException
+    {
+        if ( configurations == null )
+        {
             configurations = new String[1];
             configurations[0] = "Release";
         }
@@ -148,10 +168,11 @@ public class MSBuildMojo extends AbstractMojo {
     /**
      * Log out configuration values at DEBUG.
      */
-    private void dumpConfiguration() {
-        getLog().info("MSBuild path: " + msbuildPath);
-        getLog().info("Platforms: " + Arrays.toString(platforms));
-        getLog().info("Configurations: " + Arrays.toString(configurations));
+    private void dumpConfiguration()
+    {
+        getLog().info( "MSBuild path: " + msbuildPath );
+        getLog().info( "Platforms: " + Arrays.toString( platforms ) );
+        getLog().info( "Configurations: " + Arrays.toString( configurations ) );
     }
 
     /**
@@ -163,17 +184,17 @@ public class MSBuildMojo extends AbstractMojo {
     /**
      * The path to MSBuild.
      */
-    @Parameter(property = "msbuild.path",
+    @Parameter( property = "msbuild.path",
             readonly = false,
-            required = true)
+            required = true )
     private File msbuildPath;
 
     /**
      * The project or solution file to build.
      */
-    @Parameter(property = "projectFile",
+    @Parameter( property = "projectFile",
             readonly = false,
-            required = true)
+            required = true )
     private File projectFile;
 
     /**
@@ -182,7 +203,7 @@ public class MSBuildMojo extends AbstractMojo {
     @Parameter(
             defaultValue = "Win32",
             readonly = false,
-            required = false)
+            required = false )
     private String[] platforms;
 
     /**
@@ -191,6 +212,6 @@ public class MSBuildMojo extends AbstractMojo {
     @Parameter(
             defaultValue = "Release",
             readonly = false,
-            required = false)
+            required = false )
     private String[] configurations;
 }
