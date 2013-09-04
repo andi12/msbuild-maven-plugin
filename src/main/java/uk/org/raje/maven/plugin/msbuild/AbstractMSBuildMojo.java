@@ -153,7 +153,6 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
      * The set of platforms to build.
      */
     @Parameter(
-            defaultValue = "Win32",
             readonly = false,
             required = false )
     protected List<String> platforms;
@@ -162,7 +161,6 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
      * The set of configurations to build.
      */
     @Parameter(
-            defaultValue = "Release",
             readonly = false,
             required = false )
     protected List<String> configurations;
