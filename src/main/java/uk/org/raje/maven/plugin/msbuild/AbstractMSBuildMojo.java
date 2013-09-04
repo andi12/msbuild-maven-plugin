@@ -16,6 +16,8 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -105,8 +107,8 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
     {
         if ( platforms == null )
         {
-            platforms = new String[1];
-            platforms[0] = "Win32";
+            platforms = new ArrayList<String>();
+            platforms.add( "Win32" );
         }
     }
 
@@ -119,8 +121,8 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
     {
         if ( configurations == null )
         {
-            configurations = new String[1];
-            configurations[0] = "Release";
+            configurations = new ArrayList<String>();
+            configurations.add ( "Release" );
         }
     }
 
@@ -154,7 +156,7 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
             defaultValue = "Win32",
             readonly = false,
             required = false )
-    protected String[] platforms;
+    protected List<String> platforms;
 
     /**
      * The set of configurations to build.
@@ -163,5 +165,5 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
             defaultValue = "Release",
             readonly = false,
             required = false )
-    protected String[] configurations;
+    protected List<String> configurations;
 }

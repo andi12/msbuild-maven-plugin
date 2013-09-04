@@ -38,12 +38,12 @@ final class MSBuildExecutor
      * Provide a set of platforms to build.
      * @param platforms reference to the array of platform strings
      */
-    public void setPlatforms( String[] platforms )
+    public void setPlatforms( List<String> platforms )
     {
         this.platforms = platforms;
     }
 
-    public void setConfiguration( String[] configurations )
+    public void setConfiguration( List<String> configurations )
     {
         this.configurations = configurations;
     }
@@ -111,7 +111,7 @@ final class MSBuildExecutor
 
     private File msbuild;
     private File projectFile;
-    private String[] platforms;
-    private String[] configurations;
-    private String[] targets;
+    private List<String> platforms;
+    private List<String> configurations;
+    private List<String> targets;
 }

@@ -16,10 +16,10 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
-import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Test MSBuildMojo configuration options.
@@ -85,8 +85,8 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
         assertNull( msbuildMojo.platforms );
         assertNull( msbuildMojo.configurations );
         msbuildMojo.execute();
-        assertArrayEquals( new String[]{"Win32"}, msbuildMojo.platforms );
-        assertArrayEquals( new String[]{"Release"}, msbuildMojo.configurations );
+        assertEquals( Arrays.asList( "Win32" ), msbuildMojo.platforms );
+        assertEquals( Arrays.asList( "Release" ), msbuildMojo.configurations );
     }
 
     public final void testPlatformsConfiguration() throws Exception
@@ -98,10 +98,10 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
 
         MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
         assertNotNull( msbuildMojo );
-        assertArrayEquals( new String[]{"Win32", "Android"}, msbuildMojo.platforms );
+        assertEquals( Arrays.asList( "Win32", "Android" ), msbuildMojo.platforms );
         assertNull( msbuildMojo.configurations );
         msbuildMojo.execute();
-        assertArrayEquals( new String[]{"Release"}, msbuildMojo.configurations );
+        assertEquals( Arrays.asList( "Release" ), msbuildMojo.configurations );
     }
 
     public final void testConfigurationsConfiguration() throws Exception
@@ -113,8 +113,8 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
 
         MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
         assertNotNull( msbuildMojo );
-        assertArrayEquals( new String[]{"Win32"}, msbuildMojo.platforms );
-        assertArrayEquals( new String[]{"Release", "Debug"}, msbuildMojo.configurations );
+        assertEquals( Arrays.asList( "Win32" ), msbuildMojo.platforms );
+        assertEquals( Arrays.asList( "Release", "Debug" ), msbuildMojo.configurations );
         msbuildMojo.execute();
 
     }

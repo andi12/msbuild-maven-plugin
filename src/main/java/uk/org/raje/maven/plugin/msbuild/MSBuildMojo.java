@@ -16,7 +16,6 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Execute;
@@ -71,8 +70,8 @@ public class MSBuildMojo extends AbstractMSBuildMojo
     private void dumpConfiguration()
     {
         getLog().info( "MSBuild path: " + msbuildPath );
-        getLog().info( "Platforms: " + Arrays.toString( platforms ) );
-        getLog().info( "Configurations: " + Arrays.toString( configurations ) );
+        getLog().info( "Platforms: " + platforms );
+        getLog().info( "Configurations: " + configurations );
     }
 
 }
