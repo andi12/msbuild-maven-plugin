@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.plugin.logging.Log;
+import org.codehaus.plexus.util.cli.StreamConsumer;
+import org.codehaus.plexus.util.cli.StreamPumper;
 
 final class MSBuildExecutor
 {
@@ -63,13 +65,46 @@ final class MSBuildExecutor
                 command.add( projectFile.getAbsolutePath() );
 
                 ProcessBuilder pb = new ProcessBuilder( command );
-                log.info( pb.toString() );
+                if ( log.isInfoEnabled() )
+                {
+                    StringBuilder cmdLine = new StringBuilder();
+                    for ( String arg : command )
+                    {
+                        cmdLine.append( arg ).append( " " );
+                    }
+                    log.info( cmdLine.toString() );
+                }
+                
                 Process proc = pb.start();
+                final StreamPumper stdoutPumper = new StreamPumper( proc.getInputStream(), new OutStreamConsumer() );
+                stdoutPumper.start();
+                final StreamPumper stderrPumper = new StreamPumper( proc.getErrorStream(), new ErrStreamConsumer() );
+                stderrPumper.start();
+                
                 int exitCode = proc.waitFor();
                 log.info( "MSBuild returned " + exitCode );
             }
         }
         
+    }
+
+
+    class OutStreamConsumer implements StreamConsumer
+    {
+        @Override
+        public void consumeLine( String arg0 )
+        {
+            log.info( arg0 );
+        }
+    }
+
+    class ErrStreamConsumer implements StreamConsumer
+    {
+        @Override
+        public void consumeLine( String arg0 )
+        {
+            log.error( arg0 );
+        }
     }
 
     private Log log;
