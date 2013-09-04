@@ -16,9 +16,7 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Execute;
@@ -33,80 +31,39 @@ import org.apache.maven.plugins.annotations.Mojo;
 @Execute( phase = LifecyclePhase.COMPILE )
 public class MSBuildMojo extends AbstractMSBuildMojo 
 {
+    /**
+     * The name this Mojo declares, also represents the goal.
+     */
     public static final String MOJO_NAME = "build";
 
     /**
      * @throws MojoExecutionException if execution fails
      */
+    @Override
     public final void execute() throws MojoExecutionException 
     {
         dumpConfiguration();
-        findMSBuild();
-        validateProjectFile();
-        validatePlatforms();
-        validateConfigurations();
+        validateForMSBuild();
 
-        for ( String platform: platforms ) 
+        try
         {
-            for ( String configuration : configurations ) 
-            {
-                List<String> command = new ArrayList<String>();
-                command.add( msbuildPath.getAbsolutePath() );
-                command.add( "/maxcpucount" );
-                command.add( "/p:Configuration=" + configuration );
-                command.add( "/p:Platform=" + platform );
-                //.append("/t:${msbuild-build.targets}")
-                command.add( projectFile.getAbsolutePath() );
-
-                try 
-                {
-                    ProcessBuilder pb = new ProcessBuilder( command );
-                    Process proc = pb.start();
-                    int exitCode = proc.waitFor();
-                    getLog().info( "MSBuild returned " + exitCode );
-                }
-                catch ( IOException ioe ) 
-                {
-                    throw new MojoExecutionException(
-                            "MSBUild execution failed", ioe );
-                }
-                catch ( InterruptedException ie )
-                {
-                    throw new MojoExecutionException( "Interrupted waiting for "
-                            + "MSBUild execution to complete", ie );
-                }
-            }
+            MSBuildExecutor msbuild = new MSBuildExecutor( getLog(), msbuildPath, projectFile );
+            msbuild.setPlatforms( platforms );
+            msbuild.setConfiguration( configurations );
+            msbuild.execute();
+        }
+        catch ( IOException ioe ) 
+        {
+            throw new MojoExecutionException(
+                    "MSBUild execution failed", ioe );
+        }
+        catch ( InterruptedException ie )
+        {
+            throw new MojoExecutionException( "Interrupted waiting for "
+                    + "MSBUild execution to complete", ie );
         }
     }
 
-
-    /**
-     * Check that we have a valid set of platforms.
-     * If no platforms are configured we apply the default of 'Win32'.
-     * @throws MojoExecutionException if the configuration is invalid.
-     */
-    private void validatePlatforms() throws MojoExecutionException
-    {
-        if ( platforms == null )
-        {
-            platforms = new String[1];
-            platforms[0] = "Win32";
-        }
-    }
-
-    /**
-     * Check that we have a valid set of configurations.
-     * If no configurations are configured we apply the default of 'Release'.
-     * @throws MojoExecutionException if the configuration is invalid.
-     */
-    private void validateConfigurations() throws MojoExecutionException
-    {
-        if ( configurations == null )
-        {
-            configurations = new String[1];
-            configurations[0] = "Release";
-        }
-    }
 
     /**
      * Log out configuration values at DEBUG.

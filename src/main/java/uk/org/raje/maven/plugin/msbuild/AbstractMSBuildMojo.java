@@ -28,6 +28,18 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
 {
 
     /**
+     * Check the Mojo configuration provides sufficient data to construct an MSBuild command line.
+     * @throws MojoExecutionException is a validation step encounters an error.
+     */
+    protected final void validateForMSBuild() throws MojoExecutionException
+    {
+        findMSBuild();
+        validateProjectFile();
+        validatePlatforms();
+        validateConfigurations();
+    }
+
+    /**
      * Attempts to locate MSBuild.
      * First looks at the mojo configuration property, if not found there try
      * the system environment.
@@ -82,6 +94,34 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
         }
         throw new MojoExecutionException( prefix
                 + ", please check your configuration" );
+    }
+
+    /**
+     * Check that we have a valid set of platforms.
+     * If no platforms are configured we apply the default of 'Win32'.
+     * @throws MojoExecutionException if the configuration is invalid.
+     */
+    private void validatePlatforms() throws MojoExecutionException
+    {
+        if ( platforms == null )
+        {
+            platforms = new String[1];
+            platforms[0] = "Win32";
+        }
+    }
+
+    /**
+     * Check that we have a valid set of configurations.
+     * If no configurations are configured we apply the default of 'Release'.
+     * @throws MojoExecutionException if the configuration is invalid.
+     */
+    private void validateConfigurations() throws MojoExecutionException
+    {
+        if ( configurations == null )
+        {
+            configurations = new String[1];
+            configurations[0] = "Release";
+        }
     }
 
 
