@@ -23,7 +23,7 @@
                     <msbuildPath>${basedir}/src/test/resources/unit/configurations/test-msbuild.cmd</msbuildPath>
                     <projectFile>${basedir}/src/test/resources/unit/configurations/test-solution.sln</projectFile>
                     <platforms>
-                        <platform>win32</platform>
+                        <platform>Win32</platform>
                     </platforms>
                     <configurations>
                         <configuration>Release</configuration>
