@@ -33,7 +33,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
         assertNotNull( pom );
         assertTrue( pom.exists() );
 
-        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( "msbuild", pom );
+        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
         assertNotNull( msbuildMojo );
         try
         {
@@ -58,7 +58,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
         assertNotNull( pom );
         assertTrue( pom.exists() );
 
-        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( "msbuild", pom );
+        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
         assertNotNull( msbuildMojo );
         try
         {
@@ -79,7 +79,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
         assertNotNull( pom );
         assertTrue( pom.exists() );
 
-        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( "msbuild", pom );
+        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
         assertNotNull( msbuildMojo );
         msbuildMojo.execute();
     }
@@ -91,7 +91,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
         assertNotNull( pom );
         assertTrue( pom.exists() );
 
-        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( "msbuild", pom );
+        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
         assertNotNull( msbuildMojo );
         //assertEquals(String[]("Win32"), msbuildMojo.platforms);
         msbuildMojo.execute();
@@ -105,7 +105,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
         assertNotNull( pom );
         assertTrue( pom.exists() );
 
-        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( "msbuild", pom );
+        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
         assertNotNull( msbuildMojo );
         //assertEquals(String[]("Win32"), msbuildMojo.platforms);
         msbuildMojo.execute();

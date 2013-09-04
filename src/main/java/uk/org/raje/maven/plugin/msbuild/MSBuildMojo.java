@@ -21,17 +21,19 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * Mojo to execute MSBuild to build the required platform/configuration pairs.
  */
-@Mojo( name = "msbuild",
+@Mojo( name = MSBuildMojo.MOJO_NAME,
         defaultPhase = LifecyclePhase.COMPILE )
-//@Execute(phase = LifecyclePhase.COMPILE)
+@Execute( phase = LifecyclePhase.COMPILE )
 public class MSBuildMojo extends AbstractMSBuildMojo 
 {
+    public static final String MOJO_NAME = "build";
 
     /**
      * @throws MojoExecutionException if execution fails

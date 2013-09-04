@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
    Copyright 2013 Andrew Everitt, Andrew Heckford, Daniele Daniele
 
@@ -13,15 +14,23 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>uk.org.raje.maven.plugins.it</groupId>
+    <artifactId>hello-world-build-test</artifactId>
+    <version>1-SNAPSHOT</version>
+    <packaging>exe</packaging>
+   
     <build>
         <plugins>
             <plugin>
+                <groupId>uk.org.raje.maven.plugins</groupId>
                 <artifactId>msbuild-maven-plugin</artifactId>
+                <version>0.1.0-SNAPSHOT</version>
+                <extensions>true</extensions>
                 <configuration>
-                    <msbuildPath>${basedir}/src/test/resources/unit/configurations/test-msbuild.cmd</msbuildPath>
-                    <projectFile>${basedir}/src/test/resources/unit/configurations/test-solution.sln</projectFile>
+                    <projectFile>${basedir}/HelloWorld/HelloWorld.sln</projectFile>
                     <platforms>
                         <platform>win32</platform>
                     </platforms>
@@ -30,7 +39,8 @@
                         <configuration>Debug</configuration>
                     </configurations>
                 </configuration>
-            </plugin>
+                </plugin>
         </plugins>
     </build>
+
 </project>
