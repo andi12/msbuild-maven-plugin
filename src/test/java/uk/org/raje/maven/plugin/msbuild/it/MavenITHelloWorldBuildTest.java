@@ -67,4 +67,26 @@ public class MavenITHelloWorldBuildTest
         assertEquals( 0, debugDir.list().length );
     }
 
+    @Test
+    public void testClean() throws Exception
+    {
+        File testDir = ResourceExtractor.simpleExtractResources( getClass(),
+                "/it/hello-world-build-test" );
+        File releaseDir = new File( testDir, "Release" );
+        File debugDir = new File( testDir, "Debug" );
+
+        Verifier verifier = new Verifier( testDir.getAbsolutePath() );
+        
+        verifier.executeGoal( "clean" );
+        verifier.verifyErrorFreeLog();
+        if ( releaseDir.exists() )
+        {
+            assertEquals( 0, releaseDir.list().length );
+        }
+        if ( debugDir.exists() )
+        {
+            assertEquals( 0, debugDir.list().length );
+        }
+    }
+
 }
