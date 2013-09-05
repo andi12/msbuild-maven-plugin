@@ -30,8 +30,9 @@
 
     <properties>
         <!-- Dependency version -->
-        <maven-plugin-api.version>3.0.4</maven-plugin-api.version>
+        <maven.api.version>3.0.4</maven.api.version>
         <maven-plugin-annotations.version>3.2</maven-plugin-annotations.version>
+        <plexus-archiver.version>2.4.3</plexus-archiver.version>
         <plexus-utils.version>3.0.1</plexus-utils.version>
         <junit.version>4.8.1</junit.version>
         <maven-plugin-testing-harness.version>2.0</maven-plugin-testing-harness.version> <!-- v2.1 only works with Maven 3.1+ -->
@@ -40,19 +41,30 @@
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-checkstyle-plugin.version>2.10</maven-checkstyle-plugin.version>
         <maven-plugin-plugin.version>3.2</maven-plugin-plugin.version>
+        <maven-verifier.version>1.4</maven-verifier.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
-            <version>${maven-plugin-api.version}</version>
+            <version>${maven.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>${maven.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
             <version>${maven-plugin-annotations.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-archiver</artifactId>
+            <version>${plexus-archiver.version}</version>
         </dependency>
         <!-- generated help mojo has a dependency to plexus-utils -->
         <dependency>
@@ -72,6 +84,12 @@
             <groupId>org.apache.maven.plugin-testing</groupId>
             <artifactId>maven-plugin-testing-harness</artifactId>
             <version>${maven-plugin-testing-harness.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-verifier</artifactId>
+            <version>${maven-verifier.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -95,22 +113,22 @@
                 <!-- Below configuration and executions definition workaround 
                     issue described at: http://jira.codehaus.org/browse/MNG-5346 -->
                 <configuration>
+                    <!-- Below configuration needed, see http://jira.codehaus.org/browse/MNG-5346 -->
+                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound> 
                     <goalPrefix>msbuild</goalPrefix>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>default-descriptor</id>
+                        <id>mojo-descriptor</id>
                         <goals>
                             <goal>descriptor</goal>
                         </goals>
-                        <phase>process-classes</phase>
                     </execution>
                     <execution>
-                        <id>help-descriptor</id>
+                        <id>help-goal</id>
                         <goals>
                             <goal>helpmojo</goal>
                         </goals>
-                        <phase>process-classes</phase>
                     </execution>
                 </executions>
             </plugin>

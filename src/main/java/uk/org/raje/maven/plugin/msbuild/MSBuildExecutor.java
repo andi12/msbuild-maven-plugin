@@ -56,38 +56,59 @@ final class MSBuildExecutor
             // TODO: Handle no configurations
             for ( String configuration : configurations ) 
             {
-                List<String> command = new ArrayList<String>();
-                command.add( msbuild.getAbsolutePath() );
-                command.add( "/maxcpucount" );
-                command.add( "/p:Configuration=" + configuration );
-                command.add( "/p:Platform=" + platform );
-                //.append("/t:${msbuild-build.targets}")
-                command.add( projectFile.getAbsolutePath() );
-
-                ProcessBuilder pb = new ProcessBuilder( command );
-                if ( log.isInfoEnabled() )
-                {
-                    StringBuilder cmdLine = new StringBuilder();
-                    for ( String arg : command )
-                    {
-                        cmdLine.append( arg ).append( " " );
-                    }
-                    log.info( cmdLine.toString() );
-                }
-                
-                Process proc = pb.start();
-                final StreamPumper stdoutPumper = new StreamPumper( proc.getInputStream(), new OutStreamConsumer() );
-                stdoutPumper.start();
-                final StreamPumper stderrPumper = new StreamPumper( proc.getErrorStream(), new ErrStreamConsumer() );
-                stderrPumper.start();
-                
-                int exitCode = proc.waitFor();
-                log.info( "MSBuild returned " + exitCode );
+                runMSBuild( platform, configuration );
             }
         }
         
     }
 
+    private void runMSBuild( String platform, String configuration ) 
+            throws IOException, InterruptedException
+    {
+        List<String> command = new ArrayList<String>();
+        command.add( msbuild.getAbsolutePath() );
+        command.add( "/maxcpucount" );
+        if ( configuration != null )
+        {
+            command.add( "/p:Configuration=" + configuration );
+        }
+        if ( platform != null )
+        {
+            command.add( "/p:Platform=" + platform );
+        }
+        if ( targets != null )
+        {
+            StringBuilder targetsString = new StringBuilder();
+            for ( String target: targets )
+            {
+                targetsString.append( target ).append( ";" );
+            }
+            targetsString.deleteCharAt( targetsString.length() - 1 );
+            command.add( "/t:" + targetsString );
+        }
+        command.add( projectFile.getAbsolutePath() );
+
+        ProcessBuilder pb = new ProcessBuilder( command );
+        if ( log.isInfoEnabled() )
+        {
+            StringBuilder cmdLine = new StringBuilder();
+            for ( String arg : command )
+            {
+                cmdLine.append( arg ).append( " " );
+            }
+            log.info( cmdLine.toString() );
+        }
+        
+        Process proc = pb.start();
+        final StreamPumper stdoutPumper = new StreamPumper( proc.getInputStream(), new OutStreamConsumer() );
+        stdoutPumper.start();
+        final StreamPumper stderrPumper = new StreamPumper( proc.getErrorStream(), new ErrStreamConsumer() );
+        stderrPumper.start();
+        
+        int exitCode = proc.waitFor();
+        log.info( "MSBuild returned " + exitCode );
+        
+    }
 
     class OutStreamConsumer implements StreamConsumer
     {

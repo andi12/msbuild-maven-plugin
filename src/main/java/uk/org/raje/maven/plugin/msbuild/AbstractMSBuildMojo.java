@@ -21,7 +21,10 @@ import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
 
 /**
  * Abstract base class for MSBuild Mojos.
@@ -132,6 +135,12 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
      * MSBuild.
      */
     private static final String ENV_MSBUILD_PATH = "MSBUILD_PATH";
+
+    @Parameter( defaultValue = "${project}" )
+    protected MavenProject mavenProject;
+
+    @Component
+    protected MavenProjectHelper projectHelper;
 
     /**
      * The path to MSBuild.

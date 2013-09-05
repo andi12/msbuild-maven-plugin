@@ -15,6 +15,7 @@
  */
 package uk.org.raje.maven.plugin.msbuild;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -50,6 +51,32 @@ public class MSBuildMojo extends AbstractMSBuildMojo
             msbuild.setPlatforms( platforms );
             msbuild.setConfiguration( configurations );
             msbuild.execute();
+            
+            // TODO: Work out the exe to attach
+            boolean attachedMainArtifact = false;
+            for ( String configuration : configurations )
+            {
+                StringBuilder artifactFilePath = new StringBuilder();
+                artifactFilePath.append( projectFile.getParent() ).append( File.separator )
+                                .append( configuration ).append( File.separator );
+                String exeName = projectFile.getName();
+                exeName = exeName.substring( 0, exeName.lastIndexOf( '.' ) );
+                artifactFilePath.append( exeName ).append( "." ).append( EXE_EXTENSION );
+                
+                File artifactFile = new File( artifactFilePath.toString() );
+                getLog().info( "Attaching file: " + artifactFile );
+                if ( CONFIGURATION_RELEASE.equals( configuration ) )
+                {
+                    mavenProject.getArtifact().setFile( artifactFile );
+                    attachedMainArtifact = true;
+                }
+                else
+                {
+                    projectHelper.attachArtifact( mavenProject, EXE_EXTENSION, configuration, artifactFile );
+                }
+            }
+            // TODO: What if no main artifact yet?
+            
         }
         catch ( IOException ioe ) 
         {
@@ -74,4 +101,7 @@ public class MSBuildMojo extends AbstractMSBuildMojo
         getLog().info( "Configurations: " + configurations );
     }
 
+    private static final String EXE_EXTENSION = "exe";
+    private static final String CONFIGURATION_RELEASE = "Release";
+    private static final String CONFIGURATION_DEBUG = "Debug";
 }

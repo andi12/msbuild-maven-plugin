@@ -18,8 +18,14 @@ package uk.org.raje.maven.plugin.msbuild;
 import java.io.File;
 import java.util.Arrays;
 
+import org.apache.maven.execution.DefaultMavenExecutionRequest;
+import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuilder;
+import org.apache.maven.project.ProjectBuildingRequest;
+import org.junit.Test;
 
 /**
  * Test MSBuildMojo configuration options.
@@ -27,15 +33,10 @@ import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase 
 {
 
+    @Test
     public final void testMissingMSBuildConfiguration() throws Exception 
     {
-        File pom = getTestFile(
-                "src/test/resources/unit/configurations/no-msbuild-pom.xml" );
-        assertNotNull( pom );
-        assertTrue( pom.exists() );
-
-        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
-        assertNotNull( msbuildMojo );
+        MSBuildMojo msbuildMojo = lookupMSBuildMojo( "src/test/resources/unit/configurations/no-msbuild-pom.xml" );
         try
         {
             msbuildMojo.execute();
@@ -52,15 +53,10 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
         }
     }
 
+    @Test
     public final void testMissingProjectConfiguration() throws Exception 
     {
-        File pom = getTestFile(
-                "src/test/resources/unit/configurations/missing-project-pom.xml" );
-        assertNotNull( pom );
-        assertTrue( pom.exists() );
-
-        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
-        assertNotNull( msbuildMojo );
+        MSBuildMojo msbuildMojo = lookupMSBuildMojo( "src/test/resources/unit/configurations/missing-project-pom.xml" );
         try
         {
             msbuildMojo.execute();
@@ -73,15 +69,11 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
         }
     }
 
+    @Test
     public final void testMinimalConfiguration() throws Exception
     {
-        File pom = getTestFile(
-                "src/test/resources/unit/configurations/minimal-pom.xml" );
-        assertNotNull( pom );
-        assertTrue( pom.exists() );
-
-        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
-        assertNotNull( msbuildMojo );
+        MSBuildMojo msbuildMojo = lookupMSBuildMojo( "src/test/resources/unit/configurations/minimal-pom.xml" );
+        
         assertNull( msbuildMojo.platforms );
         assertNull( msbuildMojo.configurations );
         msbuildMojo.execute();
@@ -89,33 +81,56 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
         assertEquals( Arrays.asList( "Release" ), msbuildMojo.configurations );
     }
 
+    @Test
     public final void testPlatformsConfiguration() throws Exception
     {
-        File pom = getTestFile(
-                "src/test/resources/unit/configurations/platforms-pom.xml" );
-        assertNotNull( pom );
-        assertTrue( pom.exists() );
+        MSBuildMojo msbuildMojo = lookupMSBuildMojo( "src/test/resources/unit/configurations/platforms-pom.xml" );
 
-        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
-        assertNotNull( msbuildMojo );
         assertEquals( Arrays.asList( "Win32", "Android" ), msbuildMojo.platforms );
         assertNull( msbuildMojo.configurations );
         msbuildMojo.execute();
         assertEquals( Arrays.asList( "Release" ), msbuildMojo.configurations );
     }
 
+    @Test
     public final void testConfigurationsConfiguration() throws Exception
     {
-        File pom = getTestFile(
-                "src/test/resources/unit/configurations/configurations-pom.xml" );
-        assertNotNull( pom );
-        assertTrue( pom.exists() );
+        MSBuildMojo msbuildMojo = lookupMSBuildMojo( "src/test/resources/unit/configurations/configurations-pom.xml" );
 
-        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
-        assertNotNull( msbuildMojo );
         assertEquals( Arrays.asList( "Win32" ), msbuildMojo.platforms );
         assertEquals( Arrays.asList( "Release", "Debug" ), msbuildMojo.configurations );
         msbuildMojo.execute();
 
+    }
+
+    /**
+     * Workaround for parent class lookupMojo and lookupConfiguredMojo.
+     * @param pomPath where to find the POM file
+     * @return a configured MSBuild Mojo for testing
+     * @throws Exception if we can't find the Mojo or the POM is malformed
+     */
+    protected final MSBuildMojo lookupMSBuildMojo( String pomPath ) throws Exception
+    {
+        File pom = getTestFile( pomPath );
+        assertNotNull( pom );
+        assertTrue( pom.exists() );
+
+        // The following 4 lines are simply to get a MavenProject object
+        MavenExecutionRequest executionRequest = new DefaultMavenExecutionRequest();
+        ProjectBuildingRequest buildingRequest = executionRequest.getProjectBuildingRequest();
+        ProjectBuilder projectBuilder = this.lookup( ProjectBuilder.class );
+        MavenProject mavenProject = projectBuilder.build( pom, buildingRequest ).getProject();
+        assertNotNull( mavenProject );
+        
+        // Used lookupMojo as it sets up most of what we need and reads configuration
+        // variables from the poms.
+        // It doesn't set a MavenProject so we have to do that manually
+        // lookupConfiguredMojo doesn't work properly, configuration variables are no expanded
+        // as we expect and it fails to setup a Log.
+        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
+        assertNotNull( msbuildMojo );
+        msbuildMojo.mavenProject = mavenProject;
+
+        return msbuildMojo;
     }
 }
