@@ -15,7 +15,12 @@
  */
 package uk.org.raje.maven.plugin.msbuild.it;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.ResourceExtractor;
@@ -33,6 +38,8 @@ public class MavenITHelloWorldBuildTest
     {
         File testDir = ResourceExtractor.simpleExtractResources( getClass(),
                 "/it/hello-world-build-test" );
+        File releaseDir = new File( testDir, "Release" );
+        File debugDir = new File( testDir, "Debug" );
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         
@@ -41,10 +48,23 @@ public class MavenITHelloWorldBuildTest
                 "1-SNAPSHOT", "exe" );
 
         verifier.executeGoal( "install" );
-
         verifier.verifyErrorFreeLog();
+        List<String> releaseDirContents = Arrays.asList( releaseDir.list() );
+        assertEquals( 2, releaseDirContents.size() );
+        assertTrue( releaseDirContents.contains( "hello-world.exe" ) ); 
+        assertTrue( releaseDirContents.contains( "hello-world.pdb" ) ); 
+        List<String> debugDirContents = Arrays.asList( debugDir.list() );
+        assertEquals( 3, debugDirContents.size() );
+        assertTrue( debugDirContents.contains( "hello-world.exe" ) ); 
+        assertTrue( debugDirContents.contains( "hello-world.ilk" ) ); 
+        assertTrue( debugDirContents.contains( "hello-world.pdb" ) ); 
         
-        // TODO: Check for output artifacts
+        verifier.resetStreams();
+        
+        verifier.executeGoal( "clean" );
+        verifier.verifyErrorFreeLog();
+        assertEquals( 0, releaseDir.list().length );
+        assertEquals( 0, debugDir.list().length );
     }
 
 }

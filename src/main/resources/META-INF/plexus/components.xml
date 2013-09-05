@@ -25,6 +25,9 @@
             </implementation>
             <configuration>
                 <phases>
+                    <clean>
+                        org.apache.maven.plugins:maven-clean-plugin:clean,uk.org.raje.maven.plugins:msbuild-maven-plugin:clean
+                    </clean>
                     <!-- <process-resources> org.apache.maven.plugins:maven-resources-plugin:resources 
                         </process-resources> -->
                     <compile>

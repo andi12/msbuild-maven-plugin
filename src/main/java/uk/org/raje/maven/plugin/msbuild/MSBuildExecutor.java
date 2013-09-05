@@ -40,21 +40,26 @@ final class MSBuildExecutor
      */
     public void setPlatforms( List<String> platforms )
     {
-        this.platforms = platforms;
+        buildPlatforms = platforms;
     }
 
     public void setConfiguration( List<String> configurations )
     {
-        this.configurations = configurations;
+        buildConfigurations = configurations;
+    }
+
+    public void setTargets( List<String> targets )
+    {
+        buildTargets = targets;
     }
 
     public void execute() throws IOException, InterruptedException
     {
         // TODO: Handle no platforms
-        for ( String platform: platforms ) 
+        for ( String platform: buildPlatforms ) 
         {
             // TODO: Handle no configurations
-            for ( String configuration : configurations ) 
+            for ( String configuration : buildConfigurations ) 
             {
                 runMSBuild( platform, configuration );
             }
@@ -76,10 +81,10 @@ final class MSBuildExecutor
         {
             command.add( "/p:Platform=" + platform );
         }
-        if ( targets != null )
+        if ( buildTargets != null )
         {
             StringBuilder targetsString = new StringBuilder();
-            for ( String target: targets )
+            for ( String target: buildTargets )
             {
                 targetsString.append( target ).append( ";" );
             }
@@ -132,7 +137,7 @@ final class MSBuildExecutor
 
     private File msbuild;
     private File projectFile;
-    private List<String> platforms;
-    private List<String> configurations;
-    private List<String> targets;
+    private List<String> buildPlatforms;
+    private List<String> buildConfigurations;
+    private List<String> buildTargets;
 }
