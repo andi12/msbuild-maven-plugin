@@ -28,6 +28,28 @@
     <url>https://github.com/andi12/maven-msbuild-plugin</url>
     <inceptionYear>2013</inceptionYear>
 
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/andi12/msbuild-maven-plugin/tree/master</url>
+        <connection>scm:git:git://github.com/andi12/msbuild-maven-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/andi12/msbuild-maven-plugin.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>andi</id>
+            <name>Andi Everitt</name>
+            <email>andi@raje.org.uk</email>
+        </developer>
+    </developers>
+
     <properties>
         <!-- Dependency version -->
         <maven.api.version>3.0.4</maven.api.version>
@@ -110,11 +132,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>${maven-plugin-plugin.version}</version>
-                <!-- Below configuration and executions definition workaround 
-                    issue described at: http://jira.codehaus.org/browse/MNG-5346 -->
                 <configuration>
-                    <!-- Below configuration needed, see http://jira.codehaus.org/browse/MNG-5346 -->
-                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound> 
+                    <!-- skipErrorNoDescriptorsFound configuration needed, 
+                        see http://jira.codehaus.org/browse/MNG-5346 -->
+                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
                     <goalPrefix>msbuild</goalPrefix>
                 </configuration>
                 <executions>
