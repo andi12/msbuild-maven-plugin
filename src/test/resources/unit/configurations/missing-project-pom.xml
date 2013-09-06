@@ -20,7 +20,8 @@
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
     <artifactId>missing-project-configuration</artifactId>
     <version>1</version>
-
+    <packaging>exe</packaging>
+    
     <build>
         <plugins>
             <plugin>

@@ -41,6 +41,7 @@ public class MSBuildCleanMojo extends AbstractMSBuildMojo
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
+        dumpConfiguration();
         validateForMSBuild();
 
         try

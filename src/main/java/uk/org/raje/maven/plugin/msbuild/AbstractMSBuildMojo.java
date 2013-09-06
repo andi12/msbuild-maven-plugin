@@ -32,9 +32,9 @@ import org.apache.maven.project.MavenProjectHelper;
 public abstract class AbstractMSBuildMojo extends AbstractMojo
 {
     /**
-     * The file extension for windows executables.
+     * The file extension for zip archives.
      */
-    public static final String EXE_EXTENSION = "exe";
+    public static final String ZIP_EXTENSION = "zip";
     /**
      * The file extension for solution files.
      */
@@ -49,11 +49,25 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
     public static final String CONFIGURATION_DEBUG = "Debug";
 
     /**
+     * Log out configuration values at DEBUG.
+     */
+    protected void dumpConfiguration()
+    {
+        getLog().debug( "MSBuild path: " + msbuildPath );
+        getLog().debug( "Platforms: " + platforms );
+        getLog().debug( "Configurations: " + configurations );
+    }
+
+    /**
      * Check the Mojo configuration provides sufficient data to construct an MSBuild command line.
      * @throws MojoExecutionException is a validation step encounters an error.
      */
     protected final void validateForMSBuild() throws MojoExecutionException
     {
+        if ( ! isSolution() && !MSBuildPackaging.isValid( mavenProject.getPackaging() ) )
+        {
+            throw new MojoExecutionException( "Please set packaging to one of " + MSBuildPackaging.validPackaging() );
+        }
         findMSBuild();
         validateProjectFile();
         validatePlatforms();

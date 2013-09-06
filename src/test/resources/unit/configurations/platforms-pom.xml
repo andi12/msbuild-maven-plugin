@@ -27,7 +27,7 @@
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
                     <msbuildPath>${basedir}/src/test/resources/unit/configurations/test-msbuild.cmd</msbuildPath>
-                    <projectFile>${basedir}/src/test/resources/unit/configurations/test-solution.sln</projectFile>
+                    <projectFile>${basedir}/src/test/resources/unit/configurations/configurations-test.sln</projectFile>
                     <platforms>
                         <platform>Win32</platform>
                         <platform>Android</platform>

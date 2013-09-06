@@ -20,13 +20,15 @@
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
     <artifactId>no-msbuild-configuration</artifactId>
     <version>1</version>
-    <packaging>exe</packaging>
 
     <build>
         <plugins>
             <plugin>
                 <artifactId>msbuild-maven-plugin</artifactId>
-                <configuration />
+                <configuration>
+                    <msbuildPath>${basedir}/src/test/resources/unit/configurations/test-msbuild.cmd</msbuildPath>
+                    <projectFile>${basedir}/src/test/resources/unit/configurations/configurations-test.vcxproj</projectFile>
+                </configuration>
             </plugin>
         </plugins>
     </build>

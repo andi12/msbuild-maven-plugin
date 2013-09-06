@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.org.raje.maven.plugins.msbuild.it</groupId>
-    <artifactId>hello-world-build-test</artifactId>
+    <artifactId>hello-world-build-solution-test</artifactId>
     <version>1-SNAPSHOT</version>
     <packaging>exe</packaging>
 

@@ -19,9 +19,11 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
 /**
  * Mojo to execute MSBuild to build the required platform/configuration pairs.
@@ -70,47 +72,132 @@ public class MSBuildMojo extends AbstractMSBuildMojo
         }
     }
 
-    private void findAndAttachArtifacts()
+    private File getConfigurationOutputDirectory( String c )
     {
-        // TODO: 
-        // Solutions result in a zip - need to zip up 'configurations' directories
-        // Projects results in an exe or lib depending on packaging
-        //   Attach files with appropriate classifiers 
-        // TODO: Work out the exe to attach
-        boolean attachedMainArtifact = false;
-        for ( String configuration : configurations )
-        {
-            StringBuilder artifactFilePath = new StringBuilder();
-            artifactFilePath.append( projectFile.getParent() ).append( File.separator )
-                            .append( configuration ).append( File.separator );
-            String exeName = projectFile.getName();
-            exeName = exeName.substring( 0, exeName.lastIndexOf( '.' ) );
-            artifactFilePath.append( exeName ).append( "." ).append( EXE_EXTENSION );
-            
-            File artifactFile = new File( artifactFilePath.toString() );
-            getLog().info( "Attaching file: " + artifactFile );
-            if ( CONFIGURATION_RELEASE.equals( configuration ) )
-            {
-                mavenProject.getArtifact().setFile( artifactFile );
-                attachedMainArtifact = true;
-            }
-            else
-            {
-                projectHelper.attachArtifact( mavenProject, EXE_EXTENSION, configuration, artifactFile );
-            }
-        }
-        // TODO: What if no main artifact yet?
-        
+        // Assume that msbuild has created an output folder named after
+        // the configuration that we built
+        // If we add parsing of the solution/project file we can find this out for sure
+        return new File( projectFile.getParentFile(), c );
     }
 
     /**
-     * Log out configuration values at DEBUG.
+     * Works out the output filename (without the extension) from the project.
+     * @return the name part of output files
+     * @throws MojoExecutionException if called on a solution file or if the project filename has no extension
      */
-    private void dumpConfiguration()
+    private String getOutputName() throws MojoExecutionException
     {
-        getLog().info( "MSBuild path: " + msbuildPath );
-        getLog().info( "Platforms: " + platforms );
-        getLog().info( "Configurations: " + configurations );
+        if ( isSolution() )
+        {
+            throw new MojoExecutionException( "Internal error: Cannot determine single output name for a solutions" );
+        }
+        String projectFileName = projectFile.getName();
+        if ( ! projectFileName.contains( "." ) )
+        {
+            throw new MojoExecutionException( "Project file name has no extension, please check your configuration" );
+        }
+        projectFileName = projectFileName.substring( 0, projectFileName.lastIndexOf( '.' ) );
+        return projectFileName;
     }
 
+    private void findAndAttachArtifacts() throws MojoExecutionException
+    {
+        if ( isSolution() )
+        {
+            attachSolutionArtifacts();
+        }
+        else
+        {
+            attachProjectArtifacts();
+        }        
+    }
+
+    private void attachSolutionArtifacts() throws MojoExecutionException
+    {
+        // TODO: Header archives
+
+        for ( String configuration : configurations )
+        {
+            final File archiveSource = getConfigurationOutputDirectory( configuration );
+            StringBuilder artifactName = new StringBuilder();
+            artifactName.append( mavenProject.getArtifactId() ).append( "-" )
+                        .append( mavenProject.getVersion() ).append( "-" )
+                        .append( configuration )
+                        .append( "." ).append( ZIP_EXTENSION );
+            final File artifactFile = new File( 
+                    mavenProject.getBuild().getDirectory(), 
+                    artifactName.toString() );
+
+            try
+            {
+                zipArchiver.reset();
+                zipArchiver.setDestFile( artifactFile );
+                zipArchiver.addDirectory( archiveSource );
+                zipArchiver.createArchive();
+            }
+            catch ( IOException ioe )
+            {
+                throw new MojoExecutionException( "Error creating archive", ioe );
+            }
+            projectHelper.attachArtifact( mavenProject, ZIP_EXTENSION, configuration, artifactFile );
+        }
+        
+    }
+
+    private void attachProjectArtifacts() throws MojoExecutionException
+    {
+        // TODO: Header archives
+        
+        String primaryArtifact = getPrimaryConfiguration();
+        for ( String configuration : configurations )
+        {
+            StringBuilder outputFilename = new StringBuilder();
+            outputFilename.append( getOutputName() )
+                          .append( "." )
+                          .append( mavenProject.getPackaging() );
+            
+            File artifactFile = new File( getConfigurationOutputDirectory( configuration ),
+                    outputFilename.toString() );
+            if ( !artifactFile.exists() )
+            {
+                String err = "Expected build output missing " + artifactFile.getAbsolutePath();
+                getLog().error( err );
+                throw new MojoExecutionException( err );
+            }
+            getLog().info( "Attaching file: " + artifactFile );
+            if ( primaryArtifact.equals( configuration ) )
+            {
+                mavenProject.getArtifact().setFile( artifactFile );
+            }
+            else
+            {
+                projectHelper.attachArtifact( mavenProject, mavenProject.getPackaging(),
+                        configuration, artifactFile );
+            }
+        }
+    }
+
+    /**
+     * Get the configuration that will be treated as the main
+     * output artifact of this build.
+     * @return a configuration name from the list of configurations
+     */
+    private String getPrimaryConfiguration()
+    {
+        if ( configurations.contains( CONFIGURATION_RELEASE ) )
+        {
+            return CONFIGURATION_RELEASE;
+        }
+        if ( configurations.contains( CONFIGURATION_DEBUG ) )
+        {
+            return CONFIGURATION_DEBUG;
+        }
+        return configurations.get( 0 );
+    }
+
+    /**
+     * The ZIP archiver.
+     */
+    @Component( role = org.codehaus.plexus.archiver.Archiver.class, hint = "zip" )
+    private ZipArchiver zipArchiver;
 }
