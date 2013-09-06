@@ -31,6 +31,22 @@ import org.apache.maven.project.MavenProjectHelper;
  */
 public abstract class AbstractMSBuildMojo extends AbstractMojo
 {
+    /**
+     * The file extension for windows executables.
+     */
+    public static final String EXE_EXTENSION = "exe";
+    /**
+     * The file extension for solution files.
+     */
+    public static final String SOLUTION_EXTENSION = "sln";
+    /**
+     * The name of the standard release configuration.
+     */
+    public static final String CONFIGURATION_RELEASE = "Release";
+    /**
+     * The name of the standard debug configuration.
+     */
+    public static final String CONFIGURATION_DEBUG = "Debug";
 
     /**
      * Check the Mojo configuration provides sufficient data to construct an MSBuild command line.
@@ -102,6 +118,21 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
     }
 
     /**
+     * Is the configured project a solution
+     * @return true if the project file name configured ends '.sln'
+     */
+    protected boolean isSolution()
+    {
+        boolean result = false;
+        if ( ( projectFile != null ) 
+                && ( projectFile.getName().toLowerCase().endsWith( "." + SOLUTION_EXTENSION ) )  )
+        {
+            result = true;
+        }
+        return result;
+    }
+
+    /**
      * Check that we have a valid set of platforms.
      * If no platforms are configured we apply the default of 'Win32'.
      * @throws MojoExecutionException if the configuration is invalid.
@@ -136,9 +167,15 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
      */
     private static final String ENV_MSBUILD_PATH = "MSBUILD_PATH";
 
+    /**
+     * The MavenProject for the current build.
+     */
     @Parameter( defaultValue = "${project}" )
     protected MavenProject mavenProject;
 
+    /**
+     * Helper for attaching artifacts provided by the container. 
+     */
     @Component
     protected MavenProjectHelper projectHelper;
 
