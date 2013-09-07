@@ -19,13 +19,19 @@ use our 'exe' packaging.
     <version>0.1.0-SNAPSHOT</version>
     <extensions>true</extensions>
     <configuration>
-        <projectFile>${basedir}/hello-world.sln</projectFile>
+        <projectFile>${basedir}/hello-world.vcxproj</projectFile>
         <platforms>
-            <platform>Win32</platform>
+            <platform>
+                <name>Win32</name>
+                <configurations>
+                    <configuration>
+                        <name>Release</name>
+                    </configuration>
+                    <configuration>
+                        <name>Debug</name>
+                    </configuration>
+                </configurations>
+            </platform>
         </platforms>
-        <configurations>
-            <configuration>Release</configuration>
-            <configuration>Debug</configuration>
-        </configurations>
     </configuration>
 </plugin>

@@ -17,7 +17,9 @@ package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -25,6 +27,8 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+
+import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 
 /**
  * Abstract base class for MSBuild Mojos.
@@ -39,14 +43,6 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
      * The file extension for solution files.
      */
     public static final String SOLUTION_EXTENSION = "sln";
-    /**
-     * The name of the standard release configuration.
-     */
-    public static final String CONFIGURATION_RELEASE = "Release";
-    /**
-     * The name of the standard debug configuration.
-     */
-    public static final String CONFIGURATION_DEBUG = "Debug";
 
     /**
      * Log out configuration values at DEBUG.
@@ -55,7 +51,6 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
     {
         getLog().debug( "MSBuild path: " + msbuildPath );
         getLog().debug( "Platforms: " + platforms );
-        getLog().debug( "Configurations: " + configurations );
     }
 
     /**
@@ -71,7 +66,6 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
         findMSBuild();
         validateProjectFile();
         validatePlatforms();
-        validateConfigurations();
     }
 
     /**
@@ -148,29 +142,29 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
 
     /**
      * Check that we have a valid set of platforms.
-     * If no platforms are configured we apply the default of 'Win32'.
+     * If no platforms are configured we create 1 default platform.
      * @throws MojoExecutionException if the configuration is invalid.
      */
     private void validatePlatforms() throws MojoExecutionException
     {
         if ( platforms == null )
         {
-            platforms = new ArrayList<String>();
-            platforms.add( "Win32" );
+            platforms = new ArrayList<BuildPlatform>();
+            platforms.add( new BuildPlatform() );
         }
-    }
-
-    /**
-     * Check that we have a valid set of configurations.
-     * If no configurations are configured we apply the default of 'Release'.
-     * @throws MojoExecutionException if the configuration is invalid.
-     */
-    private void validateConfigurations() throws MojoExecutionException
-    {
-        if ( configurations == null )
+        else
         {
-            configurations = new ArrayList<String>();
-            configurations.add ( "Release" );
+            Set<String> platformNames = new HashSet<String>();
+            for ( BuildPlatform platform : platforms )
+            {
+                if ( platformNames.contains( platform.getName() ) )
+                {
+                    throw new MojoExecutionException( "Duplicate platform '" + platform.getName()
+                            + "' in configuration, platform names must be unique" );
+                }
+                platformNames.add( platform.getName() );
+                platform.identifyPrimaryConfiguration();
+            }
         }
     }
 
@@ -209,19 +203,19 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
             required = true )
     protected File projectFile;
 
+    ///**
+    // * The set of targets to build.
+    // */
+    //@Parameter(
+    //        readonly = false,
+    //        required = false )
+    //protected List<String> targets;
+
     /**
      * The set of platforms to build.
      */
     @Parameter(
             readonly = false,
             required = false )
-    protected List<String> platforms;
-
-    /**
-     * The set of configurations to build.
-     */
-    @Parameter(
-            readonly = false,
-            required = false )
-    protected List<String> configurations;
+    protected List<BuildPlatform> platforms;
 }

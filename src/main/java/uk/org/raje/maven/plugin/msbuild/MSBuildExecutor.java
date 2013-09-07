@@ -24,6 +24,9 @@ import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 import org.codehaus.plexus.util.cli.StreamPumper;
 
+import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
+import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
+
 final class MSBuildExecutor
 {
 
@@ -34,34 +37,34 @@ final class MSBuildExecutor
         this.projectFile = projectFile;
     }
 
-    /**
-     * Provide a set of platforms to build.
-     * @param platforms reference to the array of platform strings
-     */
-    public void setPlatforms( List<String> platforms )
-    {
-        buildPlatforms = platforms;
-    }
-
-    public void setConfiguration( List<String> configurations )
-    {
-        buildConfigurations = configurations;
-    }
-
     public void setTargets( List<String> targets )
     {
         buildTargets = targets;
     }
 
+    /**
+     * Provide a set of platforms to build.
+     * @param platforms reference to the array of platform strings
+     */
+    public void setPlatforms( List<BuildPlatform> platforms )
+    {
+        buildPlatforms = platforms;
+    }
+
+    /**
+     * Execute the build.
+     * The function assumes that at least 1 platform configuration has been provided
+     * in a list via {@link #setPlatforms(List)}.
+     * @throws IOException if there is a problem executing MSBuild
+     * @throws InterruptedException if execution is interrupted
+     */
     public void execute() throws IOException, InterruptedException
     {
-        // TODO: Handle no platforms
-        for ( String platform: buildPlatforms ) 
+        for ( BuildPlatform platform: buildPlatforms ) 
         {
-            // TODO: Handle no configurations
-            for ( String configuration : buildConfigurations ) 
+            for ( BuildConfiguration configuration : platform.getConfigurations() ) 
             {
-                runMSBuild( platform, configuration );
+                runMSBuild( platform.getName(), configuration.getName() );
             }
         }
         
@@ -137,7 +140,6 @@ final class MSBuildExecutor
 
     private File msbuild;
     private File projectFile;
-    private List<String> buildPlatforms;
-    private List<String> buildConfigurations;
     private List<String> buildTargets;
+    private List<BuildPlatform> buildPlatforms;
 }

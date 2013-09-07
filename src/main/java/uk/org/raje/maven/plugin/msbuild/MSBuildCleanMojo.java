@@ -48,7 +48,6 @@ public class MSBuildCleanMojo extends AbstractMSBuildMojo
         {
             MSBuildExecutor msbuild = new MSBuildExecutor( getLog(), msbuildPath, projectFile );
             msbuild.setPlatforms( platforms );
-            msbuild.setConfiguration( configurations );
             List<String> cleanTargets = new ArrayList<String>();
             // TODO: If we want to clean specific targets we create this list as
             // <target1>:Clean, <target2>:Clean, ...

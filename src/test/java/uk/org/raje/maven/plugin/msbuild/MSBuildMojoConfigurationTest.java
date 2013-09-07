@@ -27,6 +27,9 @@ import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.junit.Test;
 
+import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
+import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
+
 /**
  * Test MSBuildMojo configuration options.
  */
@@ -95,10 +98,10 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
                 "src/test/resources/unit/configurations/minimal-solution-pom.xml" );
         
         assertNull( msbuildMojo.platforms );
-        assertNull( msbuildMojo.configurations );
         msbuildMojo.execute();
-        assertEquals( Arrays.asList( "Win32" ), msbuildMojo.platforms );
-        assertEquals( Arrays.asList( "Release" ), msbuildMojo.configurations );
+        assertEquals( Arrays.asList( new BuildPlatform( "Win32" ) ), msbuildMojo.platforms );
+        assertEquals( Arrays.asList( new BuildConfiguration( "Release" ) ), 
+                msbuildMojo.platforms.get( 0 ).getConfigurations() );
     }
 
     @Test
@@ -108,33 +111,45 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
                 "src/test/resources/unit/configurations/minimal-project-pom.xml" );
         
         assertNull( msbuildMojo.platforms );
-        assertNull( msbuildMojo.configurations );
         msbuildMojo.execute();
-        assertEquals( Arrays.asList( "Win32" ), msbuildMojo.platforms );
-        assertEquals( Arrays.asList( "Release" ), msbuildMojo.configurations );
+        assertEquals( Arrays.asList( new BuildPlatform( "Win32" ) ), msbuildMojo.platforms );
+        assertEquals( Arrays.asList( new BuildConfiguration( "Release" ) ), 
+                msbuildMojo.platforms.get( 0 ).getConfigurations() );
     }
 
+    /**
+     * Note: This test doesn't execute the Mojo, just test configuration 
+     */
     @Test
     public final void testPlatformsConfiguration() throws Exception
     {
         MSBuildMojo msbuildMojo = lookupMSBuildMojo( 
                 "src/test/resources/unit/configurations/platforms-pom.xml" );
 
-        assertEquals( Arrays.asList( "Win32", "Android" ), msbuildMojo.platforms );
-        assertNull( msbuildMojo.configurations );
-        msbuildMojo.execute();
-        assertEquals( Arrays.asList( "Release" ), msbuildMojo.configurations );
+        assertEquals( 
+                Arrays.asList( new BuildPlatform( "Win32" ), new BuildPlatform( "x64" ) ),
+                msbuildMojo.platforms );
+        assertEquals( Arrays.asList( new BuildConfiguration( "Release" ) ), 
+                msbuildMojo.platforms.get( 0 ).getConfigurations() );
+        assertEquals( Arrays.asList( new BuildConfiguration( "Release" ) ), 
+                msbuildMojo.platforms.get( 1 ).getConfigurations() );
     }
 
+    /**
+     * Note: This test doesn't execute the Mojo, just test configuration 
+     */
     @Test
     public final void testConfigurationsConfiguration() throws Exception
     {
         MSBuildMojo msbuildMojo = lookupMSBuildMojo( 
                 "src/test/resources/unit/configurations/configurations-pom.xml" );
 
-        assertEquals( Arrays.asList( "Win32" ), msbuildMojo.platforms );
-        assertEquals( Arrays.asList( "Release", "Debug" ), msbuildMojo.configurations );
-        msbuildMojo.execute();
+        assertEquals( Arrays.asList( new BuildPlatform( "Win32" ), new BuildPlatform( "x64" ) ),
+                msbuildMojo.platforms );
+        assertEquals( Arrays.asList( new BuildConfiguration( "Release" ), new BuildConfiguration( "Debug" ) ), 
+                msbuildMojo.platforms.get( 0 ).getConfigurations() );
+        assertEquals( Arrays.asList( new BuildConfiguration( "Release" ) ), 
+                msbuildMojo.platforms.get( 1 ).getConfigurations() );
 
     }
 

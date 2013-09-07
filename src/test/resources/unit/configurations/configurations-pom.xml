@@ -16,26 +16,39 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
     <artifactId>configurations-configuration</artifactId>
     <version>1</version>
-    <packaging>exe</packaging>
-    
+
     <build>
         <plugins>
             <plugin>
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
                     <msbuildPath>${basedir}/src/test/resources/unit/configurations/test-msbuild.cmd</msbuildPath>
-                    <projectFile>${basedir}/src/test/resources/unit/configurations/configurations-test.vcxproj</projectFile>
+                    <projectFile>${basedir}/src/test/resources/unit/configurations/configurations-test.sln</projectFile>
                     <platforms>
-                        <platform>Win32</platform>
+                        <platform>
+                            <name>Win32</name>
+                            <configurations>
+                                <configuration>
+                                    <name>Release</name>
+                                </configuration>
+                                <configuration>
+                                    <name>Debug</name>
+                                </configuration>
+                            </configurations>
+                        </platform>
+                        <platform>
+                            <name>x64</name>
+                            <configurations>
+                                <configuration>
+                                    <name>Release</name>
+                                </configuration>
+                            </configurations>
+                        </platform>
                     </platforms>
-                    <configurations>
-                        <configuration>Release</configuration>
-                        <configuration>Debug</configuration>
-                    </configurations>
                 </configuration>
             </plugin>
         </plugins>

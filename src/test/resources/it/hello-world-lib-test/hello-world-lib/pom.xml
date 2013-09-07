@@ -33,12 +33,18 @@
                 <configuration>
                     <projectFile>${basedir}/hello-world-lib.vcxproj</projectFile>
                     <platforms>
-                        <platform>Win32</platform>
+                        <platform>
+                            <name>Win32</name>
+                            <configurations>
+                                <configuration>
+                                    <name>Release</name>
+                                </configuration>
+                                <configuration>
+                                    <name>Debug</name>
+                                </configuration>
+                            </configurations>
+                        </platform>
                     </platforms>
-                    <configurations>
-                        <configuration>Release</configuration>
-                        <configuration>Debug</configuration>
-                    </configurations>
                 </configuration>
             </plugin>
         </plugins>
