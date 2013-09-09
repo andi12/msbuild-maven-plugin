@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<fileset-config file-format-version="1.2.0" simple-config="true" sync-formatter="false">
+  <local-check-config name="maven-checks 2.10" location="../msbuild-maven-plugin/style/maven_checks.xml" type="project" description="">
+    <property name="checkstyle.header.file" value="${basedir}/../msbuild-maven-plugin/style/checkstyle-header.java"/>
+    <property name="checkstyle.cache.file" value="${basedir}/../msbuild-maven-plugin/style/checkstyle-cache"/>
+    <additional-data name="protect-config-file" value="false"/>
+  </local-check-config>
+  <fileset name="all" enabled="true" check-config-name="maven-checks 2.10" local="true">
+    <file-match-pattern match-pattern="." include-pattern="true"/>
+  </fileset>
+  <filter name="FilesFromPackage" enabled="true">
+    <filter-data value="src/test/resources"/>
+  </filter>
+</fileset-config>
