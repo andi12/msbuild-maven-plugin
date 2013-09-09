@@ -19,12 +19,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.org.raje.maven.plugins</groupId>
-    <artifactId>msbuild-maven-plugin</artifactId>
+    <artifactId>msbuild-maven-plugin-it</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <packaging>maven-plugin</packaging>
+    <packaging>jar</packaging>
 
-    <name>MSBuild Maven Plugin - maven-msbuild-plugin</name>
-    <description>Maven Plugin for building Visual Studio solutions and projects with msbuild</description>
+    <name>MSBuild Maven Plugin Integration Tests - maven-msbuild-plugin-it</name>
+    <description>Integration Tests for the Maven Plugin</description>
     <url>https://github.com/andi12/maven-msbuild-plugin</url>
     <inceptionYear>2013</inceptionYear>
 
@@ -53,20 +53,20 @@
     <properties>
         <!-- Dependency version -->
         <maven.api.version>3.0.4</maven.api.version>
-        <maven-archiver.version>2.5</maven-archiver.version>
-        <plexus-archiver.version>2.4.3</plexus-archiver.version>
-        <maven-plugin-annotations.version>3.2</maven-plugin-annotations.version>
-        <plexus-utils.version>3.0.1</plexus-utils.version>
         <junit.version>4.8.1</junit.version>
-        <maven-plugin-testing-harness.version>2.0</maven-plugin-testing-harness.version> <!-- v2.1 only works with Maven 3.1+ -->
 
         <!-- Build plugin versions -->
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-checkstyle-plugin.version>2.10</maven-checkstyle-plugin.version>
-        <maven-plugin-plugin.version>3.2</maven-plugin-plugin.version>
+        <maven-verifier.version>1.4</maven-verifier.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>uk.org.raje.maven.plugins</groupId>
+            <artifactId>msbuild-maven-plugin</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
@@ -77,28 +77,6 @@
             <artifactId>maven-core</artifactId>
             <version>${maven.api.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-archiver</artifactId>
-            <version>${maven-archiver.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-archiver</artifactId>
-            <version>${plexus-archiver.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.plugin-tools</groupId>
-            <artifactId>maven-plugin-annotations</artifactId>
-            <version>${maven-plugin-annotations.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- generated help mojo has a dependency to plexus-utils -->
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-utils</artifactId>
-            <version>${plexus-utils.version}</version>
-        </dependency>
 
         <!-- Test -->
         <dependency>
@@ -108,9 +86,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.maven.plugin-testing</groupId>
-            <artifactId>maven-plugin-testing-harness</artifactId>
-            <version>${maven-plugin-testing-harness.version}</version>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-verifier</artifactId>
+            <version>${maven-verifier.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -129,36 +107,11 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-plugin-plugin</artifactId>
-                <version>${maven-plugin-plugin.version}</version>
-                <configuration>
-                    <!-- skipErrorNoDescriptorsFound configuration needed, 
-                        see http://jira.codehaus.org/browse/MNG-5346 -->
-                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-                    <goalPrefix>msbuild</goalPrefix>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>mojo-descriptor</id>
-                        <goals>
-                            <goal>descriptor</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>help-goal</id>
-                        <goals>
-                            <goal>helpmojo</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
-                    <configLocation>style/maven_checks.xml</configLocation>
-                    <headerLocation>style/checkstyle-header.java</headerLocation>
+                    <configLocation>../msbuild-maven-plugin/style/maven_checks.xml</configLocation>
+                    <headerLocation>../msbuild-maven-plugin/style/checkstyle-header.java</headerLocation>
                     <consoleOutput>true</consoleOutput>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                 </configuration>
