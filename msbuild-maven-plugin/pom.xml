@@ -18,10 +18,14 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>uk.org.raje.maven.plugins</groupId>
     <artifactId>msbuild-maven-plugin</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
+
+    <parent>
+        <groupId>uk.org.raje.maven.plugins</groupId>
+        <artifactId>msbuild-maven-plugin-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
 
     <name>MSBuild Maven Plugin - maven-msbuild-plugin</name>
     <description>Maven Plugin for building Visual Studio solutions and projects with msbuild</description>
@@ -36,20 +40,6 @@
         </license>
     </licenses>
 
-    <scm>
-        <url>https://github.com/andi12/msbuild-maven-plugin/tree/master</url>
-        <connection>scm:git:git://github.com/andi12/msbuild-maven-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/andi12/msbuild-maven-plugin.git</developerConnection>
-    </scm>
-
-    <developers>
-        <developer>
-            <id>andi</id>
-            <name>Andi Everitt</name>
-            <email>andi@raje.org.uk</email>
-        </developer>
-    </developers>
-
     <properties>
         <!-- Dependency version -->
         <maven.api.version>3.0.4</maven.api.version>
@@ -57,13 +47,7 @@
         <plexus-archiver.version>2.4.3</plexus-archiver.version>
         <maven-plugin-annotations.version>3.2</maven-plugin-annotations.version>
         <plexus-utils.version>3.0.1</plexus-utils.version>
-        <junit.version>4.8.1</junit.version>
         <maven-plugin-testing-harness.version>2.0</maven-plugin-testing-harness.version> <!-- v2.1 only works with Maven 3.1+ -->
-
-        <!-- Build plugin versions -->
-        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
-        <maven-checkstyle-plugin.version>2.10</maven-checkstyle-plugin.version>
-        <maven-plugin-plugin.version>3.2</maven-plugin-plugin.version>
     </properties>
 
     <dependencies>
@@ -102,12 +86,6 @@
 
         <!-- Test -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.maven.plugin-testing</groupId>
             <artifactId>maven-plugin-testing-harness</artifactId>
             <version>${maven-plugin-testing-harness.version}</version>
@@ -121,7 +99,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
@@ -130,7 +107,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>${maven-plugin-plugin.version}</version>
                 <configuration>
                     <!-- skipErrorNoDescriptorsFound configuration needed, 
                         see http://jira.codehaus.org/browse/MNG-5346 -->
@@ -155,7 +131,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
                     <configLocation>style/maven_checks.xml</configLocation>
                     <headerLocation>style/checkstyle-header.java</headerLocation>

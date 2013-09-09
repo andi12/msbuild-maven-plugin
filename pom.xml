@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Copyright 2013 Andrew Everitt, Andrew Heckford, Daniele Daniele
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>uk.org.raje.maven.plugins</groupId>
+    <artifactId>msbuild-maven-plugin-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <scm>
+        <url>https://github.com/andi12/msbuild-maven-plugin/tree/master</url>
+        <connection>scm:git:git://github.com/andi12/msbuild-maven-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/andi12/msbuild-maven-plugin.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>andi</id>
+            <name>Andi Everitt</name>
+            <email>andi@raje.org.uk</email>
+        </developer>
+    </developers>
+
+    <modules>
+        <module>msbuild-maven-plugin</module>
+        <module>msbuild-maven-plugin-it</module>
+    </modules>
+
+    <properties>
+        <!-- Dependency versions -->
+        <junit.version>4.8.1</junit.version>
+
+        <!-- Build plugin versions -->
+        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <maven-checkstyle-plugin.version>2.10</maven-checkstyle-plugin.version>
+        <maven-plugin-plugin.version>3.2</maven-plugin-plugin.version>
+    </properties>
+
+  <dependencyManagement>
+    <dependencies>
+        <!-- Test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>${maven-plugin-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
+            </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>
