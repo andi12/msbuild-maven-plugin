@@ -23,6 +23,12 @@
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+   <parent>
+      <groupId>org.sonatype.oss</groupId>
+      <artifactId>oss-parent</artifactId>
+      <version>7</version>
+   </parent>
+
     <scm>
         <url>https://github.com/andi12/msbuild-maven-plugin/tree/master</url>
         <connection>scm:git:git://github.com/andi12/msbuild-maven-plugin.git</connection>
