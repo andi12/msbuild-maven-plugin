@@ -45,7 +45,7 @@
         <maven-verifier.version>1.4</maven-verifier.version>
         
         <!-- Property used in test POMs to set plugin version -->
-        <msbuild-maven-plugin.version>${pom.version}</msbuild-maven-plugin.version>
+        <msbuild-maven-plugin.version>${project.version}</msbuild-maven-plugin.version>
     </properties>
 
     <dependencies>
