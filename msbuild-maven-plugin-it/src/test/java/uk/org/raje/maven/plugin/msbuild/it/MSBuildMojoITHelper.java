@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.maven.it.Verifier;
 
@@ -31,26 +32,23 @@ import org.apache.maven.it.Verifier;
 class MSBuildMojoITHelper
 {
     /**
-     * The name of the property that should be used in test POMs as the version for the msbuild-maven-plugin.
+     * The name of the properties file that contains properties that are used in test POMs 
+     * and need to be included by the Verifier.
      */
-    public static final String MSBUILD_PLUGIN_VERSION_PROPERTY_NAME = "msbuild-maven-plugin.version";
-    /**
-     * The version of the plugin to test against. Should be the current version.
-     * TODO: We should pick this up from the POM
-     */
-    public static final String MSBUILD_PLUGIN_VERSION = "0.1.1-SNAPSHOT";
+    private static final String VERIFIER_PROPERTIES_FILE = "/verifier.properties";
 
     // no instances
     private MSBuildMojoITHelper()
     {
     }
 
-    static void addPluginVersionToVerifier( Verifier verifier )
+    static void addPropertiesToVerifier( Verifier verifier ) throws IOException
     {
-        verifier.getCliOptions().add( "-D"
-                + MSBUILD_PLUGIN_VERSION_PROPERTY_NAME
-                + "="
-                + MSBUILD_PLUGIN_VERSION );
+        Properties props = new Properties();
+        props.load( MSBuildMojoITHelper.class.getResourceAsStream( VERIFIER_PROPERTIES_FILE ) );
+        Properties systemProps = verifier.getSystemProperties();
+        systemProps.putAll( props );
+        verifier.setSystemProperties( systemProps );
     }
 
     /**
