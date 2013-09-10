@@ -58,16 +58,20 @@ final class MSBuildExecutor
      * @throws IOException if there is a problem executing MSBuild
      * @throws InterruptedException if execution is interrupted
      */
-    public void execute() throws IOException, InterruptedException
+    public int execute() throws IOException, InterruptedException
     {
         for ( BuildPlatform platform: buildPlatforms ) 
         {
             for ( BuildConfiguration configuration : platform.getConfigurations() ) 
             {
-                runMSBuild( platform.getName(), configuration.getName() );
+                int exitCode = runMSBuild( platform.getName(), configuration.getName() );
+                if ( exitCode != 0 )
+                {
+                    return exitCode;
+                }
             }
         }
-        
+        return 0;
     }
 
     private int runMSBuild( String platform, String configuration ) 
@@ -117,6 +121,7 @@ final class MSBuildExecutor
         if ( exitCode != 0 )
         {
             log.error( "MSBuild returned non-zero exit code (" + exitCode + ")" );
+            log.error( "Error building " + platform + "-" + configuration );
         }
         return exitCode;
     }

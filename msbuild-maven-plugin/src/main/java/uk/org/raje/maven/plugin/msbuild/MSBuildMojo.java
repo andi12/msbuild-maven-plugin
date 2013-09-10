@@ -60,7 +60,11 @@ public class MSBuildMojo extends AbstractMSBuildMojo
         {
             MSBuildExecutor msbuild = new MSBuildExecutor( getLog(), msbuildPath, projectFile );
             msbuild.setPlatforms( platforms );
-            msbuild.execute();
+            if ( msbuild.execute() != 0 )
+            {
+                throw new MojoExecutionException(
+                        "MSBuild execution failed, see log for details." );
+            }
         }
         catch ( IOException ioe ) 
         {
@@ -74,7 +78,7 @@ public class MSBuildMojo extends AbstractMSBuildMojo
         }
     }
 
-    private File getConfigurationOutputDirectory( BuildPlatform p, BuildConfiguration c )
+    private File getConfigurationOutputDirectory( BuildPlatform p, BuildConfiguration c ) throws MojoExecutionException
     {
         File result = null;
         
@@ -106,7 +110,19 @@ public class MSBuildMojo extends AbstractMSBuildMojo
                 result = new File ( result, c.getName() );
             }
         }
-        return result;
+
+        // result will be populated, now check if it was created
+        if ( result.exists() && result.isDirectory() )
+        {
+            return result;
+        }
+        else
+        {
+            String exceptionMessage = "Expected output directory was not created, configuration error?"; 
+            getLog().error( exceptionMessage );
+            getLog().error( "Looking for build output at " + result.getAbsolutePath() );
+            throw new MojoExecutionException( exceptionMessage );
+        }
     }
 
     /**
@@ -131,6 +147,7 @@ public class MSBuildMojo extends AbstractMSBuildMojo
 
     private void findAndAttachArtifacts() throws MojoExecutionException
     {
+        getLog().info( "Attaching built artifacts" );
         if ( isSolution() )
         {
             attachSolutionArtifacts();
