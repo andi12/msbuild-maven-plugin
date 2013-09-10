@@ -15,6 +15,8 @@
  */
 package uk.org.raje.maven.plugin.msbuild.configuration;
 
+import java.io.File;
+
 import org.apache.maven.plugins.annotations.Parameter;
 
 /**
@@ -76,6 +78,15 @@ public class BuildConfiguration
     }
 
     /**
+     * Return the configured output directory
+     * @return the configured value or null
+     */
+    public File getOutputDirectory()
+    {
+        return outputDirectory;
+    }
+
+    /**
      * Is this configuration the primary configuration for the platform
      * @return true if this is the primary configuration
      */
@@ -93,11 +104,12 @@ public class BuildConfiguration
         isPrimary = b;
     }
     
-    @Parameter
+    @Parameter(
+            required = true )
     private String name;
 
-    //@Parameter
-    //private FileSet outputs;
+    @Parameter
+    private File outputDirectory;
 
     private boolean isPrimary;
 }

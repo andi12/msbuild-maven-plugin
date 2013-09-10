@@ -74,12 +74,39 @@ public class MSBuildMojo extends AbstractMSBuildMojo
         }
     }
 
-    private File getConfigurationOutputDirectory( String c )
+    private File getConfigurationOutputDirectory( BuildPlatform p, BuildConfiguration c )
     {
-        // Assume that msbuild has created an output folder named after
-        // the configuration that we built
-        // If we add parsing of the solution/project file we can find this out for sure
-        return new File( projectFile.getParentFile(), c );
+        File result = null;
+        
+        // If there is a configured value use it
+        result = c.getOutputDirectory();
+        if ( result == null )
+        {
+            // There isn't a configured value so work it out
+            if ( p.isWin32() )
+            {
+                // A default Win32 project writes Win32 outputs at the top level
+                result = new File( projectFile.getParentFile(), c.getName() );
+                if ( result.exists() )
+                {
+                    getLog().debug( "Found output directory for Win32 at " + result.getAbsolutePath() );
+                }
+                else
+                {
+                    // Nothing there, fall through and try platform\configuration
+                    result = null;
+                }
+            }
+
+            if ( result == null )
+            {
+                // Assume that msbuild has created an output folder named
+                // after the platform and configuration
+                result = new File( projectFile.getParentFile(), p.getName() );
+                result = new File ( result, c.getName() );
+            }
+        }
+        return result;
     }
 
     /**
@@ -122,10 +149,11 @@ public class MSBuildMojo extends AbstractMSBuildMojo
         {
             for ( BuildConfiguration configuration : platform.getConfigurations() )
             {
-                final File archiveSource = getConfigurationOutputDirectory( configuration.getName() );
+                final File archiveSource = getConfigurationOutputDirectory( platform, configuration );
                 StringBuilder artifactName = new StringBuilder();
                 artifactName.append( mavenProject.getArtifactId() ).append( "-" )
                             .append( mavenProject.getVersion() ).append( "-" )
+                            .append( platform ).append( "-" )
                             .append( configuration )
                             .append( "." ).append( ZIP_EXTENSION );
                 final File artifactFile = new File( 
@@ -143,7 +171,8 @@ public class MSBuildMojo extends AbstractMSBuildMojo
                 {
                     throw new MojoExecutionException( "Error creating archive", ioe );
                 }
-                projectHelper.attachArtifact( mavenProject, ZIP_EXTENSION, configuration.getName(), artifactFile );
+                String classifier = platform.getName() + "-" + configuration.getName();
+                projectHelper.attachArtifact( mavenProject, ZIP_EXTENSION, classifier, artifactFile );
             }
         }        
     }
@@ -161,7 +190,7 @@ public class MSBuildMojo extends AbstractMSBuildMojo
                               .append( "." )
                               .append( mavenProject.getPackaging() );
                 
-                File artifactFile = new File( getConfigurationOutputDirectory( configuration.getName() ),
+                File artifactFile = new File( getConfigurationOutputDirectory( platform, configuration ),
                         outputFilename.toString() );
                 if ( !artifactFile.exists() )
                 {
@@ -176,8 +205,9 @@ public class MSBuildMojo extends AbstractMSBuildMojo
                 }
                 else
                 {
+                    String classifier = platform.getName() + "-" + configuration.getName();
                     projectHelper.attachArtifact( mavenProject, mavenProject.getPackaging(),
-                            configuration.getName(), artifactFile );
+                            classifier, artifactFile );
                 }
             }
         }

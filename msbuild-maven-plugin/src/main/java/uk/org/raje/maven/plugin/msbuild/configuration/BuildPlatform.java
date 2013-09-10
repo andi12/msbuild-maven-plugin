@@ -29,9 +29,13 @@ import org.apache.maven.plugins.annotations.Parameter;
 public class BuildPlatform
 {
     /**
+     * String constant for platform name 'Win32'
+     */
+    private static final String PLATFORM_WIN32 = "Win32";
+    /**
      * Constant for the default platform name.
      */
-    public static final String DEFAULT_PLATFORM = "Win32";
+    public static final String DEFAULT_PLATFORM = PLATFORM_WIN32;
 
     /**
      * Construct a default BuildPlatform.
@@ -94,6 +98,15 @@ public class BuildPlatform
             configurations.add( new BuildConfiguration() );
         }
         return configurations;
+    }
+
+    /**
+     * Test if this platform is named 'Win32'
+     * @return true if this platform Win32
+     */
+    public boolean isWin32()
+    {
+        return PLATFORM_WIN32.equals( name );
     }
 
     /**
