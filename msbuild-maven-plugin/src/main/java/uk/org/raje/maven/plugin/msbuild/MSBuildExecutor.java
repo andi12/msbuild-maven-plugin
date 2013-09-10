@@ -70,7 +70,7 @@ final class MSBuildExecutor
         
     }
 
-    private void runMSBuild( String platform, String configuration ) 
+    private int runMSBuild( String platform, String configuration ) 
             throws IOException, InterruptedException
     {
         List<String> command = new ArrayList<String>();
@@ -114,8 +114,11 @@ final class MSBuildExecutor
         stderrPumper.start();
         
         int exitCode = proc.waitFor();
-        log.info( "MSBuild returned " + exitCode );
-        
+        if ( exitCode != 0 )
+        {
+            log.error( "MSBuild returned non-zero exit code (" + exitCode + ")" );
+        }
+        return exitCode;
     }
 
     class OutStreamConsumer implements StreamConsumer
