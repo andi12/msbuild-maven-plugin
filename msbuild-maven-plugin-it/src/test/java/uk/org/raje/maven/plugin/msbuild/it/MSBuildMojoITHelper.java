@@ -65,11 +65,12 @@ class MSBuildMojoITHelper
      */
     static void assertDirectoryContents( File directory, int expectedCount, List<String> expectedFiles )
     {
+        assertTrue ( "Expected output directory missing: " + directory.getAbsolutePath(), directory.exists() );
         List<String> dirContents = Arrays.asList( directory.list() );
         assertEquals( expectedCount, dirContents.size() );
         for ( String fileName: expectedFiles )
         {
-            assertTrue( "Expacted file missing: " + fileName, dirContents.contains( fileName ) );
+            assertTrue( "Expected file missing: " + fileName, dirContents.contains( fileName ) );
         }
     }
 
