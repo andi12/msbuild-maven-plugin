@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package uk.org.raje.maven.plugin.msbuild.citools;
+package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
-
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -32,10 +31,11 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.xml.sax.SAXException;
 
-import uk.org.raje.maven.plugin.msbuild.citools.parser.ProjectParser;
-import uk.org.raje.maven.plugin.msbuild.citools.parser.SolutionParser;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
+import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
+import uk.org.raje.maven.plugin.msbuild.parser.VCProjectParser;
+import uk.org.raje.maven.plugin.msbuild.parser.VCSolutionParser;
 
 /**
  * @author dmasato
@@ -49,53 +49,97 @@ public class CppCheckMojo extends AbstractCIToolsMojo
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException 
     {
-        Collection<Project> projects;
+        validateMojoConfiguration();
         
-        validateCppCheckPath();
-        projects = parseProjectFile();
-    }
-    
-    private Collection<Project> parseProjectFile() throws MojoExecutionException, MojoFailureException 
-    {
-        Collection<Project> projects = null;
-
         for ( BuildPlatform platform : platforms ) 
         {
             for ( BuildConfiguration configuration : platform.getConfigurations() )
             {
-                if ( isSolution() ) 
+                if ( MojoHelper.isSolution( projectFile ) ) 
                 {
-                    projects = parseSolution( platform.getName(), configuration.getName() );
-                    
-                    for ( Project project : projects ) 
-                    {
-                        parseProject( project );
-                    }
+                    processSolutionFile( platform, configuration );
                 }
                 else 
                 {
-                    projects = new LinkedList<Project>();
-                    Project project = new Project( projectFile.getName(), projectFile );
-                    project.setPlatform( platform.getName() );
-                    project.setConfiguration( configuration.getName() );
-                    
-                    parseProject( project );
-                    projects.add( project );
+                    processProjectFile( platform, configuration );
                 }
             }
-        }
-        
-        return projects;
+        }        
     }
     
-    private Collection<Project> parseSolution( String platformName, String configurationName ) 
+    private void validateMojoConfiguration() throws MojoExecutionException, MojoFailureException
+    {
+        try 
+        {
+            MojoHelper.validateToolPath( cppCheckPath, ENV_CPPCHECK_PATH, "CppCheck", getLog() );
+        }
+        catch ( FileNotFoundException fnfe )
+        {
+            throw new MojoExecutionException( "CppCheck could not be found. "
+                    + "You need to configure it in the plugin configuration section in the "
+                    + "POM file using <cppCheckPath>...</cppCheckPath> "
+                    + "or <properties><cppcheck.path>...</cppcheck.path></properties>; "
+                    + "alternatively, you can use the command-line parameter -Dcppcheck.path=... "
+                    + "or set the environment variable " + ENV_CPPCHECK_PATH, fnfe );
+        }
+        
+        if ( platforms == null ) 
+        {
+            platforms = new ArrayList<BuildPlatform>();
+            platforms.add( new BuildPlatform() );
+        }
+        
+        MojoHelper.validatePlatforms( platforms );
+    }    
+    
+    /**
+     * The name of the environment variable that can store the location of CppCheck.
+     */
+    private static final String ENV_CPPCHECK_PATH = "CPPCHECK_PATH";    
+
+    private void processSolutionFile( BuildPlatform platform, BuildConfiguration configuration ) 
             throws MojoExecutionException
     {
-        SolutionParser solutionParser;
+        Collection<VCProject> projects = null;
+        projects = parseSolution( platform.getName(), configuration.getName() );
+        getLog().info( "Solution " + projectFile + ": found configuration " + configuration.getName() + " for platform "
+                + platform.getName() );
+        
+        for ( VCProject project : projects ) 
+        {
+            parseProject( project );
+            logProjectConfiguration( project );
+        }
+    }
+    
+    private void processProjectFile( BuildPlatform platform, BuildConfiguration configuration ) 
+            throws MojoExecutionException
+    {
+        VCProject project = new VCProject( projectFile.getName(), projectFile );
+        project.setPlatform( platform.getName() );
+        project.setConfiguration( configuration.getName() );
+        
+        parseProject( project );
+        logProjectConfiguration( project );
+    }
+    
+    private void logProjectConfiguration( VCProject project ) 
+    {
+        getLog().info( "Project " + project.getName() + ": found configuration " + project.getConfiguration() 
+                + " for platform " + project.getPlatform() );
+        getLog().info( "Project " + project.getName() + ": found include directories " + project.getIncludeDirs() );
+        getLog().info( "Project " + project.getName() + ": found preprocessor defines " 
+                + project.getPreprocessorDefs() );
+    }
+    
+    private Collection<VCProject> parseSolution( String platformName, String configurationName ) 
+            throws MojoExecutionException
+    {
+        VCSolutionParser solutionParser;
         
         try 
         {
-            solutionParser = new SolutionParser( projectFile, configurationName, platformName, excludeProjectRegex );
+            solutionParser = new VCSolutionParser( projectFile, configurationName, platformName, excludeProjectRegex );
         }
         catch ( FileNotFoundException fnfe ) 
         {
@@ -123,14 +167,14 @@ public class CppCheckMojo extends AbstractCIToolsMojo
         return solutionParser.getProjects();
     }
     
-    private void parseProject( Project project ) 
+    private void parseProject( VCProject project ) 
             throws MojoExecutionException
     {
-        ProjectParser projectParser;
+        VCProjectParser projectParser;
         
         try 
         {
-            projectParser = new ProjectParser( project.getPath(), project.getConfiguration(), project.getPlatform() );
+            projectParser = new VCProjectParser( project.getPath(), project.getConfiguration(), project.getPlatform() );
         }
         catch ( FileNotFoundException fnfe ) 
         {
@@ -161,46 +205,6 @@ public class CppCheckMojo extends AbstractCIToolsMojo
         projectParser.updateProject( project );
     }
     
-    /**
-     * Validates the path to CppCheck.
-     * First looks at the Mojo configuration property, if not found there try the system environment.
-     * @throws MojoExecutionException if CppCheck cannot be found
-     */
-    private void validateCppCheckPath() throws MojoExecutionException
-    {
-        if ( cppCheckPath == null )
-        {
-            // not set in configuration try system environment
-            String cppCheckEnv = System.getenv( ENV_CPPCHECK_PATH );
-            
-            if ( cppCheckEnv != null )
-            {
-                cppCheckPath = new File( cppCheckEnv );
-            }
-        }
-        
-        if ( cppCheckPath != null
-                && cppCheckPath.exists()
-                && cppCheckPath.isFile() )
-        {
-            getLog().debug( "Using CppCheck at " + cppCheckPath );
-        }
-        else 
-        {
-            throw new MojoExecutionException(
-                    "CppCheck could not be found. You need to configure it in the plugin configuration section in the "
-                    + "POM file using <cppcheck.path>...</cppcheck.path> "
-                    + "or <properties><cppcheck.path>...</cppcheck.path></properties>; "
-                    + "alternatively, you can use the command-line parameter -Dcppcheck.path=... "
-                    + "or set the environment variable " + ENV_CPPCHECK_PATH );
-        }
-    }    
-    
-    /**
-     * The name of the environment variable that can store the location of CppCheck.
-     */
-    private static final String ENV_CPPCHECK_PATH = "CPPCHECK_PATH";
-    
 
     @Parameter( readonly = false,  required = false )
     protected String excludeProjectRegex;
@@ -208,9 +212,7 @@ public class CppCheckMojo extends AbstractCIToolsMojo
     /**
      * The path to CppCheck.
      */
-    @Parameter( property = "cppcheck.path",
-            readonly = false,
-            required = true )
+    @Parameter( property = "cppcheck.path", readonly = false, required = true )
     protected File cppCheckPath;    
     
 }

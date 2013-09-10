@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.raje.maven.plugin.msbuild.citools;
+package uk.org.raje.maven.plugin.msbuild.parser;
 
 import java.io.File;
 import java.util.List;
@@ -24,9 +24,9 @@ import java.util.List;
  * @author dmasato
  *
  */
-public class Project 
+public class VCProject 
 {
-    public Project( String name, File path ) 
+    public VCProject( String name, File path ) 
     {
         this.name = name;
         this.path = path;

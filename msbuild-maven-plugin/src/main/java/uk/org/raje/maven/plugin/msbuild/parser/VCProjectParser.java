@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.raje.maven.plugin.msbuild.citools.parser;
+package uk.org.raje.maven.plugin.msbuild.parser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,14 +35,13 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import uk.org.raje.maven.plugin.msbuild.citools.Project;
 
 
 /**
  * @author dmasato
  *
  */
-public class ProjectParser extends BaseParser 
+public class VCProjectParser extends BaseParser 
 {
     private static final String PATH_SEPARATOR = "/";
     private static final String PATH_ROOT = "ROOT";
@@ -55,7 +54,7 @@ public class ProjectParser extends BaseParser
     
     private static final String PATH_PREPROCESSOR_DEFS = PATH_CLCOMPILE + PATH_SEPARATOR + "PreprocessorDefinitions";
     
-    public ProjectParser( File projectFile, String configuration, String platform ) 
+    public VCProjectParser( File projectFile, String configuration, String platform ) 
             throws FileNotFoundException, SAXException, ParserConfigurationException 
         {
         
@@ -70,7 +69,7 @@ public class ProjectParser extends BaseParser
         preprocessorDefs = new ArrayList<String>();
     }
 
-    public void updateProject( Project project )
+    public void updateProject( VCProject project )
     {
         if ( project == null ) 
         {
@@ -91,9 +90,11 @@ public class ProjectParser extends BaseParser
         return preprocessorDefs;
     }
     
+    @Override
     public void parse() throws IOException, ParseException 
     {
         DefaultHandler handler = new DefaultHandler() {
+            @Override
             public void startElement( String uri, String localName, String qName, Attributes attributes ) 
                     throws SAXException 
                 {
@@ -126,6 +127,7 @@ public class ProjectParser extends BaseParser
                 }
             }
 
+            @Override
             public void endElement( String uri, String localName, String qName ) 
                     throws SAXException 
                     {
@@ -139,6 +141,7 @@ public class ProjectParser extends BaseParser
                 }
             }
             
+            @Override
             public void characters( char[] chars, int start, int length ) 
                     throws SAXException 
                     {

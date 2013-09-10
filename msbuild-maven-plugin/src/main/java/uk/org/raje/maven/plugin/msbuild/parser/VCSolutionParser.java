@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.raje.maven.plugin.msbuild.citools.parser;
+package uk.org.raje.maven.plugin.msbuild.parser;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,19 +28,19 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import uk.org.raje.maven.plugin.msbuild.citools.Project;
 
 
 /**
  * @author dmasato
  *
  */
-public class SolutionParser extends BaseParser 
+public class VCSolutionParser extends BaseParser 
 {
     private enum ProjectProperty 
     {
         solutionGuid 
         { 
+            @Override
             String getRegex() 
             {
                 return "Project\\(" + getGUIDPattern( name() ) + "\\)=";
@@ -48,6 +48,7 @@ public class SolutionParser extends BaseParser
         },
         name 
         {
+            @Override
             String getRegex() 
             {
                 return getStringPattern( name() ) + ",";
@@ -55,6 +56,7 @@ public class SolutionParser extends BaseParser
         },
         path 
         {
+            @Override
             String getRegex() 
             {
                 return getPathPattern( name() ) + ",";
@@ -62,6 +64,7 @@ public class SolutionParser extends BaseParser
         },
         guid 
         {
+            @Override
             String getRegex() 
             {
                 return getGUIDPattern( name() );
@@ -81,7 +84,7 @@ public class SolutionParser extends BaseParser
     private static final String SLN_END_GLOBAL_SECTION = "EndGlobalSection";
     private static final String PRJ_END_GLOBAL_SECTION = "EndGlobalSection";
     
-    public SolutionParser( File solutionFile, String configuration, String platform, String excludeProjectRegex ) 
+    public VCSolutionParser( File solutionFile, String configuration, String platform, String excludeProjectRegex ) 
             throws FileNotFoundException 
         {
         
@@ -90,7 +93,7 @@ public class SolutionParser extends BaseParser
         
         solutionParserState = SolutionParserState.PARSE_IGNORE;
         configPlatformFound = false;
-        projects = new HashMap<String, Project>();
+        projects = new HashMap<String, VCProject>();
 
         for ( ProjectProperty property : ProjectProperty.values() ) 
         {
@@ -101,11 +104,12 @@ public class SolutionParser extends BaseParser
         projectExcludePattern = Pattern.compile( excludeProjectRegex == null ? "" : excludeProjectRegex );
     }
     
-    public Collection<Project> getProjects() 
+    public Collection<VCProject> getProjects() 
     {
         return projects.values();
     }
     
+    @Override
     public void parse() throws IOException, ParseException 
     {
         String line;
@@ -195,7 +199,7 @@ public class SolutionParser extends BaseParser
                 && prjConfigEntry.startsWith( "ActiveCfg" ) ) 
         {
 
-            Project project = projects.get( prjGUID );
+            VCProject project = projects.get( prjGUID );
             String projConfigPlatform[] = prjConfigEntry.split( "=" )[prjConfigPlatformId].split( "\\|" );            
             project.setConfiguration( projConfigPlatform[prjConfigEntryId] );
             project.setPlatform( projConfigPlatform[prjPlatformEntryId] );
@@ -207,7 +211,7 @@ public class SolutionParser extends BaseParser
     
     private void parseProjectEntry( Matcher projMatcher ) 
     {
-        Project project = new Project( ProjectProperty.name.getValue( projMatcher ), 
+        VCProject project = new VCProject( ProjectProperty.name.getValue( projMatcher ), 
                 new File( ProjectProperty.path.getValue( projMatcher ) ) );
         
         project.setGuid( ProjectProperty.guid.getValue( projMatcher ) );
@@ -225,7 +229,7 @@ public class SolutionParser extends BaseParser
                     + " was not found in the solution", 0 );
         }
             
-        for ( Project project: projects.values() ) 
+        for ( VCProject project: projects.values() ) 
         {
             if ( project.getConfiguration() == null ) 
             {
@@ -261,5 +265,5 @@ public class SolutionParser extends BaseParser
     private boolean configPlatformFound;
     private Pattern projectPattern;
     private Pattern projectExcludePattern;
-    private Map<String, Project> projects;
+    private Map<String, VCProject> projects;
 }

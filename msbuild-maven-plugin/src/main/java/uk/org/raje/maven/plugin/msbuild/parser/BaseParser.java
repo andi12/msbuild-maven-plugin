@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package uk.org.raje.maven.plugin.msbuild.citools.parser;
+package uk.org.raje.maven.plugin.msbuild.parser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.text.ParseException;
 
 
@@ -29,16 +30,20 @@ import java.text.ParseException;
 public abstract class BaseParser 
 {
     public BaseParser( File inputFile, String configuration, String platform ) throws FileNotFoundException 
+    {
+        if ( inputFile == null ) 
         {
-        
-        this.inputFile = inputFile;
-        requiredConfig = configuration;
-        requiredPlatform = platform;
+            throw new InvalidParameterException();
+        }
         
         if ( !inputFile.exists() || !inputFile.isFile() ) 
         {
             throw new FileNotFoundException( inputFile.getAbsolutePath() );
         }
+
+        this.inputFile = inputFile;
+        requiredConfig = configuration;
+        requiredPlatform = platform;
     }
     
     public File getInputFile() 

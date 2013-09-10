@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.raje.maven.plugin.msbuild.citools;
+package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.util.List;
@@ -30,27 +30,6 @@ import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
  */
 public abstract class AbstractCIToolsMojo extends AbstractMojo
 {
-    /**
-     * The file extension for solution files.
-     */
-    public static final String SOLUTION_EXTENSION = "sln";
-    
-    /**
-     * Is the configured project a solution
-     * @return true if the project file name configured ends '.sln'
-     */
-    protected boolean isSolution()
-    {
-        boolean result = false;
-        
-        if ( ( projectFile != null ) 
-                && ( projectFile.getName().toLowerCase().endsWith( "." + SOLUTION_EXTENSION ) ) )
-        {
-            result = true;
-        }
-        return result;
-    }    
-
     /**
      * The MavenProject for the current build.
      */
