@@ -190,7 +190,8 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
     /**
      * The path to MSBuild.
      */
-    @Parameter( property = "msbuild.path",
+    @Parameter( 
+            property = "msbuild.path",
             readonly = false,
             required = true )
     protected File msbuildPath;
@@ -198,7 +199,7 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
     /**
      * The project or solution file to build.
      */
-    @Parameter( property = "projectFile",
+    @Parameter( 
             readonly = false,
             required = true )
     protected File projectFile;

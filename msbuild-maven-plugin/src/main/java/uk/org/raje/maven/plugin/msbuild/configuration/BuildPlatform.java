@@ -16,6 +16,7 @@
 package uk.org.raje.maven.plugin.msbuild.configuration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +44,7 @@ public class BuildPlatform
     public BuildPlatform()
     {
         name = DEFAULT_PLATFORM;
-        configurations = new ArrayList<BuildConfiguration>();
+        configurations = new ArrayList<BuildConfiguration>( Arrays.asList( RELEASE_CONFIGURATION ) );
     }
 
     /**
@@ -53,7 +54,7 @@ public class BuildPlatform
     public BuildPlatform( String name )
     {
         this.name = name;
-        configurations = new ArrayList<BuildConfiguration>();
+        configurations = new ArrayList<BuildConfiguration>( Arrays.asList( RELEASE_CONFIGURATION ) );
     }
 
     @Override
