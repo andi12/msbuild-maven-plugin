@@ -23,15 +23,34 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.maven.it.Verifier;
+
 /**
  * Helper methods for Integration Tests.
  */
 class MSBuildMojoITHelper
 {
+    /**
+     * The name of the property that should be used in test POMs as the version for the msbuild-maven-plugin.
+     */
+    public static final String MSBUILD_PLUGIN_VERSION_PROPERTY_NAME = "msbuild-maven-plugin.version";
+    /**
+     * The version of the plugin to test against. Should be the current version.
+     * TODO: We should pick this up from the POM
+     */
+    public static final String MSBUILD_PLUGIN_VERSION = "0.1.1-SNAPSHOT";
 
     // no instances
     private MSBuildMojoITHelper()
     {
+    }
+
+    static void addPluginVersionToVerifier( Verifier verifier )
+    {
+        verifier.getCliOptions().add( "-D"
+                + MSBUILD_PLUGIN_VERSION_PROPERTY_NAME
+                + "="
+                + MSBUILD_PLUGIN_VERSION );
     }
 
     /**

@@ -27,6 +27,7 @@ import org.apache.maven.it.util.ResourceExtractor;
 import org.junit.Test;
 
 import uk.org.raje.maven.plugin.msbuild.MSBuildPackaging;
+import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.addPluginVersionToVerifier;
 import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.calculateAndDeleteOutputDirectory;
 import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.checkProjectBuildOutputIsCleaned;
 
@@ -46,6 +47,7 @@ public class MavenITHelloWorldBuildTest
         File debugDir = calculateAndDeleteOutputDirectory( testDir, "Debug" );
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
+        addPluginVersionToVerifier( verifier );
         
         // Delete any existing artifact from the local repository
         verifier.deleteArtifact( GROUPID, SOLUTION_ARTIFACTID, VERSION, "exe" );
@@ -79,6 +81,7 @@ public class MavenITHelloWorldBuildTest
         File debugDir = new File( testDir, "Debug" );
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
+        addPluginVersionToVerifier( verifier );
         
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();
@@ -101,6 +104,7 @@ public class MavenITHelloWorldBuildTest
         File debugDir = calculateAndDeleteOutputDirectory( testDir, "Debug" );
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
+        addPluginVersionToVerifier( verifier );
         
         // Delete any existing artifact from the local repository
         verifier.deleteArtifact( GROUPID, PROJECT_ARTIFACTID, VERSION, "exe" );
@@ -142,6 +146,7 @@ public class MavenITHelloWorldBuildTest
         File debugDir = new File( testDir, "Debug" );
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
+        addPluginVersionToVerifier( verifier );
         
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();

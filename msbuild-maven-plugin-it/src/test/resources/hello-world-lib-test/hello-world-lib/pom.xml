@@ -28,7 +28,7 @@
             <plugin>
                 <groupId>uk.org.raje.maven.plugins</groupId>
                 <artifactId>msbuild-maven-plugin</artifactId>
-                <version>0.1.0-SNAPSHOT</version>
+                <version>${msbuild-maven-plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <projectFile>${basedir}/hello-world-lib.vcxproj</projectFile>
