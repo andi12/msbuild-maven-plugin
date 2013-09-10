@@ -91,7 +91,7 @@
         <component>
             <role>org.apache.maven.artifact.handler.ArtifactHandler
             </role>
-            <role-hint>exe</role-hint>
+            <role-hint>lib</role-hint>
             <implementation>
                 org.apache.maven.artifact.handler.DefaultArtifactHandler
             </implementation>
@@ -99,6 +99,47 @@
                 <packaging>lib</packaging>
                 <extension>lib</extension>
                 <type>lib</type>
+                <language>native</language>
+            </configuration>
+        </component>
+        <!-- ********************************************************************** -->
+        <!-- Configure dll packaging -->
+        <!-- ********************************************************************** -->
+        <component>
+            <role>org.apache.maven.lifecycle.mapping.LifecycleMapping
+            </role>
+            <role-hint>dll</role-hint>
+            <implementation>
+                org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
+            </implementation>
+            <configuration>
+                <phases>
+                    <clean>
+                        org.apache.maven.plugins:maven-clean-plugin:clean,uk.org.raje.maven.plugins:msbuild-maven-plugin:clean
+                    </clean>
+                    <compile>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:build
+                    </compile>
+                    <install>
+                        org.apache.maven.plugins:maven-install-plugin:install
+                    </install>
+                    <deploy>
+                        org.apache.maven.plugins:maven-deploy-plugin:deploy
+                    </deploy>
+                </phases>
+            </configuration>
+        </component>
+        <component>
+            <role>org.apache.maven.artifact.handler.ArtifactHandler
+            </role>
+            <role-hint>dll</role-hint>
+            <implementation>
+                org.apache.maven.artifact.handler.DefaultArtifactHandler
+            </implementation>
+            <configuration>
+                <packaging>dll</packaging>
+                <extension>dll</extension>
+                <type>dll</type>
                 <language>native</language>
             </configuration>
         </component>

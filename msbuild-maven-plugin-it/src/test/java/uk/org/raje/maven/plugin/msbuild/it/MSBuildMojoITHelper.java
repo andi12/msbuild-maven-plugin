@@ -22,16 +22,33 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
+
+import org.apache.maven.it.Verifier;
 
 /**
  * Helper methods for Integration Tests.
  */
 class MSBuildMojoITHelper
 {
+    /**
+     * The name of the properties file that contains properties that are used in test POMs 
+     * and need to be included by the Verifier.
+     */
+    private static final String VERIFIER_PROPERTIES_FILE = "/verifier.properties";
 
     // no instances
     private MSBuildMojoITHelper()
     {
+    }
+
+    static void addPropertiesToVerifier( Verifier verifier ) throws IOException
+    {
+        Properties props = new Properties();
+        props.load( MSBuildMojoITHelper.class.getResourceAsStream( VERIFIER_PROPERTIES_FILE ) );
+        Properties systemProps = verifier.getSystemProperties();
+        systemProps.putAll( props );
+        verifier.setSystemProperties( systemProps );
     }
 
     /**
