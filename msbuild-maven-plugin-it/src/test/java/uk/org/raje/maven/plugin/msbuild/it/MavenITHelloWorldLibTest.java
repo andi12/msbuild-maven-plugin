@@ -16,18 +16,16 @@
 package uk.org.raje.maven.plugin.msbuild.it;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.ResourceExtractor;
 import org.junit.Test;
 
-import uk.org.raje.maven.plugin.msbuild.MSBuildPackaging;
 import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.addPropertiesToVerifier;
+import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.assertDirectoryContents;
 import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.calculateAndDeleteOutputDirectory;
 import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.checkProjectBuildOutputIsCleaned;
 
@@ -50,17 +48,22 @@ public class MavenITHelloWorldLibTest
         addPropertiesToVerifier( verifier );
         
         // Delete any existing artifact from the local repository
-        verifier.deleteArtifact( GROUPID, SOLUTION_ARTIFACTID, VERSION, "lib" );
+        verifier.deleteArtifacts( GROUPID, SOLUTION_ARTIFACTID, VERSION );
 
         verifier.executeGoal( "install" );
         verifier.verifyErrorFreeLog();
-        List<String> releaseDirContents = Arrays.asList( releaseDir.list() );
-        assertEquals( 1, releaseDirContents.size() );
-        assertTrue( releaseDirContents.contains( "hello-world-lib.lib" ) ); 
-        List<String> debugDirContents = Arrays.asList( debugDir.list() );
-        assertEquals( 1, debugDirContents.size() );
-        assertTrue( debugDirContents.contains( "hello-world-lib.lib" ) ); 
+        assertDirectoryContents( releaseDir, 1, Arrays.asList( 
+                new String[]{"hello-world-lib.lib"} ) );
+        assertDirectoryContents( debugDir, 1, Arrays.asList( 
+                new String[]{"hello-world-lib.lib"} ) );
         
+        File artifactsDir = new File( 
+                verifier.getArtifactMetadataPath( GROUPID, SOLUTION_ARTIFACTID, VERSION ) ).getParentFile();
+        assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
+                SOLUTION_ARTIFACTID + "-" + VERSION + ".pom",
+                SOLUTION_ARTIFACTID + "-" + VERSION + "-Win32-Release.zip",
+                SOLUTION_ARTIFACTID + "-" + VERSION + "-Win32-Debug.zip"} ) );
+
         verifier.resetStreams();
         
         verifier.executeGoal( "clean" );
@@ -81,24 +84,25 @@ public class MavenITHelloWorldLibTest
         addPropertiesToVerifier( verifier );
         
         // Delete any existing artifact from the local repository
-        verifier.deleteArtifact( GROUPID, PROJECT_ARTIFACTID, VERSION, "lib" );
+        verifier.deleteArtifacts( GROUPID, PROJECT_ARTIFACTID, VERSION );
 
         verifier.executeGoal( "install" );
         verifier.verifyErrorFreeLog();
-        List<String> releaseDirContents = Arrays.asList( releaseDir.list() );
-        assertEquals( HELLOWORLD_PROJECT_RELEASE_FILE_COUNT, releaseDirContents.size() );
+
         // We don't check all 10 files, just the most important ones
-        assertTrue( releaseDirContents.contains( "hello-world-lib.lib" ) ); 
-        List<String> debugDirContents = Arrays.asList( debugDir.list() );
-        assertEquals( HELLOWORLD_PROJECT_DEBUG_FILE_COUNT, debugDirContents.size() );
-        // We don't check all 11 files, just the most important ones
-        assertTrue( debugDirContents.contains( "hello-world-lib.lib" ) ); 
+        assertDirectoryContents( releaseDir, HELLOWORLD_PROJECT_RELEASE_FILE_COUNT, Arrays.asList( 
+                new String[]{"hello-world-lib.lib"} ) );
+        // We don't check all 1 files, just the most important ones
+        assertDirectoryContents( debugDir, HELLOWORLD_PROJECT_DEBUG_FILE_COUNT, Arrays.asList( 
+                new String[]{"hello-world-lib.lib"} ) );
         
-        verifier.assertArtifactPresent( GROUPID,
-                PROJECT_ARTIFACTID,
-                VERSION, 
-                MSBuildPackaging.LIB );
-        // NOTE: verifier doesn't appear to provide a way to check artifacts with other classifiers
+        File artifactsDir = new File( 
+                verifier.getArtifactMetadataPath( GROUPID, PROJECT_ARTIFACTID, VERSION ) ).getParentFile();
+        assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
+                PROJECT_ARTIFACTID + "-" + VERSION + ".pom",
+                PROJECT_ARTIFACTID + "-" + VERSION + ".lib",
+                PROJECT_ARTIFACTID + "-" + VERSION + "-Win32-Debug.lib"} ) );
+
 
         verifier.resetStreams();
         

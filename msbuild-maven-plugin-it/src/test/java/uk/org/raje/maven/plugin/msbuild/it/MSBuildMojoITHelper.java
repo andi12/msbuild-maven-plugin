@@ -42,6 +42,11 @@ class MSBuildMojoITHelper
     {
     }
 
+    /**
+     * Add properties from src/test/resources/verifier.properties to the build environment
+     * @param verifier the {@link org.apache.maven.it.Verifier} to modify
+     * @throws IOException if verifier.properties cannot be read
+     */
     static void addPropertiesToVerifier( Verifier verifier ) throws IOException
     {
         Properties props = new Properties();
@@ -49,6 +54,23 @@ class MSBuildMojoITHelper
         Properties systemProps = verifier.getSystemProperties();
         systemProps.putAll( props );
         verifier.setSystemProperties( systemProps );
+    }
+
+    /**
+     * Assert that the given directory contains the expected number of entries and the expected set of files.
+     * Note we don't require that you check all files to expectedFiles can contain a subset
+     * @param directory the directory to check
+     * @param expectedCount the number of entries expected in the directory
+     * @param expectedFiles the expected entry names
+     */
+    static void assertDirectoryContents( File directory, int expectedCount, List<String> expectedFiles )
+    {
+        List<String> dirContents = Arrays.asList( directory.list() );
+        assertEquals( expectedCount, dirContents.size() );
+        for ( String fileName: expectedFiles )
+        {
+            assertTrue( "Expacted file missing: " + fileName, dirContents.contains( fileName ) );
+        }
     }
 
     /**

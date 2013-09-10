@@ -16,18 +16,16 @@
 package uk.org.raje.maven.plugin.msbuild.it;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.ResourceExtractor;
 import org.junit.Test;
 
-import uk.org.raje.maven.plugin.msbuild.MSBuildPackaging;
 import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.addPropertiesToVerifier;
+import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.assertDirectoryContents;
 import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.calculateAndDeleteOutputDirectory;
 import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.checkProjectBuildOutputIsCleaned;
 
@@ -50,20 +48,22 @@ public class MavenITHelloWorldDllTest
         addPropertiesToVerifier( verifier );
         
         // Delete any existing artifact from the local repository
-        verifier.deleteArtifact( GROUPID, SOLUTION_ARTIFACTID, VERSION, "dll" );
+        verifier.deleteArtifacts( GROUPID, SOLUTION_ARTIFACTID, VERSION );
 
         verifier.executeGoal( "install" );
         verifier.verifyErrorFreeLog();
-        List<String> releaseDirContents = Arrays.asList( releaseDir.list() );
-        assertEquals( 2, releaseDirContents.size() );
-        assertTrue( releaseDirContents.contains( "hello-world-dll.dll" ) ); 
-        assertTrue( releaseDirContents.contains( "hello-world-dll.pdb" ) ); 
-        List<String> debugDirContents = Arrays.asList( debugDir.list() );
-        assertEquals( 3, debugDirContents.size() );
-        assertTrue( debugDirContents.contains( "hello-world-dll.dll" ) ); 
-        assertTrue( debugDirContents.contains( "hello-world-dll.ilk" ) ); 
-        assertTrue( debugDirContents.contains( "hello-world-dll.pdb" ) ); 
-        
+        assertDirectoryContents( releaseDir, 2, Arrays.asList( 
+                new String[]{"hello-world-dll.dll", "hello-world-dll.pdb"} ) );
+        assertDirectoryContents( debugDir, 3, Arrays.asList( 
+                new String[]{"hello-world-dll.dll", "hello-world-dll.ilk", "hello-world-dll.pdb"} ) );
+
+        File artifactsDir = new File( 
+                verifier.getArtifactMetadataPath( GROUPID, SOLUTION_ARTIFACTID, VERSION ) ).getParentFile();
+        assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
+                SOLUTION_ARTIFACTID + "-" + VERSION + ".pom",
+                SOLUTION_ARTIFACTID + "-" + VERSION + "-Win32-Release.zip",
+                SOLUTION_ARTIFACTID + "-" + VERSION + "-Win32-Debug.zip"} ) );
+
         verifier.resetStreams();
         
         verifier.executeGoal( "clean" );
@@ -84,24 +84,23 @@ public class MavenITHelloWorldDllTest
         addPropertiesToVerifier( verifier );
         
         // Delete any existing artifact from the local repository
-        verifier.deleteArtifact( GROUPID, PROJECT_ARTIFACTID, VERSION, "dll" );
+        verifier.deleteArtifacts( GROUPID, PROJECT_ARTIFACTID, VERSION );
 
         verifier.executeGoal( "install" );
         verifier.verifyErrorFreeLog();
-        List<String> releaseDirContents = Arrays.asList( releaseDir.list() );
-        assertEquals( HELLOWORLD_PROJECT_RELEASE_FILE_COUNT, releaseDirContents.size() );
-        // We don't check all 10 files, just the most important ones
-        assertTrue( releaseDirContents.contains( "hello-world-dll.dll" ) ); 
-        List<String> debugDirContents = Arrays.asList( debugDir.list() );
-        assertEquals( HELLOWORLD_PROJECT_DEBUG_FILE_COUNT, debugDirContents.size() );
-        // We don't check all 11 files, just the most important ones
-        assertTrue( debugDirContents.contains( "hello-world-dll.dll" ) ); 
-        
-        verifier.assertArtifactPresent( GROUPID,
-                PROJECT_ARTIFACTID,
-                VERSION, 
-                MSBuildPackaging.DLL );
-        // NOTE: verifier doesn't appear to provide a way to check artifacts with other classifiers
+        // We don't check all 18 files, just the most important ones
+        assertDirectoryContents( releaseDir, HELLOWORLD_PROJECT_RELEASE_FILE_COUNT, Arrays.asList( 
+                new String[]{"hello-world-dll.dll", "hello-world-dll.pdb"} ) );
+        // We don't check all 32 files, just the most important ones
+        assertDirectoryContents( debugDir, HELLOWORLD_PROJECT_DEBUG_FILE_COUNT, Arrays.asList( 
+                new String[]{"hello-world-dll.dll", "hello-world-dll.pdb"} ) );
+
+        File artifactsDir = new File( 
+                verifier.getArtifactMetadataPath( GROUPID, PROJECT_ARTIFACTID, VERSION ) ).getParentFile();
+        assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
+                PROJECT_ARTIFACTID + "-" + VERSION + ".pom",
+                PROJECT_ARTIFACTID + "-" + VERSION + ".dll",
+                PROJECT_ARTIFACTID + "-" + VERSION + "-Win32-Debug.dll"} ) );
 
         verifier.resetStreams();
         
