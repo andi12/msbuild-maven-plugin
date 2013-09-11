@@ -19,7 +19,7 @@
 
     <groupId>uk.org.raje.maven.plugins</groupId>
     <artifactId>msbuild-maven-plugin-parent</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.2</version>
     <packaging>pom</packaging>
 
    <parent>
