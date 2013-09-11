@@ -321,7 +321,7 @@ public class CppCheckMojo extends AbstractCIToolsMojo
     /**
      * The path to CppCheck.
      */
-    @Parameter( property = "cppcheck.path", readonly = false, required = true )
+    @Parameter( property = "cppcheck.path", readonly = false, required = false )
     protected File cppCheckPath;
 
     @Parameter( defaultValue = "cppcheck-report", readonly = false, required = false )
