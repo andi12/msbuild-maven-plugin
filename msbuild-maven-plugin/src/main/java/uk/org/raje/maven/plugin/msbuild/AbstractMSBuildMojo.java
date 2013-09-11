@@ -59,7 +59,7 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
      */
     protected final void validateForMSBuild() throws MojoExecutionException
     {
-        if ( ! isSolution() && !MSBuildPackaging.isValid( mavenProject.getPackaging() ) )
+        if ( !MSBuildPackaging.isValid( mavenProject.getPackaging() ) )
         {
             throw new MojoExecutionException( "Please set packaging to one of " + MSBuildPackaging.validPackaging() );
         }
@@ -113,12 +113,22 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
                 && projectFile.isFile() )
         {
             getLog().debug( "Project file validated at " + projectFile );
+
+            boolean solutionFile = projectFile.getName().toLowerCase().endsWith( "." + SOLUTION_EXTENSION ); 
+            if ( ( isSolution() && ! solutionFile )
+                    || ( ! isSolution() && solutionFile ) )
+            {
+                // Solution packaging defined but the projectFile is not a .sln
+                String msg = "You must specify a solution file when packaging is " + MSBuildPackaging.MSBUILD_SOLUTION;
+                getLog().error( msg );
+                throw new MojoExecutionException( msg );
+            }
             return;
         }
         String prefix = "Missing projectFile";
         if ( projectFile != null )
         {
-            prefix = "The specified projectFile '" + projectFile
+            prefix = ". The specified projectFile '" + projectFile
                     + "' is not valid";
         }
         throw new MojoExecutionException( prefix
@@ -127,17 +137,11 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
 
     /**
      * Is the configured project a solution
-     * @return true if the project file name configured ends '.sln'
+     * @return true if the project packing is for a solution
      */
     protected boolean isSolution()
     {
-        boolean result = false;
-        if ( ( projectFile != null ) 
-                && ( projectFile.getName().toLowerCase().endsWith( "." + SOLUTION_EXTENSION ) )  )
-        {
-            result = true;
-        }
-        return result;
+        return MSBuildPackaging.isSolution( mavenProject.getPackaging() );
     }
 
     /**

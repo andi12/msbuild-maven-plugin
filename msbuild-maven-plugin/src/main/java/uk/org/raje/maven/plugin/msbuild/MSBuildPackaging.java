@@ -21,6 +21,10 @@ package uk.org.raje.maven.plugin.msbuild;
 public class MSBuildPackaging 
 {
     /**
+     * Visual Studio Solution
+     */
+    public static final String MSBUILD_SOLUTION = "msbuild-solution";
+    /**
      * Windows static library
      */
     public static final String LIB = "lib";
@@ -47,7 +51,20 @@ public class MSBuildPackaging
      */
     public static boolean isValid( String packaging )
     {
-        return EXE.equals( packaging ) || LIB.equals( packaging ) || DLL.equals( packaging );
+        return MSBUILD_SOLUTION.equals( packaging ) 
+                || EXE.equals( packaging ) 
+                || DLL.equals( packaging ) 
+                || LIB.equals( packaging );
+    }
+
+    /**
+     * Test whether a packing is for a solution.
+     * @param packaging string to test
+     * @return true if the packing is {@link #MSBUILD_SOLUTION}, false otherwise.
+     */
+    public static boolean isSolution( String packaging )
+    {
+        return MSBUILD_SOLUTION.equals( packaging );
     }
 
     /**
@@ -57,8 +74,9 @@ public class MSBuildPackaging
     public static final String validPackaging()
     {
         return new StringBuilder()
-            .append( LIB ).append( ", " )
+            .append( MSBUILD_SOLUTION ).append( ", " )
+            .append( EXE ).append( ", " )
             .append( DLL ).append( ", " )
-            .append( EXE ).toString();
+            .append( LIB ).toString();
     }
 }

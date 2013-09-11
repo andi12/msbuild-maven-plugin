@@ -17,12 +17,12 @@
 <component-set>
     <components>
         <!-- ********************************************************************** -->
-        <!-- Configure exe packaging -->
+        <!-- Configure msbuild-solution packaging -->
         <!-- ********************************************************************** -->
         <component>
             <role>org.apache.maven.lifecycle.mapping.LifecycleMapping
             </role>
-            <role-hint>exe</role-hint>
+            <role-hint>msbuild-solution</role-hint>
             <implementation>
                 org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
             </implementation>
@@ -48,15 +48,56 @@
         <component>
             <role>org.apache.maven.artifact.handler.ArtifactHandler
             </role>
+            <role-hint>msbuild-solution</role-hint>
+            <implementation>
+                org.apache.maven.artifact.handler.DefaultArtifactHandler
+            </implementation>
+            <configuration>
+                <packaging>msbuild-solution</packaging>
+                <!--the extension used by Maven in the repository -->
+                <extension>zip</extension>
+                <!--the type used when specifying dependencies etc. -->
+                <type>msbuild-solution</type>
+                <language>native</language>
+            </configuration>
+        </component>
+        <!-- ********************************************************************** -->
+        <!-- Configure exe packaging -->
+        <!-- ********************************************************************** -->
+        <component>
+            <role>org.apache.maven.lifecycle.mapping.LifecycleMapping
+            </role>
+            <role-hint>exe</role-hint>
+            <implementation>
+                org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
+            </implementation>
+            <configuration>
+                <phases>
+                    <clean>
+                        org.apache.maven.plugins:maven-clean-plugin:clean,uk.org.raje.maven.plugins:msbuild-maven-plugin:clean
+                    </clean>
+                    <compile>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:build
+                    </compile>
+                    <install>
+                        org.apache.maven.plugins:maven-install-plugin:install
+                    </install>
+                    <deploy>
+                        org.apache.maven.plugins:maven-deploy-plugin:deploy
+                    </deploy>
+                </phases>
+            </configuration>
+        </component>
+        <component>
+            <role>org.apache.maven.artifact.handler.ArtifactHandler
+            </role>
             <role-hint>exe</role-hint>
             <implementation>
                 org.apache.maven.artifact.handler.DefaultArtifactHandler
             </implementation>
             <configuration>
                 <packaging>exe</packaging>
-                <!--the extension used by Maven in the repository -->
                 <extension>exe</extension>
-                <!--the type used when specifying dependencies etc. -->
                 <type>exe</type>
                 <language>native</language>
             </configuration>
