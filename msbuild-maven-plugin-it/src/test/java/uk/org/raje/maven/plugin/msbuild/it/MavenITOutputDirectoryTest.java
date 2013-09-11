@@ -72,8 +72,44 @@ public class MavenITOutputDirectoryTest
         assertEquals( 0, win32DebugDir.list().length );
     }
 
+    @Test
+    public void testLibProjectBuild() throws Exception
+    {
+        File testDir = ResourceExtractor.simpleExtractResources( getClass(),
+                "/output-directory-test/output-directory-test-lib" );
+        File win32ReleaseDir = calculateAndDeleteOutputDirectory( testDir, "Runtime\\Release" );
+        File win32DebugDir = calculateAndDeleteOutputDirectory( testDir, "Runtime\\Debug" );
+
+        Verifier verifier = new Verifier( testDir.getAbsolutePath() );
+        addPropertiesToVerifier( verifier );
+        
+        // Delete any existing artifact from the local repository
+        verifier.deleteArtifacts( GROUPID, SOLUTION_ARTIFACTID, VERSION );
+
+        verifier.executeGoal( "install" );
+        verifier.verifyErrorFreeLog();
+        assertDirectoryContents( win32ReleaseDir, 1, Arrays.asList( new String[]
+                {"output-directory-test-lib.lib"} ) );
+        assertDirectoryContents( win32DebugDir, 1, Arrays.asList( new String[]
+                {"output-directory-test-lib.lib"} ) );
+        
+        File artifactsDir = new File( 
+                verifier.getArtifactMetadataPath( GROUPID, LIBPROJ_ARTIFACTID, VERSION ) ).getParentFile();
+        assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
+                LIBPROJ_ARTIFACTID + "-" + VERSION + ".pom",
+                LIBPROJ_ARTIFACTID + "-" + VERSION + ".lib",
+                LIBPROJ_ARTIFACTID + "-" + VERSION + "-Win32-Debug.lib"} ) );
+
+        verifier.resetStreams();
+        
+        verifier.executeGoal( "clean" );
+        verifier.verifyErrorFreeLog();
+        assertEquals( 0, win32ReleaseDir.list().length );
+        assertEquals( 0, win32DebugDir.list().length );
+    }    
+
     private static final String GROUPID = "uk.org.raje.maven.plugins.msbuild.it";
     private static final String SOLUTION_ARTIFACTID = "output-directory-solution-test";
-    private static final String PROJECT_ARTIFACTID = "output-directory-project-test";
+    private static final String LIBPROJ_ARTIFACTID = "output-directory-libproj-test";
     private static final String VERSION = "1-SNAPSHOT";
 }
