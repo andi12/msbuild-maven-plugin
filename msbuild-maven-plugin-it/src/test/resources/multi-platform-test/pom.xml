@@ -21,7 +21,7 @@
     <groupId>uk.org.raje.maven.plugins.msbuild.it</groupId>
     <artifactId>multi-platform-solution-test</artifactId>
     <version>1-SNAPSHOT</version>
-    <packaging>exe</packaging>
+    <packaging>msbuild-solution</packaging>
 
     <build>
         <plugins>
