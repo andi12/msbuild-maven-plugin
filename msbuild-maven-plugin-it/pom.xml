@@ -23,7 +23,7 @@
     <parent>
         <groupId>uk.org.raje.maven.plugins</groupId>
         <artifactId>msbuild-maven-plugin-parent</artifactId>
-        <version>0.2</version>
+        <version>0.3-SNAPSHOT</version>
     </parent>
 
     <name>MSBuild Maven Plugin Integration Tests - maven-msbuild-plugin-it</name>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>uk.org.raje.maven.plugins</groupId>
             <artifactId>msbuild-maven-plugin</artifactId>
-            <version>0.2</version>
+            <version>0.3-SNAPSHOT</version>
         </dependency>
 
         <!-- Test -->
