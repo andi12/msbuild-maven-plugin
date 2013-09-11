@@ -48,11 +48,13 @@ public class MSBuildCleanMojo extends AbstractMSBuildMojo
         {
             MSBuildExecutor msbuild = new MSBuildExecutor( getLog(), msbuildPath, projectFile );
             msbuild.setPlatforms( platforms );
+            
             List<String> cleanTargets = new ArrayList<String>();
-            // TODO: If we want to clean specific targets we create this list as
-            // <target1>:Clean, <target2>:Clean, ...
-            // For now we just ask for all targets to be Cleaned
+            // For now we just add the single 'Clean' target which cleans everything
+            // We could add each target from the pom as <targetName>:Clean
+            // but we don't feel that this mirrors normal Maven clean behaviour
             cleanTargets.add( "Clean" );
+            
             msbuild.setTargets( cleanTargets );
             msbuild.execute();
         }

@@ -208,14 +208,6 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
             required = true )
     protected File projectFile;
 
-    ///**
-    // * The set of targets to build.
-    // */
-    //@Parameter(
-    //        readonly = false,
-    //        required = false )
-    //protected List<String> targets;
-
     /**
      * The set of platforms to build.
      */
