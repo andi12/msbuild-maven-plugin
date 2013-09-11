@@ -17,12 +17,14 @@ package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
@@ -60,6 +62,7 @@ public class MSBuildMojo extends AbstractMSBuildMojo
         {
             MSBuildExecutor msbuild = new MSBuildExecutor( getLog(), msbuildPath, projectFile );
             msbuild.setPlatforms( platforms );
+            msbuild.setTargets( targets );
             if ( msbuild.execute() != 0 )
             {
                 throw new MojoExecutionException(
@@ -236,4 +239,12 @@ public class MSBuildMojo extends AbstractMSBuildMojo
      */
     @Component( role = org.codehaus.plexus.archiver.Archiver.class, hint = "zip" )
     private ZipArchiver zipArchiver;
+
+    /**
+     * The set of targets to build.
+     */
+    @Parameter(
+            readonly = false,
+            required = false )
+    protected List<String> targets;
 }
