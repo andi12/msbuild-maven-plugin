@@ -18,12 +18,15 @@ package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
+import org.codehaus.plexus.util.cli.StreamConsumer;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 
@@ -42,13 +45,13 @@ public class MojoHelper
      * Validates the path to a command-line tool.
      * @throws FileNotFoundException if the tool cannot be found
      */
-    public static void validateToolPath( File toolPath, String toolEnvVarPath, String toolName, Log logger ) 
+    public static void validateToolPath( File toolPath, String toolPathEnvVar, String toolName, Log logger ) 
             throws FileNotFoundException
     {
         if ( toolPath == null )
         {
             // not set in configuration try system environment
-            String toolEnvPath = System.getenv( toolEnvVarPath );
+            String toolEnvPath = System.getenv( toolPathEnvVar );
             
             if ( toolEnvPath != null )
             {
@@ -120,5 +123,73 @@ public class MojoHelper
             platformNames.add( platform.getName() );
             platform.identifyPrimaryConfiguration();
         }
-    }    
+    }
+    
+    /**
+     * @author dmasato
+     *
+     */
+    protected static class LogOutputStreamConsumer implements StreamConsumer
+    {
+        public LogOutputStreamConsumer( Log logger ) 
+        {
+            this.logger = logger;
+        }
+        
+        @Override
+        public void consumeLine( String line )
+        {
+            logger.info( line );
+        }
+        
+        private Log logger;
+    }
+
+    /**
+     * @author dmasato
+     *
+     */
+    protected static class ErrStreamConsumer implements StreamConsumer
+    {
+        public ErrStreamConsumer( Log logger ) 
+        {
+            this.logger = logger;
+        }
+        
+        @Override
+        public void consumeLine( String line )
+        {
+            logger.error( line );
+        }
+        
+        private Log logger;
+    }
+    
+    /**
+     * @author dmasato
+     *
+     */
+    protected static class WriterStreamConsumer implements StreamConsumer
+    {
+        public WriterStreamConsumer( Writer writer ) 
+        {
+            this.writer = writer;
+        }
+        
+        @Override
+        public void consumeLine( String line )
+        {
+            try 
+            {
+                writer.write( line );
+            } 
+            catch ( IOException ioe ) 
+            {
+                ioe.printStackTrace();
+            }
+        }
+        
+        private Writer writer;
+    }
+    
 }

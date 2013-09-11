@@ -17,15 +17,10 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
-import org.apache.maven.execution.DefaultMavenExecutionRequest;
-import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.project.ProjectBuildingRequest;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -33,6 +28,14 @@ import org.junit.Test;
  */
 public class CppCheckConfigurationTest extends AbstractMojoTestCase 
 {
+    
+    @Before
+    protected void setUp() throws Exception 
+    {
+        // required for mojo lookups to work
+        super.setUp();
+    }    
+    
     @Test
     public final void testMissingCppCheckConfiguration() throws Exception 
     {
@@ -41,19 +44,18 @@ public class CppCheckConfigurationTest extends AbstractMojoTestCase
         try
         {
             cppCheckMojo.execute();
-            fail();
         }
         catch ( MojoExecutionException mee )
         {
-            assertEquals( mee.getCause().getClass(), FileNotFoundException.class );
+            fail();
         }
     }
     
     @Test
     public final void testMinimalSolutionConfiguration() throws Exception 
     {
-        CppCheckMojo cppCheckMojo = 
-                lookupCppCheckMojo( "src/test/resources/unit/cppcheck/minimal-msbuild-solution-pom.xml" );
+        CppCheckMojo cppCheckMojo = lookupCppCheckMojo( "src/test/resources/unit/cppcheck/" 
+                + "msbuild-solution-single-platform-single-config-pom.xml" );
         
         try
         {
@@ -76,23 +78,9 @@ public class CppCheckConfigurationTest extends AbstractMojoTestCase
         File pom = getTestFile( pomPath );
         assertNotNull( pom );
         assertTrue( pom.exists() );
-
-        // The following 4 lines are simply to get a MavenProject object
-        MavenExecutionRequest executionRequest = new DefaultMavenExecutionRequest();
-        ProjectBuildingRequest buildingRequest = executionRequest.getProjectBuildingRequest();
-        ProjectBuilder projectBuilder = this.lookup( ProjectBuilder.class );
-        MavenProject mavenProject = projectBuilder.build( pom, buildingRequest ).getProject();
-        assertNotNull( mavenProject );
         
-        // Used lookupMojo as it sets up most of what we need and reads configuration
-        // variables from the poms.
-        // It doesn't set a MavenProject so we have to do that manually
-        // lookupConfiguredMojo doesn't work properly, configuration variables are no expanded
-        // as we expect and it fails to setup a Log.
-        //CppCheckMojo cppCheckMojo = (CppCheckMojo) lookupConfiguredMojo( mavenProject, CppCheckMojo.MOJO_NAME );
         CppCheckMojo cppCheckMojo = (CppCheckMojo) lookupMojo( CppCheckMojo.MOJO_NAME, pom );
         assertNotNull( cppCheckMojo );
-        cppCheckMojo.mavenProject = mavenProject;
 
         return cppCheckMojo;
     }

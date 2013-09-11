@@ -17,6 +17,7 @@
 package uk.org.raje.maven.plugin.msbuild.parser;
 
 import java.io.File;
+import java.security.InvalidParameterException;
 import java.util.List;
 
 
@@ -28,8 +29,13 @@ public class VCProject
 {
     public VCProject( String name, File path ) 
     {
+        if ( name == null || path == null ) 
+        {
+            throw new InvalidParameterException();
+        }
+        
         this.name = name;
-        this.path = path;
+        this.path = path.getAbsoluteFile();
     }
     
     public String getGuid() 
@@ -97,14 +103,14 @@ public class VCProject
         this.preprocessorDefs = preprocessorDefs;
     }
 
-    public List<String> getIncludeDirs() 
+    public List<String> getIncludeDirectories() 
     {
-        return includeDirs;
+        return includeDirectories;
     }
 
-    public void setIncludeDirs( List<String> includeDirs ) 
+    public void setIncludeDirectories( List<String> includeDirectories ) 
     {
-        this.includeDirs = includeDirs;
+        this.includeDirectories = includeDirectories;
     }
 
     private String guid = null;
@@ -113,6 +119,6 @@ public class VCProject
     private File path = null;
     private String configuration = null;
     private String platform = null;
-    private List<String> includeDirs = null;
+    private List<String> includeDirectories = null;
     private List<String> preprocessorDefs = null;
 }

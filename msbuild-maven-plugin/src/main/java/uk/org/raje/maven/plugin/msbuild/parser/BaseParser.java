@@ -51,6 +51,11 @@ public abstract class BaseParser
         return inputFile;
     }
 
+    public File getInputFileParent() 
+    {
+        return inputFile.getParentFile();
+    }
+
     public String getRequiredConfiguration() 
     {
         return requiredConfig;

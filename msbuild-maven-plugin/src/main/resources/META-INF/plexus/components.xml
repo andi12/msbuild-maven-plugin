@@ -39,6 +39,9 @@
                     <install>
                         org.apache.maven.plugins:maven-install-plugin:install
                     </install>
+                    <verify>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:cppcheck
+                    </verify>
                     <deploy>
                         org.apache.maven.plugins:maven-deploy-plugin:deploy
                     </deploy>

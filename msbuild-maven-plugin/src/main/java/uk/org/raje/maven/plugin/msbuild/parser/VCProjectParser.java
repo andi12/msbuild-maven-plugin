@@ -62,14 +62,9 @@ public class VCProjectParser extends BaseParser
         SAXParserFactory factory = SAXParserFactory.newInstance();
 
         parser = factory.newSAXParser();
-        elementParserState = ElementParserState.PARSE_IGNORE;
-        charParserState = CharParserState.PARSE_IGNORE;
-        paths = new LinkedList<String>( Arrays.asList( PATH_ROOT ) );
-        includeDirs = new ArrayList<String>();
-        preprocessorDefs = new ArrayList<String>();
     }
 
-    public void updateProject( VCProject project )
+    public void updateVCProject( VCProject project )
     {
         if ( project == null ) 
         {
@@ -77,7 +72,7 @@ public class VCProjectParser extends BaseParser
         }
         
         project.setPreprocessorDefs( preprocessorDefs );
-        project.setIncludeDirs( includeDirs );
+        project.setIncludeDirectories( includeDirs );
     }
     
     public List<String> getIncludeDirs() 
@@ -121,7 +116,6 @@ public class VCProjectParser extends BaseParser
                     if ( path.compareTo( PATH_ITEMDEF_GROUP ) == 0 
                         && attributes.getValue( "Condition" ).contains( getRequiredConfigurationPlatform() ) ) 
                     {
-                        
                         elementParserState = ElementParserState.PARSE_CONFIGPLATFORM_GROUP;
                     }
                 }
@@ -130,15 +124,15 @@ public class VCProjectParser extends BaseParser
             @Override
             public void endElement( String uri, String localName, String qName ) 
                     throws SAXException 
-                    {
-                
-                paths.pop();
-                charParserState = CharParserState.PARSE_IGNORE;
+            {
+                String path = paths.pop();
 
-                if ( qName == PATH_ITEMDEF_GROUP ) 
+                if ( path.compareTo( PATH_ITEMDEF_GROUP ) == 0 ) 
                 {
                     elementParserState = ElementParserState.PARSE_IGNORE;
                 }
+
+                charParserState = CharParserState.PARSE_IGNORE;
             }
             
             @Override
@@ -208,9 +202,9 @@ public class VCProjectParser extends BaseParser
     }
     
     private SAXParser parser = null; 
-    private LinkedList<String> paths = null; 
-    private ElementParserState elementParserState = null;
-    private CharParserState charParserState = null;
-    private List<String> includeDirs = null;
-    private List<String> preprocessorDefs = null;
+    private LinkedList<String> paths = new LinkedList<String>( Arrays.asList( PATH_ROOT ) ); 
+    private ElementParserState elementParserState = ElementParserState.PARSE_IGNORE;
+    private CharParserState charParserState = CharParserState.PARSE_IGNORE;
+    private List<String> includeDirs = new ArrayList<String>();
+    private List<String> preprocessorDefs = new ArrayList<String>();
 }

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
    Copyright 2013 Andrew Everitt, Andrew Heckford, Daniele Masato
 
@@ -16,20 +17,37 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
-    <groupId>uk.org.raje.maven.plugins.unit</groupId>
-    <artifactId>minimal-configuration</artifactId>
-    <version>1</version>
-    
+
+    <groupId>uk.org.raje.maven.plugins.msbuild.it</groupId>
+    <artifactId>hello-world-build-project-test</artifactId>
+    <version>1-SNAPSHOT</version>
+    <packaging>exe</packaging>
+
     <build>
         <plugins>
             <plugin>
+                <groupId>uk.org.raje.maven.plugins</groupId>
                 <artifactId>msbuild-maven-plugin</artifactId>
+                <version>${msbuild-maven-plugin.version}</version>
+                <extensions>true</extensions>
                 <configuration>
-                    <cppCheckPath>${basedir}/src/test/resources/unit/cppcheck/fake-cppcheck.cmd</cppCheckPath>
-                    <projectFile>${basedir}/src/test/resources/unit/cppcheck/minimal-msbuild-solution/minimal-msbuild-solution.sln</projectFile>
+                    <projectFile>${basedir}/hello-world.vcxproj</projectFile>
+                    <platforms>
+                        <platform>
+                            <name>Win32</name>
+                            <configurations>
+                                <configuration>
+                                    <name>Release</name>
+                                </configuration>
+                                <configuration>
+                                    <name>Debug</name>
+                                </configuration>
+                            </configurations>
+                        </platform>
+                    </platforms>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
 </project>

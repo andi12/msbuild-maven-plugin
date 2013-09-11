@@ -18,16 +18,28 @@
     <modelVersion>4.0.0</modelVersion>
     
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
-    <artifactId>no-msbuild-configuration</artifactId>
+    <artifactId>minimal-configuration</artifactId>
     <version>1</version>
-    <packaging>exe</packaging>
-
+    
     <build>
         <plugins>
             <plugin>
                 <groupId>uk.org.raje.maven.plugins</groupId>
                 <artifactId>msbuild-maven-plugin</artifactId>
-                <configuration />
+                <configuration>
+                    <cppCheckPath>${basedir}/src/test/resources/unit/cppcheck/fake-cppcheck.cmd</cppCheckPath>
+                    <projectFile>${basedir}/src/test/resources/unit/cppcheck/minimal-msbuild-solution/minimal-msbuild-solution.sln</projectFile>
+                    <platforms>
+                        <platform>
+                            <name>Win32</name>
+                            <configurations>
+                                <configuration>
+                                    <name>Debug</name>
+                                </configuration>
+                            </configurations>
+                        </platform>
+                    </platforms>
+                </configuration>
             </plugin>
         </plugins>
     </build>

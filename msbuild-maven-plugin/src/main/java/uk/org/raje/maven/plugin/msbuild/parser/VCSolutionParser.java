@@ -104,7 +104,7 @@ public class VCSolutionParser extends BaseParser
         projectExcludePattern = Pattern.compile( excludeProjectRegex == null ? "" : excludeProjectRegex );
     }
     
-    public Collection<VCProject> getProjects() 
+    public Collection<VCProject> getVCProjects() 
     {
         return projects.values();
     }
@@ -177,7 +177,6 @@ public class VCSolutionParser extends BaseParser
         if ( slnConfigPlatform.compareTo( getRequiredConfigurationPlatform() ) == 0 ) 
         {
             configPlatformFound = true;
-            //print("Found solution configuration: {:s}".format(solnConfigPlatform))
         }
     }
     
@@ -198,27 +197,22 @@ public class VCSolutionParser extends BaseParser
         if ( projects.containsKey( prjGUID ) && slnConfigPlatform.compareTo( getRequiredConfigurationPlatform() ) == 0 
                 && prjConfigEntry.startsWith( "ActiveCfg" ) ) 
         {
-
             VCProject project = projects.get( prjGUID );
-            String projConfigPlatform[] = prjConfigEntry.split( "=" )[prjConfigPlatformId].split( "\\|" );            
+            String projConfigPlatform[] = prjConfigEntry.split( "=" )[prjConfigPlatformId].split( "\\|" );
             project.setConfiguration( projConfigPlatform[prjConfigEntryId] );
             project.setPlatform( projConfigPlatform[prjPlatformEntryId] );
-        
-            /*print("Found project configuration: {:s} {:s} ({:s})".
-                  format(project["name"], projConfigPlatform, solnConfigPlatform))*/
         }
     }
     
     private void parseProjectEntry( Matcher projMatcher ) 
     {
         VCProject project = new VCProject( ProjectProperty.name.getValue( projMatcher ), 
-                new File( ProjectProperty.path.getValue( projMatcher ) ) );
+                new File( getInputFileParent(), ProjectProperty.path.getValue( projMatcher ) ) );
         
         project.setGuid( ProjectProperty.guid.getValue( projMatcher ) );
         project.setSolutionGuid( ProjectProperty.solutionGuid.getValue( projMatcher ) );
             
         projects.put( project.getGuid(), project );
-        //print("Found project: {:s}".format(projMatch.group("name")))
     }
     
     private void validateProjectConfigs() throws ParseException 
@@ -246,7 +240,7 @@ public class VCSolutionParser extends BaseParser
 
     private static String getStringPattern( String groupName ) 
     {
-        return "\"(?<" + groupName + ">\\w+)\"";
+        return "\"(?<" + groupName + ">[\\w-]+)\"";
     }
     
     private static String getPathPattern( String groupName ) 
