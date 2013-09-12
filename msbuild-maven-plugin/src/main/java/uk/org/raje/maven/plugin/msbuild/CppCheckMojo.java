@@ -45,12 +45,14 @@ import uk.org.raje.maven.plugin.msbuild.parser.VCProjectParser;
 import uk.org.raje.maven.plugin.msbuild.parser.VCSolutionParser;
 
 /**
- * @author dmasato
- *
+ * Configure and run Cppcheck static analysis tool.
  */
 @Mojo( name = CppCheckMojo.MOJO_NAME, defaultPhase = LifecyclePhase.VERIFY )
 public class CppCheckMojo extends AbstractCIToolsMojo 
 {
+    /**
+     * The name this Mojo declares, also represents the goal.
+     */
     public static final String MOJO_NAME = "cppcheck";
 
     @Override
@@ -58,13 +60,14 @@ public class CppCheckMojo extends AbstractCIToolsMojo
     {
         List<VCProject> vcProjects = null;
         
+        if ( skipCppCheck )
+        {
+            getLog().info( "Skipping static code analysis, 'skipCppCheck' set to true." );
+            return;
+        }
         if ( cppCheckPath == null ) 
         {
-            if ( getLog().isInfoEnabled() ) 
-            {
-                getLog().info( "Path to CppCheck not set. Skipping code analysis..." );
-            }
-            
+            getLog().info( "Path to CppCheck not set. Skipping static code analysis." );
             return;
         }
         
@@ -321,7 +324,14 @@ public class CppCheckMojo extends AbstractCIToolsMojo
             getLog().info( "Done." );
         }
     }
-    
+
+
+    /**
+     * Set to true to skip cppcheck functionality.
+     */
+    @Parameter( defaultValue = "false", readonly = false )
+    protected boolean skipCppCheck = false; 
+
     /**
      * The path to CppCheck.
      */
