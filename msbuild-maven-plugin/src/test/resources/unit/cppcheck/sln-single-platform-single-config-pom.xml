@@ -20,6 +20,7 @@
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
     <artifactId>minimal-configuration</artifactId>
     <version>1</version>
+    <packaging>msbuild-solution</packaging>
     
     <build>
         <plugins>

@@ -90,7 +90,8 @@ public class MojoHelper
                     || ( ! MSBuildPackaging.isSolution( packaging ) && solutionFile ) )
             {
                 // Solution packaging defined but the projectFile is not a .sln
-                String msg = "You must specify a solution file when packaging is " + MSBuildPackaging.MSBUILD_SOLUTION;
+                String msg = "Packaging doesn't match project file type. "
+                        + "If you specify a solution file then packaging must be " + MSBuildPackaging.MSBUILD_SOLUTION;
                 log.error( msg );
                 throw new MojoExecutionException( msg );
             }

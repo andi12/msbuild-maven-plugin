@@ -109,6 +109,8 @@ public class CppCheckMojo extends AbstractCIToolsMojo
                     + "or set the environment variable ", fnfe );
         }
         
+        MojoHelper.validateProjectFile( mavenProject.getPackaging(), projectFile, getLog() );
+
         platforms = MojoHelper.validatePlatforms( platforms );
         
         if ( cppCheckType == null ) 
