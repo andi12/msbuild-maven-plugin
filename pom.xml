@@ -40,6 +40,12 @@
             <name>Andi Everitt</name>
             <email>andi@raje.org.uk</email>
         </developer>
+
+        <developer>
+            <id>doloopuntil</id>
+            <name>Daniele Masato</name>
+            <email>masato.daniele@gmail.com</email>
+        </developer>
     </developers>
 
     <modules>
@@ -50,7 +56,6 @@
     <properties>
         <!-- Dependency versions -->
         <junit.version>4.8.1</junit.version>
-        <jython.version>2.5.3</jython.version>
 
         <!-- Build plugin versions -->
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
@@ -60,13 +65,6 @@
 
   <dependencyManagement>
     <dependencies>
-        <!-- Support for CxxTest (C++ test framework) -->
-        <dependency>
-            <groupId>org.python</groupId>
-            <artifactId>jython</artifactId>
-            <version>${jython.version}</version>
-        </dependency>    
-        
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
