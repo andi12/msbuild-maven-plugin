@@ -60,7 +60,11 @@ public class CppCheckMojo extends AbstractCIToolsMojo
         
         if ( cppCheckPath == null ) 
         {
-            getLog().debug( "Path to CppCheck not set. Skipping static code analysis..." );
+            if ( getLog().isInfoEnabled() ) 
+            {
+                getLog().info( "Path to CppCheck not set. Skipping code analysis..." );
+            }
+            
             return;
         }
         
