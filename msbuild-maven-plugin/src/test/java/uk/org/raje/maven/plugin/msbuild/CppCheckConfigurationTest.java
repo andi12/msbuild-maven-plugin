@@ -55,7 +55,7 @@ public class CppCheckConfigurationTest extends AbstractMojoTestCase
     public final void testMinimalSolutionConfiguration() throws Exception 
     {
         CppCheckMojo cppCheckMojo = lookupCppCheckMojo( "src/test/resources/unit/cppcheck/" 
-                + "msbuild-solution-single-platform-single-config-pom.xml" );
+                + "sln-single-platform-single-config-pom.xml" );
         
         try
         {

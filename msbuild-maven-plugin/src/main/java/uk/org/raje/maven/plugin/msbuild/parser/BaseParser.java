@@ -29,7 +29,7 @@ import java.text.ParseException;
  */
 public abstract class BaseParser 
 {
-    public BaseParser( File inputFile, String configuration, String platform ) throws FileNotFoundException 
+    public BaseParser( File inputFile, String platform, String configuration ) throws FileNotFoundException 
     {
         if ( inputFile == null ) 
         {

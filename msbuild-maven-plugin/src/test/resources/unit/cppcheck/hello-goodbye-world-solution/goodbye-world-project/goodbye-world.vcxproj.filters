@@ -20,7 +20,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="minimal-project.cpp">
+    <ClCompile Include="goodbye-world.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

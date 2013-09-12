@@ -22,12 +22,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 
 /**
@@ -84,11 +84,11 @@ public class VCSolutionParser extends BaseParser
     private static final String SLN_END_GLOBAL_SECTION = "EndGlobalSection";
     private static final String PRJ_END_GLOBAL_SECTION = "EndGlobalSection";
     
-    public VCSolutionParser( File solutionFile, String configuration, String platform, String excludeProjectRegex ) 
+    public VCSolutionParser( File solutionFile, String platform, String configuration, String excludeProjectRegex ) 
             throws FileNotFoundException 
         {
         
-        super( solutionFile, configuration, platform );
+        super( solutionFile, platform, configuration );
         StringBuffer projectPatternRegex = new StringBuffer(); 
         
         solutionParserState = SolutionParserState.PARSE_IGNORE;
@@ -104,9 +104,9 @@ public class VCSolutionParser extends BaseParser
         projectExcludePattern = Pattern.compile( excludeProjectRegex == null ? "" : excludeProjectRegex );
     }
     
-    public Collection<VCProject> getVCProjects() 
+    public List<VCProject> getVCProjects() 
     {
-        return projects.values();
+        return new LinkedList<VCProject>( projects.values() );
     }
     
     @Override
