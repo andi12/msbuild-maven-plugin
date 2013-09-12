@@ -106,9 +106,13 @@ public class VCSolutionParserTest
         {
             solutionParser.parse();
         } 
-        catch ( IOException | ParseException err ) 
+        catch ( IOException ioe ) 
         {
-            Assert.fail( err.getMessage() );
+            Assert.fail( ioe.getMessage() );
+        }
+        catch ( ParseException pe ) 
+        {
+            Assert.fail( pe.getMessage() );
         }
         
         return solutionParser.getVCProjects();

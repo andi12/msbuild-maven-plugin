@@ -105,18 +105,30 @@ public class VCProjectParserTest
         {
             projectParser = new VCProjectParser( projectFile, platform, configuration );
         } 
-        catch ( FileNotFoundException | SAXException | ParserConfigurationException err ) 
+        catch ( FileNotFoundException fnfe ) 
         {
-            Assert.fail( err.getMessage() );
+            Assert.fail( fnfe.getMessage() );
+        }
+        catch ( SAXException se ) 
+        {
+            Assert.fail( se.getMessage() );
+        }
+        catch ( ParserConfigurationException pce )
+        {
+            Assert.fail( pce.getMessage() );
         }
         
         try 
         {
             projectParser.parse();
         } 
-        catch ( IOException | ParseException err ) 
+        catch ( IOException ioe ) 
         {
-            Assert.fail( err.getMessage() );
+            Assert.fail( ioe.getMessage() );
+        }
+        catch ( ParseException pe ) 
+        {
+            Assert.fail( pe.getMessage() );
         }
         
         VCProject vcProject = new VCProject( TEST_PROJECT_NAMES[0], projectFile );
