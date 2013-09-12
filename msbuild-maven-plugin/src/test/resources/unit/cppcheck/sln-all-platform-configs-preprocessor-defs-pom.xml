@@ -28,13 +28,27 @@
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
                     <cppCheckPath>${basedir}/src/test/resources/unit/cppcheck/fake-cppcheck.cmd</cppCheckPath>
-                    <projectFile>${basedir}/src/test/resources/unit/cppcheck/hello-world-solution/hello-world-solution.sln</projectFile>
+                    <projectFile>${basedir}/src/test/resources/unit/cppcheck/hello-world-preprocessor-defs/hello-world-solution.sln</projectFile>
                     <platforms>
                         <platform>
                             <name>Win32</name>
                             <configurations>
                                 <configuration>
                                     <name>Debug</name>
+                                </configuration>
+                                <configuration>
+                                    <name>Release</name>
+                                </configuration>
+                            </configurations>
+                        </platform>
+                        <platform>
+                            <name>x64</name>
+                            <configurations>
+                                <configuration>
+                                    <name>Debug</name>
+                                </configuration>
+                                <configuration>
+                                    <name>Release</name>
                                 </configuration>
                             </configurations>
                         </platform>

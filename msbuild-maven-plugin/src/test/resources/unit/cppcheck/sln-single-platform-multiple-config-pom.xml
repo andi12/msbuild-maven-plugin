@@ -28,7 +28,7 @@
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
                     <cppCheckPath>${basedir}/src/test/resources/unit/cppcheck/fake-cppcheck.cmd</cppCheckPath>
-                    <projectFile>${basedir}/src/test/resources/unit/cppcheck/minimal-msbuild-solution/minimal-msbuild-solution.sln</projectFile>
+                    <projectFile>${basedir}/src/test/resources/unit/cppcheck/hello-world-solution/hello-world.sln</projectFile>
                     <platforms>
                         <platform>
                             <name>Win32</name>
