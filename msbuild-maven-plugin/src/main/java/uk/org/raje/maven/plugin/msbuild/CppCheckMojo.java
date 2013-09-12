@@ -25,7 +25,7 @@ import java.io.Writer;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -56,7 +56,7 @@ public class CppCheckMojo extends AbstractCIToolsMojo
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException 
     {
-        Collection<VCProject> vcProjects = null;
+        List<VCProject> vcProjects = null;
         
         if ( cppCheckPath == null ) 
         {
@@ -123,10 +123,10 @@ public class CppCheckMojo extends AbstractCIToolsMojo
     private static final String CPPCHECK_PATH_ENVVAR = "CPPCHECK_PATH";
     private static final String CPPCHECK_NAME = "CppCheck";
 
-    private Collection<VCProject> processVCSolutionFile( BuildPlatform platform, BuildConfiguration configuration ) 
+    private List<VCProject> processVCSolutionFile( BuildPlatform platform, BuildConfiguration configuration ) 
             throws MojoExecutionException
     {
-        Collection<VCProject> vcProjects = null;
+        List<VCProject> vcProjects = null;
         vcProjects = parseVCSolution( platform, configuration );
         logVCSolutionConfiguration( platform, configuration );
         
@@ -139,7 +139,7 @@ public class CppCheckMojo extends AbstractCIToolsMojo
         return vcProjects;
     }
     
-    private Collection<VCProject> processVCProjectFile( BuildPlatform platform, BuildConfiguration configuration ) 
+    private List<VCProject> processVCProjectFile( BuildPlatform platform, BuildConfiguration configuration ) 
             throws MojoExecutionException
     {
         VCProject project = new VCProject( projectFile.getName(), projectFile );
@@ -182,14 +182,14 @@ public class CppCheckMojo extends AbstractCIToolsMojo
         }
     }
     
-    private Collection<VCProject> parseVCSolution( BuildPlatform platform, BuildConfiguration configuration ) 
+    private List<VCProject> parseVCSolution( BuildPlatform platform, BuildConfiguration configuration ) 
             throws MojoExecutionException
     {
         VCSolutionParser solutionParser;
         
         try 
         {
-            solutionParser = new VCSolutionParser( projectFile, configuration.getName(), platform.getName(), 
+            solutionParser = new VCSolutionParser( projectFile, platform.getName(), configuration.getName(),
                     excludeProjectRegex );
         }
         catch ( FileNotFoundException fnfe ) 
@@ -225,7 +225,7 @@ public class CppCheckMojo extends AbstractCIToolsMojo
         
         try 
         {
-            projectParser = new VCProjectParser( project.getPath(), project.getConfiguration(), project.getPlatform() );
+            projectParser = new VCProjectParser( project.getPath(), project.getPlatform(), project.getConfiguration() );
         }
         catch ( FileNotFoundException fnfe ) 
         {

@@ -54,11 +54,11 @@ public class VCProjectParser extends BaseParser
     
     private static final String PATH_PREPROCESSOR_DEFS = PATH_CLCOMPILE + PATH_SEPARATOR + "PreprocessorDefinitions";
     
-    public VCProjectParser( File projectFile, String configuration, String platform ) 
+    public VCProjectParser( File projectFile, String platform, String configuration ) 
             throws FileNotFoundException, SAXException, ParserConfigurationException 
         {
         
-        super( projectFile, configuration, platform );
+        super( projectFile, platform, configuration );
         SAXParserFactory factory = SAXParserFactory.newInstance();
 
         parser = factory.newSAXParser();
