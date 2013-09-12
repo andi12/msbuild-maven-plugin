@@ -86,8 +86,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -142,9 +142,8 @@
     </build>
 
     <profiles>
-        <!-- This profile is added to allow the release:prepare phase
-             to skip the tests which will fail as it does not install 
-             the new version to the repository -->
+        <!-- This profile is added to allow the integration tests to be skipped if needed.
+             For example on a machine where the required tools (msbuild, cppcheck, cxxtest etc) are missing --> 
         <profile>
             <id>skip-integration-tests</id>
             <build>
