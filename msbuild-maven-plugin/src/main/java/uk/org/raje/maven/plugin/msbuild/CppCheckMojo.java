@@ -23,7 +23,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -77,7 +76,7 @@ public class CppCheckMojo extends AbstractCIToolsMojo
         {
             for ( BuildConfiguration configuration : platform.getConfigurations() )
             {
-                if ( MojoHelper.isSolution( projectFile ) ) 
+                if ( MSBuildPackaging.isSolution( mavenProject.getPackaging() ) ) 
                 {
                     vcProjects = processVCSolutionFile( platform, configuration );
                 }
@@ -110,13 +109,7 @@ public class CppCheckMojo extends AbstractCIToolsMojo
                     + "or set the environment variable ", fnfe );
         }
         
-        if ( platforms == null ) 
-        {
-            platforms = new ArrayList<BuildPlatform>();
-            platforms.add( new BuildPlatform() );
-        }
-        
-        MojoHelper.validatePlatforms( platforms );
+        platforms = MojoHelper.validatePlatforms( platforms );
         
         if ( cppCheckType == null ) 
         {

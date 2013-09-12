@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,10 +37,10 @@ import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
  */
 public class MojoHelper 
 {
-    /**
-     * The file extension for solution files.
-     */
-    public static final String SOLUTION_EXTENSION = "sln";
+    // no instances
+    private MojoHelper()
+    {
+    }
     
     /**
      * Validates the path to a command-line tool.
@@ -68,37 +69,36 @@ public class MojoHelper
     }    
         
     /**
-     * Is the configured project a solution
-     * @return true if the project file name configured ends '.sln'
-     */
-    public static boolean isSolution( File projectFile )
-    {
-        boolean result = false;
-        
-        if ( ( projectFile != null ) 
-                && ( projectFile.getName().toLowerCase().endsWith( "." + SOLUTION_EXTENSION ) ) )
-        {
-            result = true;
-        }
-        return result;
-    }    
-    
-    /**
      * Check that we have a valid project or solution file.
+     * @param log a Log to write to
+     * @param packaging the project packing
+     * @param projectFile the configured project file to check
      * @throws MojoExecutionException if the specified projectFile is invalid.
      */
-    public static void validateProjectFile( File projectFile ) throws MojoExecutionException
+    protected static void validateProjectFile( Log log, String packaging, File projectFile ) 
+            throws MojoExecutionException
     {
         if ( projectFile != null
                 && projectFile.exists()
                 && projectFile.isFile() )
         {
+            log.debug( "Project file validated at " + projectFile );
+
+            boolean solutionFile = projectFile.getName().toLowerCase().endsWith( "." + SOLUTION_EXTENSION ); 
+            if ( ( MSBuildPackaging.isSolution( packaging ) && ! solutionFile )
+                    || ( ! MSBuildPackaging.isSolution( packaging ) && solutionFile ) )
+            {
+                // Solution packaging defined but the projectFile is not a .sln
+                String msg = "You must specify a solution file when packaging is " + MSBuildPackaging.MSBUILD_SOLUTION;
+                log.error( msg );
+                throw new MojoExecutionException( msg );
+            }
             return;
         }
         String prefix = "Missing projectFile";
         if ( projectFile != null )
         {
-            prefix = "The specified projectFile '" + projectFile
+            prefix = ". The specified projectFile '" + projectFile
                     + "' is not valid";
         }
         throw new MojoExecutionException( prefix
@@ -108,21 +108,32 @@ public class MojoHelper
     /**
      * Check that we have a valid set of platforms.
      * If no platforms are configured we create 1 default platform.
+     * @param platforms the list of BuildPlatform's to validate
+     * @return the passed in list or a new list with a default platform added
      * @throws MojoExecutionException if the configuration is invalid.
      */
-    public static void validatePlatforms( List<BuildPlatform> platforms ) throws MojoExecutionException
+    public static List<BuildPlatform> validatePlatforms( List<BuildPlatform> platforms ) throws MojoExecutionException
     {
-        Set<String> platformNames = new HashSet<String>();
-        for ( BuildPlatform platform : platforms )
+        if ( platforms == null )
         {
-            if ( platformNames.contains( platform.getName() ) )
-            {
-                throw new MojoExecutionException( "Duplicate platform '" + platform.getName()
-                        + "' in configuration, platform names must be unique" );
-            }
-            platformNames.add( platform.getName() );
-            platform.identifyPrimaryConfiguration();
+            platforms = new ArrayList<BuildPlatform>();
+            platforms.add( new BuildPlatform() );
         }
+        else
+        {
+            Set<String> platformNames = new HashSet<String>();
+            for ( BuildPlatform platform : platforms )
+            {
+                if ( platformNames.contains( platform.getName() ) )
+                {
+                    throw new MojoExecutionException( "Duplicate platform '" + platform.getName()
+                            + "' in configuration, platform names must be unique" );
+                }
+                platformNames.add( platform.getName() );
+                platform.identifyPrimaryConfiguration();
+            }
+        }
+        return platforms;
     }
     
     /**
@@ -192,4 +203,9 @@ public class MojoHelper
         private Writer writer;
     }
     
+    /**
+     * The file extension for solution files.
+     */
+    private static final String SOLUTION_EXTENSION = "sln";
+
 }

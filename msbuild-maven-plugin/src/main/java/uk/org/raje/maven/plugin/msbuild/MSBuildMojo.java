@@ -135,7 +135,7 @@ public class MSBuildMojo extends AbstractMSBuildMojo
      */
     private String getOutputName() throws MojoExecutionException
     {
-        if ( isSolution() )
+        if ( MSBuildPackaging.isSolution( mavenProject.getPackaging() ) )
         {
             throw new MojoExecutionException( "Internal error: Cannot determine single output name for a solutions" );
         }
@@ -151,7 +151,7 @@ public class MSBuildMojo extends AbstractMSBuildMojo
     private void findAndAttachArtifacts() throws MojoExecutionException
     {
         getLog().info( "Attaching built artifacts" );
-        if ( isSolution() )
+        if ( MSBuildPackaging.isSolution( mavenProject.getPackaging() ) )
         {
             attachSolutionArtifacts();
         }

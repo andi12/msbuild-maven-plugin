@@ -16,10 +16,7 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -39,10 +36,6 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
      * The file extension for zip archives.
      */
     public static final String ZIP_EXTENSION = "zip";
-    /**
-     * The file extension for solution files.
-     */
-    public static final String SOLUTION_EXTENSION = "sln";
 
     /**
      * Log out configuration values at DEBUG.
@@ -64,8 +57,8 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
             throw new MojoExecutionException( "Please set packaging to one of " + MSBuildPackaging.validPackaging() );
         }
         findMSBuild();
-        validateProjectFile();
-        validatePlatforms();
+        MojoHelper.validateProjectFile( getLog(), mavenProject.getPackaging(), projectFile );
+        platforms = MojoHelper.validatePlatforms( platforms );
     }
 
     /**
@@ -100,76 +93,6 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
                 + "<properties><msbuild.path>...</msbuild.path></properties> "
                 + "or on command-line using -Dmsbuild.path=... or by setting "
                 + "the environment variable " + ENV_MSBUILD_PATH );
-    }
-
-    /**
-     * Check that we have a valid project or solution file.
-     * @throws MojoExecutionException if the specified projectFile is invalid.
-     */
-    protected final void validateProjectFile() throws MojoExecutionException
-    {
-        if ( projectFile != null
-                && projectFile.exists()
-                && projectFile.isFile() )
-        {
-            getLog().debug( "Project file validated at " + projectFile );
-
-            boolean solutionFile = projectFile.getName().toLowerCase().endsWith( "." + SOLUTION_EXTENSION ); 
-            if ( ( isSolution() && ! solutionFile )
-                    || ( ! isSolution() && solutionFile ) )
-            {
-                // Solution packaging defined but the projectFile is not a .sln
-                String msg = "You must specify a solution file when packaging is " + MSBuildPackaging.MSBUILD_SOLUTION;
-                getLog().error( msg );
-                throw new MojoExecutionException( msg );
-            }
-            return;
-        }
-        String prefix = "Missing projectFile";
-        if ( projectFile != null )
-        {
-            prefix = ". The specified projectFile '" + projectFile
-                    + "' is not valid";
-        }
-        throw new MojoExecutionException( prefix
-                + ", please check your configuration" );
-    }
-
-    /**
-     * Is the configured project a solution
-     * @return true if the project packing is for a solution
-     */
-    protected boolean isSolution()
-    {
-        return MSBuildPackaging.isSolution( mavenProject.getPackaging() );
-    }
-
-    /**
-     * Check that we have a valid set of platforms.
-     * If no platforms are configured we create 1 default platform.
-     * @throws MojoExecutionException if the configuration is invalid.
-     */
-    private void validatePlatforms() throws MojoExecutionException
-    {
-        if ( platforms == null )
-        {
-            platforms = new ArrayList<BuildPlatform>();
-            platforms.add( new BuildPlatform() );
-        }
-        else
-        {
-            Set<String> platformNames = new HashSet<String>();
-            for ( BuildPlatform platform : platforms )
-            {
-                if ( platformNames.contains( platform.getName() ) )
-                {
-                    throw new MojoExecutionException( "Duplicate platform '" + platform.getName()
-                            + "' in configuration, platform names must be unique" );
-                }
-                platformNames.add( platform.getName() );
-                platform.identifyPrimaryConfiguration();
-            }
-        }
     }
 
 
