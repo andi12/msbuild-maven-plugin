@@ -15,7 +15,6 @@
  */
 package uk.org.raje.maven.plugin.msbuild;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -23,33 +22,46 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
- * Mojo to execute MSBuild to clean the required platform/configuration pairs.
+ *  
  */
-@Mojo( name = MSBuildCleanMojo.MOJO_NAME,
-defaultPhase = LifecyclePhase.CLEAN )
-@Execute( phase = LifecyclePhase.CLEAN )
-public class MSBuildCleanMojo extends AbstractMSBuildMojo
+@Mojo( name = CxxtestBuildMojo.MOJO_NAME, 
+defaultPhase = LifecyclePhase.TEST_COMPILE )
+@Execute( phase = LifecyclePhase.TEST_COMPILE )
+public class CxxtestBuildMojo extends AbstractMSBuildMojo
 {
     /**
      * The name this Mojo declares, also represents the goal.
      */
-    public static final String MOJO_NAME = "clean";
+    public static final String MOJO_NAME = "testbuild";
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        dumpConfiguration();
+        if ( skipCxxtest )
+        {
+            getLog().debug( "Skipping cxxtest build, 'skipCxxtest' set to true." );
+            return;
+        }
+
+        
         validateForMSBuild();
-
-        List<String> cleanTargets = new ArrayList<String>();
-        // For now we just add the single 'Clean' target which cleans everything
-        // We could add each target from the pom as <targetName>:Clean
-        // but we don't feel that this mirrors normal Maven clean behaviour
-        cleanTargets.add( "Clean" );
-
-        runMSBuild( cleanTargets );
+        runMSBuild( testTargets );
     }
 
+    /**
+     * Set to true to skip cxxtest functionality.
+     */
+    @Parameter( defaultValue = "false", readonly = false )
+    protected boolean skipCxxtest = false; 
+
+    /**
+     * The set of test targets (projects) to build.
+     */
+    @Parameter(
+            readonly = false,
+            required = false )
+    protected List<String> testTargets;
 }

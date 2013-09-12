@@ -16,6 +16,7 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -57,7 +58,7 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
             throw new MojoExecutionException( "Please set packaging to one of " + MSBuildPackaging.validPackaging() );
         }
         findMSBuild();
-        MojoHelper.validateProjectFile( getLog(), mavenProject.getPackaging(), projectFile );
+        MojoHelper.validateProjectFile( mavenProject.getPackaging(), projectFile, getLog() );
         platforms = MojoHelper.validatePlatforms( platforms );
     }
 
@@ -93,6 +94,31 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
                 + "<properties><msbuild.path>...</msbuild.path></properties> "
                 + "or on command-line using -Dmsbuild.path=... or by setting "
                 + "the environment variable " + ENV_MSBUILD_PATH );
+    }
+
+    protected void runMSBuild( List<String> targets ) throws MojoExecutionException
+    {
+        try
+        {
+            MSBuildExecutor msbuild = new MSBuildExecutor( getLog(), msbuildPath, projectFile );
+            msbuild.setPlatforms( platforms );
+            msbuild.setTargets( targets );
+            if ( msbuild.execute() != 0 )
+            {
+                throw new MojoExecutionException(
+                        "MSBuild execution failed, see log for details." );
+            }
+        }
+        catch ( IOException ioe ) 
+        {
+            throw new MojoExecutionException(
+                    "MSBUild execution failed", ioe );
+        }
+        catch ( InterruptedException ie )
+        {
+            throw new MojoExecutionException( "Interrupted waiting for "
+                    + "MSBUild execution to complete", ie );
+        }
     }
 
 

@@ -52,80 +52,8 @@ public class MSBuildMojo extends AbstractMSBuildMojo
         dumpConfiguration();
         validateForMSBuild();
 
-        runMSBuild();
+        runMSBuild( targets );
         findAndAttachArtifacts();
-    }
-
-    private void runMSBuild() throws MojoExecutionException
-    {
-        try
-        {
-            MSBuildExecutor msbuild = new MSBuildExecutor( getLog(), msbuildPath, projectFile );
-            msbuild.setPlatforms( platforms );
-            msbuild.setTargets( targets );
-            if ( msbuild.execute() != 0 )
-            {
-                throw new MojoExecutionException(
-                        "MSBuild execution failed, see log for details." );
-            }
-        }
-        catch ( IOException ioe ) 
-        {
-            throw new MojoExecutionException(
-                    "MSBUild execution failed", ioe );
-        }
-        catch ( InterruptedException ie )
-        {
-            throw new MojoExecutionException( "Interrupted waiting for "
-                    + "MSBUild execution to complete", ie );
-        }
-    }
-
-    private File getConfigurationOutputDirectory( BuildPlatform p, BuildConfiguration c ) throws MojoExecutionException
-    {
-        File result = null;
-        
-        // If there is a configured value use it
-        result = c.getOutputDirectory();
-        if ( result == null )
-        {
-            // There isn't a configured value so work it out
-            if ( p.isWin32() )
-            {
-                // A default Win32 project writes Win32 outputs at the top level
-                result = new File( projectFile.getParentFile(), c.getName() );
-                if ( result.exists() )
-                {
-                    getLog().debug( "Found output directory for Win32 at " + result.getAbsolutePath() );
-                }
-                else
-                {
-                    // Nothing there, fall through and try platform\configuration
-                    result = null;
-                }
-            }
-
-            if ( result == null )
-            {
-                // Assume that msbuild has created an output folder named
-                // after the platform and configuration
-                result = new File( projectFile.getParentFile(), p.getName() );
-                result = new File ( result, c.getName() );
-            }
-        }
-
-        // result will be populated, now check if it was created
-        if ( result.exists() && result.isDirectory() )
-        {
-            return result;
-        }
-        else
-        {
-            String exceptionMessage = "Expected output directory was not created, configuration error?"; 
-            getLog().error( exceptionMessage );
-            getLog().error( "Looking for build output at " + result.getAbsolutePath() );
-            throw new MojoExecutionException( exceptionMessage );
-        }
     }
 
     /**
@@ -169,7 +97,8 @@ public class MSBuildMojo extends AbstractMSBuildMojo
         {
             for ( BuildConfiguration configuration : platform.getConfigurations() )
             {
-                final File archiveSource = getConfigurationOutputDirectory( platform, configuration );
+                final File archiveSource = MojoHelper.getConfigurationOutputDirectory( projectFile.getParentFile(), 
+                        platform, configuration, getLog() );
                 StringBuilder artifactName = new StringBuilder();
                 artifactName.append( mavenProject.getArtifactId() ).append( "-" )
                             .append( mavenProject.getVersion() ).append( "-" )
@@ -210,8 +139,9 @@ public class MSBuildMojo extends AbstractMSBuildMojo
                               .append( "." )
                               .append( mavenProject.getPackaging() );
                 
-                File artifactFile = new File( getConfigurationOutputDirectory( platform, configuration ),
-                        outputFilename.toString() );
+                final File artifactDirectory = MojoHelper.getConfigurationOutputDirectory( projectFile.getParentFile(), 
+                        platform, configuration, getLog() );
+                final File artifactFile = new File( artifactDirectory, outputFilename.toString() );
                 if ( !artifactFile.exists() )
                 {
                     String err = "Expected build output missing " + artifactFile.getAbsolutePath();

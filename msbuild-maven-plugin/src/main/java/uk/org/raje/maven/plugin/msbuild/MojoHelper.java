@@ -29,6 +29,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 
+import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 
 /**
@@ -70,12 +71,12 @@ public class MojoHelper
         
     /**
      * Check that we have a valid project or solution file.
-     * @param log a Log to write to
      * @param packaging the project packing
      * @param projectFile the configured project file to check
+     * @param log a Log to write to
      * @throws MojoExecutionException if the specified projectFile is invalid.
      */
-    protected static void validateProjectFile( Log log, String packaging, File projectFile ) 
+    protected static void validateProjectFile( String packaging, File projectFile, Log log ) 
             throws MojoExecutionException
     {
         if ( projectFile != null
@@ -135,10 +136,66 @@ public class MojoHelper
         }
         return platforms;
     }
-    
+
     /**
-     * @author dmasato
-     *
+     * Calculate the directory that msbuild will write output files to for a given platform and configuration
+     * @param projectDirectory the directory containing the project/solution file
+     * @param p the BuildPlatform
+     * @param c the BuildConfiguration
+     * @param log a Log to write to
+     * @return a File object for the output directory
+     * @throws MojoExecutionException if an output directory cannot be determined
+     */
+    public static File getConfigurationOutputDirectory( File projectDirectory, 
+            BuildPlatform p, BuildConfiguration c, Log log ) throws MojoExecutionException
+    {
+        File result = null;
+        
+        // If there is a configured value use it
+        result = c.getOutputDirectory();
+        if ( result == null )
+        {
+            // There isn't a configured value so work it out
+            if ( p.isWin32() )
+            {
+                // A default Win32 project writes Win32 outputs at the top level
+                result = new File( projectDirectory, c.getName() );
+                if ( result.exists() )
+                {
+                    log.debug( "Found output directory for Win32 at " + result.getAbsolutePath() );
+                }
+                else
+                {
+                    // Nothing there, fall through and try platform\configuration
+                    result = null;
+                }
+            }
+
+            if ( result == null )
+            {
+                // Assume that msbuild has created an output folder named
+                // after the platform and configuration
+                result = new File( projectDirectory, p.getName() );
+                result = new File ( result, c.getName() );
+            }
+        }
+
+        // result will be populated, now check if it was created
+        if ( result.exists() && result.isDirectory() )
+        {
+            return result;
+        }
+        else
+        {
+            String exceptionMessage = "Expected output directory was not created, configuration error?"; 
+            log.error( exceptionMessage );
+            log.error( "Looking for build output at " + result.getAbsolutePath() );
+            throw new MojoExecutionException( exceptionMessage );
+        }
+    }
+
+    /**
+     * StreamConsumer that writes lines from the stream to the supplied Log at 'info' level.
      */
     protected static class LogOutputStreamConsumer implements StreamConsumer
     {
@@ -157,8 +214,7 @@ public class MojoHelper
     }
 
     /**
-     * @author dmasato
-     *
+     * StreamConsumer that writes lines from the stream to the supplied Log at 'error' level.
      */
     protected static class ErrStreamConsumer implements StreamConsumer
     {
