@@ -15,16 +15,9 @@
  */
 package uk.org.raje.maven.plugin.msbuild;
 
-import java.io.File;
 import java.util.Arrays;
 
-import org.apache.maven.execution.DefaultMavenExecutionRequest;
-import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.testing.AbstractMojoTestCase;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.project.ProjectBuildingRequest;
 import org.junit.Test;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
@@ -33,13 +26,13 @@ import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 /**
  * Test MSBuildMojo configuration options.
  */
-public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase 
+public class MSBuildMojoConfigurationTest extends AbstractMSBuildMojoTestCase 
 {
 
     @Test
     public final void testMissingPackagingConfiguration() throws Exception 
     {
-        MSBuildMojo msbuildMojo = lookupMSBuildMojo( 
+        MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
                 "src/test/resources/unit/configurations/no-packaging-pom.xml" );
         try
         {
@@ -56,7 +49,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
     @Test
     public final void testMissingMSBuildConfiguration() throws Exception 
     {
-        MSBuildMojo msbuildMojo = lookupMSBuildMojo( 
+        MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
                 "src/test/resources/unit/configurations/no-msbuild-pom.xml" );
         try
         {
@@ -77,7 +70,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
     @Test
     public final void testMissingProjectConfiguration() throws Exception 
     {
-        MSBuildMojo msbuildMojo = lookupMSBuildMojo( 
+        MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
                 "src/test/resources/unit/configurations/missing-project-pom.xml" );
         try
         {
@@ -94,7 +87,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
     @Test
     public final void testMinimalSolutionConfiguration() throws Exception
     {
-        MSBuildMojo msbuildMojo = lookupMSBuildMojo( 
+        MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
                 "src/test/resources/unit/configurations/minimal-solution-pom.xml" );
         
         assertNull( msbuildMojo.platforms );
@@ -107,7 +100,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
     @Test
     public final void testMinimalProjectConfiguration() throws Exception
     {
-        MSBuildMojo msbuildMojo = lookupMSBuildMojo( 
+        MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
                 "src/test/resources/unit/configurations/minimal-project-pom.xml" );
         
         assertNull( msbuildMojo.platforms );
@@ -123,7 +116,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
     @Test
     public final void testPlatformsConfiguration() throws Exception
     {
-        MSBuildMojo msbuildMojo = lookupMSBuildMojo( 
+        MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
                 "src/test/resources/unit/configurations/platforms-pom.xml" );
 
         assertEquals( 
@@ -141,7 +134,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
     @Test
     public final void testConfigurationsConfiguration() throws Exception
     {
-        MSBuildMojo msbuildMojo = lookupMSBuildMojo( 
+        MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
                 "src/test/resources/unit/configurations/configurations-pom.xml" );
 
         assertEquals( Arrays.asList( new BuildPlatform( "Win32" ), new BuildPlatform( "x64" ) ),
@@ -151,36 +144,5 @@ public class MSBuildMojoConfigurationTest extends AbstractMojoTestCase
         assertEquals( Arrays.asList( new BuildConfiguration( "Release" ) ), 
                 msbuildMojo.platforms.get( 1 ).getConfigurations() );
 
-    }
-
-    /**
-     * Workaround for parent class lookupMojo and lookupConfiguredMojo.
-     * @param pomPath where to find the POM file
-     * @return a configured MSBuild Mojo for testing
-     * @throws Exception if we can't find the Mojo or the POM is malformed
-     */
-    protected final MSBuildMojo lookupMSBuildMojo( String pomPath ) throws Exception
-    {
-        File pom = getTestFile( pomPath );
-        assertNotNull( pom );
-        assertTrue( pom.exists() );
-
-        // The following 4 lines are simply to get a MavenProject object
-        MavenExecutionRequest executionRequest = new DefaultMavenExecutionRequest();
-        ProjectBuildingRequest buildingRequest = executionRequest.getProjectBuildingRequest();
-        ProjectBuilder projectBuilder = this.lookup( ProjectBuilder.class );
-        MavenProject mavenProject = projectBuilder.build( pom, buildingRequest ).getProject();
-        assertNotNull( mavenProject );
-        
-        // Used lookupMojo as it sets up most of what we need and reads configuration
-        // variables from the poms.
-        // It doesn't set a MavenProject so we have to do that manually
-        // lookupConfiguredMojo doesn't work properly, configuration variables are no expanded
-        // as we expect and it fails to setup a Log.
-        MSBuildMojo msbuildMojo = (MSBuildMojo) lookupMojo( MSBuildMojo.MOJO_NAME, pom );
-        assertNotNull( msbuildMojo );
-        msbuildMojo.mavenProject = mavenProject;
-
-        return msbuildMojo;
     }
 }

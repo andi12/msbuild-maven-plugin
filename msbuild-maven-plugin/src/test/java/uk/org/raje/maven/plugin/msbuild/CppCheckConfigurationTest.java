@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.org.raje.maven.plugin.msbuild;
 
-import java.io.File;
-
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
  * Test CppCheckMojo configuration options.
  */
-public class CppCheckConfigurationTest extends AbstractMojoTestCase 
+public class CppCheckConfigurationTest extends AbstractMSBuildMojoTestCase 
 {
     
     @Before
@@ -39,8 +35,8 @@ public class CppCheckConfigurationTest extends AbstractMojoTestCase
     @Test
     public final void testMissingCppCheckConfiguration() throws Exception 
     {
-        CppCheckMojo cppCheckMojo = 
-                lookupCppCheckMojo( "src/test/resources/unit/cppcheck/no-cppcheck-path-pom.xml" );
+        CppCheckMojo cppCheckMojo = ( CppCheckMojo ) lookupConfiguredMojo( CppCheckMojo.MOJO_NAME, 
+                "src/test/resources/unit/cppcheck/no-cppcheck-path-pom.xml" );
         try
         {
             cppCheckMojo.execute();
@@ -54,8 +50,8 @@ public class CppCheckConfigurationTest extends AbstractMojoTestCase
     @Test
     public final void testMinimalSolutionConfiguration() throws Exception 
     {
-        CppCheckMojo cppCheckMojo = lookupCppCheckMojo( "src/test/resources/unit/cppcheck/" 
-                + "sln-single-platform-single-config-pom.xml" );
+        CppCheckMojo cppCheckMojo = ( CppCheckMojo ) lookupConfiguredMojo( CppCheckMojo.MOJO_NAME, 
+                "src/test/resources/unit/cppcheck/sln-single-platform-single-config-pom.xml" );
         
         try
         {
@@ -66,22 +62,4 @@ public class CppCheckConfigurationTest extends AbstractMojoTestCase
             fail();
         }
     }    
-
-    /**
-     * Workaround for parent class lookupMojo and lookupConfiguredMojo.
-     * @param pomPath where to find the POM file
-     * @return a configured MSBuild Mojo for testing
-     * @throws Exception if we can't find the Mojo or the POM is malformed
-     */
-    protected final CppCheckMojo lookupCppCheckMojo( String pomPath ) throws Exception
-    {
-        File pom = getTestFile( pomPath );
-        assertNotNull( pom );
-        assertTrue( pom.exists() );
-        
-        CppCheckMojo cppCheckMojo = (CppCheckMojo) lookupMojo( CppCheckMojo.MOJO_NAME, pom );
-        assertNotNull( cppCheckMojo );
-
-        return cppCheckMojo;
-    }
 }
