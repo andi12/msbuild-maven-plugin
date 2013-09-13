@@ -16,7 +16,6 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
-import java.lang.reflect.Field;
 
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
@@ -42,8 +41,7 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
      */
     protected final Mojo lookupConfiguredMojo( String name, String pomPath ) throws Exception
     {
-        File pom = getTestFile( pomPath );
-        assertNotNull( pom );
+        File pom = new File( getClass().getResource( pomPath ).getPath() );
         assertTrue( pom.exists() );
 
         // The following 4 lines are simply to get a MavenProject object
@@ -59,28 +57,10 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
         // lookupConfiguredMojo doesn't work properly, configuration variables are no expanded
         // as we expect and it fails to setup a Log.
         Mojo mojo = lookupMojo( name, pom );
-        //Mojo mojo = lookupConfiguredMojo( mavenProject, name );
+        //Mojo mojo = super.lookupConfiguredMojo( mavenProject, name );
         assertNotNull( mojo );
 
-        Class<? extends Mojo> clazz = mojo.getClass();
-        while ( true )
-        {
-            try
-            {
-                Field field = clazz.getDeclaredField( "mavenProject" );
-                field.set( mojo, mavenProject );
-                break;
-            }
-            catch ( NoSuchFieldException nsfe )
-            {
-                clazz = (Class<? extends Mojo>) clazz.getSuperclass();
-                if ( clazz == null )
-                {
-                    fail();
-                }
-                
-            }
-        }
+        setVariableValueToObject( mojo, "mavenProject", mavenProject );
         
         return mojo;
     }

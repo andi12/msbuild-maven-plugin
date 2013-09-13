@@ -33,7 +33,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMSBuildMojoTestCase
     public final void testMissingPackagingConfiguration() throws Exception 
     {
         MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
-                "src/test/resources/unit/configurations/no-packaging-pom.xml" );
+                "/unit/configurations/no-packaging-pom.xml" );
         try
         {
             msbuildMojo.execute();
@@ -50,7 +50,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMSBuildMojoTestCase
     public final void testMissingMSBuildConfiguration() throws Exception 
     {
         MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
-                "src/test/resources/unit/configurations/no-msbuild-pom.xml" );
+                "/unit/configurations/no-msbuild-pom.xml" );
         try
         {
             msbuildMojo.execute();
@@ -71,7 +71,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMSBuildMojoTestCase
     public final void testMissingProjectConfiguration() throws Exception 
     {
         MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
-                "src/test/resources/unit/configurations/missing-project-pom.xml" );
+                "/unit/configurations/missing-project-pom.xml" );
         try
         {
             msbuildMojo.execute();
@@ -88,7 +88,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMSBuildMojoTestCase
     public final void testMinimalSolutionConfiguration() throws Exception
     {
         MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
-                "src/test/resources/unit/configurations/minimal-solution-pom.xml" );
+                "/unit/configurations/minimal-solution-pom.xml" );
         
         assertNull( msbuildMojo.platforms );
         msbuildMojo.execute();
@@ -101,7 +101,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMSBuildMojoTestCase
     public final void testMinimalProjectConfiguration() throws Exception
     {
         MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
-                "src/test/resources/unit/configurations/minimal-project-pom.xml" );
+                "/unit/configurations/minimal-project-pom.xml" );
         
         assertNull( msbuildMojo.platforms );
         msbuildMojo.execute();
@@ -117,7 +117,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMSBuildMojoTestCase
     public final void testPlatformsConfiguration() throws Exception
     {
         MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
-                "src/test/resources/unit/configurations/platforms-pom.xml" );
+                "/unit/configurations/platforms-pom.xml" );
 
         assertEquals( 
                 Arrays.asList( new BuildPlatform( "Win32" ), new BuildPlatform( "x64" ) ),
@@ -135,7 +135,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMSBuildMojoTestCase
     public final void testConfigurationsConfiguration() throws Exception
     {
         MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
-                "src/test/resources/unit/configurations/configurations-pom.xml" );
+                "/unit/configurations/configurations-pom.xml" );
 
         assertEquals( Arrays.asList( new BuildPlatform( "Win32" ), new BuildPlatform( "x64" ) ),
                 msbuildMojo.platforms );
