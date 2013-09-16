@@ -51,6 +51,12 @@
                     </targets>
                     <!-- Building (MSBuildMojo, MSBuildCleanMojo, CxxtestBuildMojo) -->
                     <msbuildPath>${basedir}/src/test/resources/unit/configurations/test-msbuild.cmd</msbuildPath>
+                    <!-- Version resource (VersionInfoMojo) -->
+                    <versionInfo>
+                        <skip>false</skip>
+                        <companyName>MyOrg</companyName>
+                        <copyright>(c) 2013 MyOrg</copyright>
+                    </versionInfo>
                     <!-- Cppcheck -->
                     <cppCheck>
                         <skip>false</skip>

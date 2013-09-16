@@ -31,8 +31,9 @@
                     <clean>
                         org.apache.maven.plugins:maven-clean-plugin:clean,uk.org.raje.maven.plugins:msbuild-maven-plugin:clean
                     </clean>
-                    <!-- <process-resources> org.apache.maven.plugins:maven-resources-plugin:resources 
-                        </process-resources> -->
+                    <generate-resources>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:version-info
+                    </generate-resources>
                     <compile>
                         uk.org.raje.maven.plugins:msbuild-maven-plugin:build
                     </compile>
@@ -79,6 +80,9 @@
                     <clean>
                         org.apache.maven.plugins:maven-clean-plugin:clean,uk.org.raje.maven.plugins:msbuild-maven-plugin:clean
                     </clean>
+                    <generate-resources>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:version-info
+                    </generate-resources>
                     <compile>
                         uk.org.raje.maven.plugins:msbuild-maven-plugin:build
                     </compile>
@@ -167,6 +171,9 @@
                     <clean>
                         org.apache.maven.plugins:maven-clean-plugin:clean,uk.org.raje.maven.plugins:msbuild-maven-plugin:clean
                     </clean>
+                    <generate-resources>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:version-info
+                    </generate-resources>
                     <compile>
                         uk.org.raje.maven.plugins:msbuild-maven-plugin:build
                     </compile>

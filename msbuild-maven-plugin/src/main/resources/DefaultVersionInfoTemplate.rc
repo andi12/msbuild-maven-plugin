@@ -1,0 +1,44 @@
+#pragma once
+#define POM_VERSION_INFO
+
+#define APSTUDIO_READONLY_SYMBOLS
+#include "afxres.h"
+#undef APSTUDIO_READONLY_SYMBOLS
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION ${version-info.majorVersion}, ${version-info.minorVersion}, ${version-info.incrementalVersion}, ${version-info.buildNumber}
+PRODUCTVERSION ${version-info.majorVersion}, ${version-info.minorVersion}, ${version-info.incrementalVersion}, ${version-info.buildNumber}
+FILEFLAGSMASK 0x3fL
+
+#ifdef _DEBUG
+FILEFLAGS 0x1L
+#else
+FILEFLAGS 0x0L
+#endif
+
+FILEOS 0x40004L
+FILETYPE 0x1L
+FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080904b0"
+        BEGIN
+            VALUE "CompanyName", "${version-info.companyname}"
+            VALUE "FileVersion", "${project.version}"
+            VALUE "LegalCopyright", "${version-info.copyright}"
+            VALUE "ProductName", "${project.artifactId}"
+            VALUE "ProductVersion", "${project.version}"
+
+            #ifdef VERINFO_FILE_DESCRIPTION_EXTRA
+            VALUE "FileDescription", "${project.description} (" VERINFO_FILE_DESCRIPTION_EXTRA ")"
+            #else
+            VALUE "FileDescription", "${project.description}"
+            #endif
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x809, 1200
+    END
+END

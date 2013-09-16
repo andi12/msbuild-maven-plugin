@@ -21,6 +21,7 @@
     <artifactId>minimal-configuration</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>msbuild-solution</packaging>
+    <description>msbuild-maven-plugin test - Minimal working configuration</description>
     
     <build>
         <plugins>
@@ -29,7 +30,10 @@
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
                     <msbuildPath>${basedir}/src/test/resources/unit/configurations/test-msbuild.cmd</msbuildPath>
-                    <projectFile>${basedir}/src/test/resources/unit/configurations/configurations-test.sln</projectFile>
+                    <projectFile>${basedir}/target/test-classes/unit/configurations/configurations-test.sln</projectFile>
+                    <versionInfo>
+                        <companyName>MyOrg</companyName>
+                    </versionInfo>
                 </configuration>
             </plugin>
         </plugins>

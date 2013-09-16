@@ -25,6 +25,7 @@ import org.apache.maven.project.MavenProject;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.CxxTestConfiguration;
+import uk.org.raje.maven.plugin.msbuild.configuration.VersionInfoConfiguration;
 
 /**
  * Abstract base class for the msbuild-maven-plugin which defines all configuration properties exposed.
@@ -70,9 +71,21 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             required = true )
     protected File msbuildPath;
 
+    /**
+     * Configure the version-info Mojo.
+     */
+    @Parameter
+    protected VersionInfoConfiguration versionInfo = new VersionInfoConfiguration();
+
+    /**
+     * Configure the CppCheck Mojo.
+     */
     @Parameter
     protected CppCheckConfiguration cppCheck = new CppCheckConfiguration();
-    
+
+    /**
+     * Configure the CxxTest Mojo.
+     */
     @Parameter
     protected CxxTestConfiguration cxxTest = new CxxTestConfiguration();
 }
