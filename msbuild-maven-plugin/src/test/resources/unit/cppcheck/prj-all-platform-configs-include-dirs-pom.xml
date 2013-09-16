@@ -28,7 +28,7 @@
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
                     <cppCheckPath>${basedir}/src/test/resources/unit/cppcheck/fake-cppcheck.cmd</cppCheckPath>
-                    <projectFile>${basedir}/src/test/resources/unit/cppcheck/hello-world-preprocessor-defs/hello-world-solution.sln</projectFile>
+                    <projectFile>${basedir}/src/test/resources/unit/cppcheck/hello-world-include-dirs/hello-world.vcxproj</projectFile>
                     <platforms>
                         <platform>
                             <name>Win32</name>
