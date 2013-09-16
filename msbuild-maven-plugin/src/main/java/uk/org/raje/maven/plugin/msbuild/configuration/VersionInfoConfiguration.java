@@ -77,7 +77,7 @@ public class VersionInfoConfiguration
     @Parameter(
             readonly = false,
             required = false )
-    protected String companyName;
+    private String companyName;
 
     /**
      * The copyright string to use, defaults to 'Copyright (c) [this year] [companyName]'
@@ -85,5 +85,5 @@ public class VersionInfoConfiguration
     @Parameter(
             readonly = false,
             required = false )
-    protected String copyright;
+    private String copyright;
 }
