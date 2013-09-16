@@ -29,7 +29,7 @@ public class BuildPlatformTest
      * No arg constructor should create a Win32/Release configuration 
      */
     @Test
-    public void noargConstrutorTest()
+    public void testNoargConstrutor()
     {
         BuildPlatform p = new BuildPlatform();
         assertEquals( BuildPlatform.DEFAULT_PLATFORM, p.getName() );
@@ -40,7 +40,7 @@ public class BuildPlatformTest
      * Test that constructing with a name creates a &lt;name&gt;/Release configuration
      */
     @Test
-    public void nameConstrutorTest()
+    public void testNameConstrutor()
     {
         BuildPlatform p = new BuildPlatform( "myPlatform" );
         assertEquals( "myPlatform", p.getName() );
@@ -51,7 +51,7 @@ public class BuildPlatformTest
      * Test that toString returns the platform name
      */
     @Test
-    public void toStringTest()
+    public void testToString()
     {
         BuildPlatform p = new BuildPlatform();
         assertEquals( BuildPlatform.DEFAULT_PLATFORM, p.toString() );
@@ -61,7 +61,7 @@ public class BuildPlatformTest
      * Test that platforms are considered equal based on name
      */
     @Test
-    public void simpleEqualsTest()
+    public void testSimpleEquals()
     {
         BuildPlatform p1 = new BuildPlatform( "one" );
         BuildPlatform p1Again = new BuildPlatform( "one" );
