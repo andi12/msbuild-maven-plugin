@@ -18,13 +18,15 @@ package uk.org.raje.maven.plugin.msbuild;
 import java.io.File;
 import java.lang.reflect.Field;
 
-import org.apache.maven.execution.DefaultMavenExecutionRequest;
-import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
+import org.apache.maven.project.DefaultMavenProjectBuilder;
+import org.apache.maven.project.DefaultProjectBuilderConfiguration;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.project.ProjectBuildingRequest;
+import org.apache.maven.project.MavenProjectBuilder;
+import org.apache.maven.project.ProjectBuilderConfiguration;
+import org.codehaus.plexus.context.Context;
+import org.codehaus.plexus.context.DefaultContext;
 
 /**
  * Abstract unit test base class to extend AbstractMojoTestCase and add 
@@ -46,11 +48,17 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
         assertNotNull( pom );
         assertTrue( pom.exists() );
 
-        // The following 4 lines are simply to get a MavenProject object
-        MavenExecutionRequest executionRequest = new DefaultMavenExecutionRequest();
-        ProjectBuildingRequest buildingRequest = executionRequest.getProjectBuildingRequest();
-        ProjectBuilder projectBuilder = this.lookup( ProjectBuilder.class );
-        MavenProject mavenProject = projectBuilder.build( pom, buildingRequest ).getProject();
+
+        // The following is an attempt to create a MavenProject
+        // This fails because the Context is not properly initialised
+        // I am committing this to record how far this attempt got
+        ProjectBuilderConfiguration projectBuilderConfiguration = new DefaultProjectBuilderConfiguration();
+        Context context = new DefaultContext();
+
+        MavenProjectBuilder projectBuilder = new DefaultMavenProjectBuilder();
+        ( ( DefaultMavenProjectBuilder ) projectBuilder ).initialize();
+        ( ( DefaultMavenProjectBuilder ) projectBuilder ).contextualize( context );
+        MavenProject mavenProject = projectBuilder.build( pom, projectBuilderConfiguration );
         assertNotNull( mavenProject );
         
         // Used lookupMojo as it sets up most of what we need and reads configuration
