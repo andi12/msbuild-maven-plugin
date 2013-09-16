@@ -36,7 +36,7 @@ public class VCProjectParserTest
     @Test
     public void testSinglePlatformSingleConfigProprocessorDefs()
     {
-        testProject( TEST_SOLUTION_PREPROCESSOR_DEFS, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[0], 
+        testProject( TEST_PROJECT_PREPROCESSOR_DEFS, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[0], 
                 TEST_PREPROCESSOR_DEFS[0][0], new String[0] );
     }
 
@@ -45,7 +45,7 @@ public class VCProjectParserTest
     {
         for ( int i = 0; i < TEST_CONFIGURATIONS.length; i++ )
         {
-            testProject( TEST_SOLUTION_PREPROCESSOR_DEFS, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
+            testProject( TEST_PROJECT_PREPROCESSOR_DEFS, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
                     TEST_PREPROCESSOR_DEFS[0][i], new String[0] );
         }
     }
@@ -55,7 +55,7 @@ public class VCProjectParserTest
     {
         for ( int i = 0; i < TEST_PLATFORMS.length; i++ )
         {
-            testProject( TEST_SOLUTION_PREPROCESSOR_DEFS, TEST_PLATFORMS[i], TEST_CONFIGURATIONS[0], 
+            testProject( TEST_PROJECT_PREPROCESSOR_DEFS, TEST_PLATFORMS[i], TEST_CONFIGURATIONS[0], 
                     TEST_PREPROCESSOR_DEFS[i][0], new String[0] );
         }
     }
@@ -63,7 +63,7 @@ public class VCProjectParserTest
     @Test
     public void testSinglePlatformSingleConfigIncludeDirs()
     {
-        testProject( TEST_SOLUTION_INCLUDE_DIRS, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[0], 
+        testProject( TEST_PROJECT_INCLUDE_DIRS, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[0], 
                 new String[0], TEST_INCLUDE_DIRS[0][0] );
     }
 
@@ -72,7 +72,7 @@ public class VCProjectParserTest
     {
         for ( int i = 0; i < TEST_CONFIGURATIONS.length; i++ )
         {
-            testProject( TEST_SOLUTION_INCLUDE_DIRS, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
+            testProject( TEST_PROJECT_INCLUDE_DIRS, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
                     new String[0], TEST_INCLUDE_DIRS[0][i] );
         }
     }
@@ -82,8 +82,18 @@ public class VCProjectParserTest
     {
         for ( int i = 0; i < TEST_PLATFORMS.length; i++ )
         {
-            testProject( TEST_SOLUTION_INCLUDE_DIRS, TEST_PLATFORMS[i], TEST_CONFIGURATIONS[0], 
+            testProject( TEST_PROJECT_INCLUDE_DIRS, TEST_PLATFORMS[i], TEST_CONFIGURATIONS[0], 
                     new String[0], TEST_INCLUDE_DIRS[i][0] );
+        }
+    }    
+
+    @Test
+    public void testEmptyConfigSetting()
+    {
+        for ( int i = 0; i < TEST_CONFIGURATIONS.length; i++ )
+        {
+            testProject( TEST_PROJECT_EMPTY_SETTINGS, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
+                    new String[0], new String[0] );
         }
     }    
     
@@ -139,11 +149,14 @@ public class VCProjectParserTest
     
     private static final String TEST_RESOURCE_DIR = "/unit/cppcheck/";
 
-    private static final String TEST_SOLUTION_PREPROCESSOR_DEFS = TEST_RESOURCE_DIR
-            + "hello-world-solution-preprocesor-defs/hello-world-project/hello-world.vcxproj";    
+    private static final String TEST_PROJECT_PREPROCESSOR_DEFS = TEST_RESOURCE_DIR
+            + "hello-world-project-preprocesor-defs/hello-world-app.vcxproj";    
 
-    private static final String TEST_SOLUTION_INCLUDE_DIRS = TEST_RESOURCE_DIR
-            + "hello-world-solution-include-dirs/hello-world-project/hello-world.vcxproj";    
+    private static final String TEST_PROJECT_INCLUDE_DIRS = TEST_RESOURCE_DIR
+            + "hello-world-project-include-dirs/hello-world-app.vcxproj";    
+
+    private static final String TEST_PROJECT_EMPTY_SETTINGS = TEST_RESOURCE_DIR
+            + "hello-world-project-empty-settings/hello-world-makefile.vcxproj";    
 
     
     private static final String[] TEST_PROJECT_NAMES = { "hello-world", "goodbye-world" };
