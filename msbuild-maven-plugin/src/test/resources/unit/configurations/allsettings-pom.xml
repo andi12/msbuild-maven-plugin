@@ -53,20 +53,20 @@
                     <msbuildPath>${basedir}/src/test/resources/unit/configurations/test-msbuild.cmd</msbuildPath>
                     <!-- Cppcheck -->
                     <cppCheck>
-                        <skipCppCheck>false</skipCppCheck>
+                        <skip>false</skip>
                         <cppCheckPath>${basedir}/src/test/resources/unit/cppcheck/fake-cppcheck.cmd</cppCheckPath>
                         <reportName>cppcheck-report</reportName>
                         <cppCheckType>all</cppCheckType>
                         <excludeProjectRegex>*Test</excludeProjectRegex>
                     </cppCheck>
                     <!-- Cxxtest -->
-                    <cxxtest>
-                        <skipCxxtest>false</skipCxxtest>
-                        <cxxtestGenPath>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtestgen.cmd</cxxtestGenPath>
+                    <cxxTest>
+                        <skip>false</skip>
+                        <cxxTestGenPath>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtestgen.cmd</cxxTestGenPath>
                         <testTargets>
                             <target>TestTarget1</target>
                         </testTargets>
-                    </cxxtest>
+                    </cxxTest>
                 </configuration>
             </plugin>
         </plugins>

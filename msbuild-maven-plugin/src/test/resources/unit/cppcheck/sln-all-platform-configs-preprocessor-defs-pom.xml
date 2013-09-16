@@ -27,7 +27,6 @@
                 <groupId>uk.org.raje.maven.plugins</groupId>
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
-                    <cppCheckPath>${basedir}/src/test/resources/unit/cppcheck/fake-cppcheck.cmd</cppCheckPath>
                     <projectFile>${basedir}/src/test/resources/unit/cppcheck/hello-world-preprocessor-defs/hello-world-solution.sln</projectFile>
                     <platforms>
                         <platform>
@@ -53,6 +52,9 @@
                             </configurations>
                         </platform>
                     </platforms>
+                    <cppCheck>
+                        <cppCheckPath>${basedir}/src/test/resources/unit/cppcheck/fake-cppcheck.cmd</cppCheckPath>
+                    </cppCheck>
                 </configuration>
             </plugin>
         </plugins>

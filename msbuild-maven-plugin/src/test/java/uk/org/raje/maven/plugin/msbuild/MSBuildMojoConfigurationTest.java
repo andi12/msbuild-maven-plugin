@@ -28,6 +28,14 @@ import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
  */
 public class MSBuildMojoConfigurationTest extends AbstractMSBuildMojoTestCase 
 {
+    @Test
+    public final void testAllSettingsConfiguration() throws Exception 
+    {
+        MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
+                "/unit/configurations/allsettings-pom.xml" );
+
+        assertAllSettingsConfiguration( msbuildMojo );
+    }
 
     @Test
     public final void testMissingPackagingConfiguration() throws Exception 

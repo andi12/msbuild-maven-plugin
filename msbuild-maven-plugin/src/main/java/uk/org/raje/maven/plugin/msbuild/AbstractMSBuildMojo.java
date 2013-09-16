@@ -19,19 +19,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.MavenProjectHelper;
-
-import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 
 /**
  * Abstract base class for MSBuild Mojos.
  */
-public abstract class AbstractMSBuildMojo extends AbstractMojo
+public abstract class AbstractMSBuildMojo extends AbstractMSBuildPluginMojo
 {
     /**
      * The file extension for zip archives.
@@ -127,41 +120,4 @@ public abstract class AbstractMSBuildMojo extends AbstractMojo
      * MSBuild.
      */
     private static final String ENV_MSBUILD_PATH = "MSBUILD_PATH";
-
-    /**
-     * The MavenProject for the current build.
-     */
-    @Parameter( defaultValue = "${project}" )
-    protected MavenProject mavenProject;
-
-    /**
-     * Helper for attaching artifacts provided by the container. 
-     */
-    @Component
-    protected MavenProjectHelper projectHelper;
-
-    /**
-     * The path to MSBuild.
-     */
-    @Parameter( 
-            property = "msbuild.path",
-            readonly = false,
-            required = true )
-    protected File msbuildPath;
-
-    /**
-     * The project or solution file to build.
-     */
-    @Parameter( 
-            readonly = false,
-            required = true )
-    protected File projectFile;
-
-    /**
-     * The set of platforms to build.
-     */
-    @Parameter(
-            readonly = false,
-            required = false )
-    protected List<BuildPlatform> platforms;
 }

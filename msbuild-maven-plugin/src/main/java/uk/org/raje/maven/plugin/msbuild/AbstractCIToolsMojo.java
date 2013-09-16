@@ -16,35 +16,10 @@
 
 package uk.org.raje.maven.plugin.msbuild;
 
-import java.io.File;
-import java.util.List;
-
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-
-import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
-
 /**
  * Abstract base class for MSBuild Mojos.
  */
-public abstract class AbstractCIToolsMojo extends AbstractMojo
+public abstract class AbstractCIToolsMojo extends AbstractMSBuildPluginMojo
 {
-    /**
-     * The MavenProject for the current build.
-     */
-    @Parameter( defaultValue = "${project}" )
-    protected MavenProject mavenProject;
 
-    /**
-     * The project or solution file to build.
-     */
-    @Parameter( readonly = false, required = true )
-    protected File projectFile;
-
-    /**
-     * The set of platforms to build.
-     */
-    @Parameter( readonly = false,  required = false )
-    protected List<BuildPlatform> platforms;
 }

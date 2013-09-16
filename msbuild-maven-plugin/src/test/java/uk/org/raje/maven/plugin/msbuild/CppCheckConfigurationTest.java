@@ -25,6 +25,15 @@ import org.junit.Test;
 public class CppCheckConfigurationTest extends AbstractMSBuildMojoTestCase 
 {
     @Test
+    public final void testAllSettingsConfiguration() throws Exception 
+    {
+        CppCheckMojo cppCheckMojo = ( CppCheckMojo ) lookupConfiguredMojo( CppCheckMojo.MOJO_NAME, 
+                "/unit/configurations/allsettings-pom.xml" );
+
+        assertAllSettingsConfiguration( cppCheckMojo );
+    }
+
+    @Test
     public final void testMissingCppCheckConfiguration() throws Exception 
     {
         MavenProject mavenProject = new MavenProject();

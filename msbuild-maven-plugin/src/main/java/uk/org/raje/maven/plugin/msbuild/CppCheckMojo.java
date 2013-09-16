@@ -32,7 +32,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.cli.WriterStreamConsumer;
 import org.xml.sax.SAXException;
 
@@ -59,12 +58,12 @@ public class CppCheckMojo extends AbstractCIToolsMojo
     {
         List<VCProject> vcProjects = null;
         
-        if ( skipCppCheck )
+        if ( cppCheck.skip() )
         {
             getLog().info( "Skipping static code analysis, 'skipCppCheck' set to true." );
             return;
         }
-        if ( cppCheckPath == null ) 
+        if ( cppCheck.cppCheckPath() == null ) 
         {
             getLog().info( "Path to CppCheck not set. Skipping static code analysis." );
             return;
@@ -97,7 +96,7 @@ public class CppCheckMojo extends AbstractCIToolsMojo
     {
         try 
         {
-            MojoHelper.validateToolPath( cppCheckPath, CPPCHECK_PATH_ENVVAR, CPPCHECK_NAME, getLog() );
+            MojoHelper.validateToolPath( cppCheck.cppCheckPath(), CPPCHECK_PATH_ENVVAR, CPPCHECK_NAME, getLog() );
         }
         catch ( FileNotFoundException fnfe )
         {
@@ -112,11 +111,6 @@ public class CppCheckMojo extends AbstractCIToolsMojo
         MojoHelper.validateProjectFile( mavenProject.getPackaging(), projectFile, getLog() );
 
         platforms = MojoHelper.validatePlatforms( platforms );
-        
-        if ( cppCheckType == null ) 
-        {
-            cppCheckType = CppCheckType.all;
-        }
     }    
     
     /**
@@ -192,7 +186,7 @@ public class CppCheckMojo extends AbstractCIToolsMojo
         try 
         {
             solutionParser = new VCSolutionParser( projectFile, platform.getName(), configuration.getName(),
-                    excludeProjectRegex );
+                    cppCheck.excludeProjectRegex() );
         }
         catch ( FileNotFoundException fnfe ) 
         {
@@ -261,8 +255,8 @@ public class CppCheckMojo extends AbstractCIToolsMojo
     private Writer createCppCheckReportWriter( VCProject vcProject ) throws MojoExecutionException
     {
         BufferedWriter cppCheckReportWriter;
-        File cppCheckReport = new File( vcProject.getBaseDir(), reportName + "-" + vcProject.getPlatform() + "-" 
-                + vcProject.getConfiguration() + ".xml" );
+        File cppCheckReport = new File( vcProject.getBaseDir(), cppCheck.reportName() + "-" 
+                + vcProject.getPlatform() + "-" + vcProject.getConfiguration() + ".xml" );
         
         try 
         {
@@ -278,10 +272,10 @@ public class CppCheckMojo extends AbstractCIToolsMojo
     
     private void runCppCheck( VCProject vcProject, Writer cppCheckReportWriter ) throws MojoExecutionException
     {
-        CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheckPath, vcProject.getBaseDir(), 
+        CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.cppCheckPath(), vcProject.getBaseDir(), 
                 new LogOutputStreamConsumer( getLog() ), new WriterStreamConsumer( cppCheckReportWriter ) );
         
-        cppCheckRunner.setCppCheckType( cppCheckType );
+        cppCheckRunner.setCppCheckType( cppCheck.cppCheckType() );
         cppCheckRunner.setIncludeDirectories( vcProject.getIncludeDirectories() );
         cppCheckRunner.setPreprocessorDefs( vcProject.getPreprocessorDefs() );
         
@@ -319,26 +313,4 @@ public class CppCheckMojo extends AbstractCIToolsMojo
             getLog().info( "Done." );
         }
     }
-
-
-    /**
-     * Set to true to skip cppcheck functionality.
-     */
-    @Parameter( defaultValue = "false", readonly = false )
-    protected boolean skipCppCheck = false; 
-
-    /**
-     * The path to CppCheck.
-     */
-    @Parameter( property = "cppcheck.path", readonly = false, required = false )
-    protected File cppCheckPath;
-
-    @Parameter( defaultValue = "cppcheck-report", readonly = false, required = false )
-    protected String reportName = "cppcheck-report";
-    
-    @Parameter( readonly = false, required = false )
-    protected CppCheckType cppCheckType = CppCheckType.all;
-    
-    @Parameter( readonly = false,  required = false )
-    protected String excludeProjectRegex;
 }

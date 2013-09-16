@@ -16,6 +16,7 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
@@ -25,12 +26,25 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingRequest;
 
+import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
+import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
+
 /**
  * Abstract unit test base class to extend AbstractMojoTestCase and add 
  * common functions that we use.
  */
 public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
 {
+
+    /**
+     * Test that all Mojo's should run to check they can ingest a complete configuration 
+     */
+    public final void assertAllSettingsConfiguration( AbstractMSBuildPluginMojo m ) throws Exception 
+    {
+        assertEquals( Arrays.asList( new BuildPlatform( "Win32" ) ), m.platforms );
+        assertEquals( Arrays.asList( new BuildConfiguration( "Release" ), new BuildConfiguration( "Debug" ) ), 
+                m.platforms.get( 0 ).getConfigurations() );
+    }
 
     /**
      * Workaround for parent class lookupMojo and lookupConfiguredMojo.
