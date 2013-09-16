@@ -56,7 +56,7 @@ public class VCProjectParser extends BaseParser
     
     public VCProjectParser( File projectFile, String platform, String configuration ) 
             throws FileNotFoundException, SAXException, ParserConfigurationException 
-        {
+    {
         
         super( projectFile, platform, configuration );
         SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -88,95 +88,9 @@ public class VCProjectParser extends BaseParser
     @Override
     public void parse() throws IOException, ParseException 
     {
-        DefaultHandler handler = new DefaultHandler() {
-            @Override
-            public void startElement( String uri, String localName, String qName, Attributes attributes ) 
-                    throws SAXException 
-                {
-                
-                String path = paths.peek() + PATH_SEPARATOR + qName;
-                paths.push( path );
-                
-                switch ( elementParserState ) 
-                {
-                case PARSE_CONFIGPLATFORM_GROUP: 
-                    if ( path.compareTo( PATH_ADDITIONAL_INCDIRS ) == 0 ) 
-                    {
-                        charParserState = CharParserState.PARSE_INCLUDE_DIRS;
-                    }
-                    
-                    if ( path.compareTo( PATH_PREPROCESSOR_DEFS ) == 0 ) 
-                    {
-                        charParserState = CharParserState.PARSE_PREPROCESSOR_DEFS;
-                    }
-                    
-                    break;
-                
-                default: 
-                    if ( path.compareTo( PATH_ITEMDEF_GROUP ) == 0 
-                        && attributes.getValue( "Condition" ).contains( getRequiredConfigurationPlatform() ) ) 
-                    {
-                        elementParserState = ElementParserState.PARSE_CONFIGPLATFORM_GROUP;
-                    }
-                }
-            }
-
-            @Override
-            public void endElement( String uri, String localName, String qName ) 
-                    throws SAXException 
-            {
-                String path = paths.pop();
-
-                if ( path.compareTo( PATH_ITEMDEF_GROUP ) == 0 ) 
-                {
-                    elementParserState = ElementParserState.PARSE_IGNORE;
-                }
-
-                charParserState = CharParserState.PARSE_IGNORE;
-            }
-            
-            @Override
-            public void characters( char[] chars, int start, int length ) 
-                    throws SAXException 
-                    {
-
-                String entries = new String( chars, start, length );
-                
-                switch ( charParserState ) 
-                {
-                case PARSE_INCLUDE_DIRS:
-                    entries.replace( "$(Configuration)", getRequiredConfiguration() );
-                    entries.replace( "$(Platform)", getRequiredPlatform() );
-                    includeDirs = splitEntries( entries );
-                    break;
-                    
-                case PARSE_PREPROCESSOR_DEFS:
-                    preprocessorDefs = splitEntries( entries );
-                    break;
-                    
-                default:
-                }
-            }
-            
-            private List<String> splitEntries( String entries ) 
-            {
-                List<String> entryList = new ArrayList<String>();
-                
-                for ( String entry : entries.split( ";" ) ) 
-                {
-                    if ( !entry.startsWith( "%" ) && !entry.startsWith( "$" ) && !entry.trim().isEmpty() ) 
-                    {                        
-                        entryList.add( entry );
-                    }
-                }
-                
-                return entryList;
-            }
-        };
-        
         try 
         {
-            parser.parse( getInputFile(), handler );
+            parser.parse( getInputFile(), new VCProjectHandler() );
         }
         catch ( SAXParseException sape ) 
         {
@@ -200,6 +114,97 @@ public class VCProjectParser extends BaseParser
         PARSE_INCLUDE_DIRS,
         PARSE_PREPROCESSOR_DEFS
     }
+    
+    private class VCProjectHandler extends DefaultHandler
+    {
+        @Override
+        public void startElement( String uri, String localName, String qName, Attributes attributes ) 
+                throws SAXException 
+            {
+            
+            String path = paths.peek() + PATH_SEPARATOR + qName;
+            paths.push( path );
+            
+            switch ( elementParserState ) 
+            {
+            case PARSE_CONFIGPLATFORM_GROUP: 
+                if ( path.compareTo( PATH_ADDITIONAL_INCDIRS ) == 0 ) 
+                {
+                    charParserState = CharParserState.PARSE_INCLUDE_DIRS;
+                }
+                
+                if ( path.compareTo( PATH_PREPROCESSOR_DEFS ) == 0 ) 
+                {
+                    charParserState = CharParserState.PARSE_PREPROCESSOR_DEFS;
+                }
+                
+                break;
+            
+            default: 
+                if ( path.compareTo( PATH_ITEMDEF_GROUP ) == 0 )
+                {
+                    String condition = attributes.getValue( "Condition" );
+
+                    if ( condition != null && condition.contains( getRequiredConfigurationPlatform() ) ) 
+                    {
+                        elementParserState = ElementParserState.PARSE_CONFIGPLATFORM_GROUP;
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void endElement( String uri, String localName, String qName ) 
+                throws SAXException 
+        {
+            String path = paths.pop();
+
+            if ( path.compareTo( PATH_ITEMDEF_GROUP ) == 0 ) 
+            {
+                elementParserState = ElementParserState.PARSE_IGNORE;
+            }
+
+            charParserState = CharParserState.PARSE_IGNORE;
+        }
+        
+        @Override
+        public void characters( char[] chars, int start, int length ) 
+                throws SAXException 
+                {
+
+            String entries = new String( chars, start, length );
+            
+            switch ( charParserState ) 
+            {
+            case PARSE_INCLUDE_DIRS:
+                entries.replace( "$(Configuration)", getRequiredConfiguration() );
+                entries.replace( "$(Platform)", getRequiredPlatform() );
+                includeDirs = splitEntries( entries );
+                break;
+                
+            case PARSE_PREPROCESSOR_DEFS:
+                preprocessorDefs = splitEntries( entries );
+                break;
+                
+            default:
+            }
+        }
+        
+        private List<String> splitEntries( String entries ) 
+        {
+            List<String> entryList = new ArrayList<String>();
+            
+            for ( String entry : entries.split( ";" ) ) 
+            {
+                if ( !entry.startsWith( "%" ) && !entry.startsWith( "$" ) && !entry.trim().isEmpty() ) 
+                {                        
+                    entryList.add( entry );
+                }
+            }
+            
+            return entryList;
+        }
+    };    
     
     private SAXParser parser = null; 
     private LinkedList<String> paths = new LinkedList<String>( Arrays.asList( PATH_ROOT ) ); 
