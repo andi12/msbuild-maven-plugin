@@ -15,11 +15,16 @@
  */
 package uk.org.raje.maven.plugin.msbuild;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+
+import uk.org.raje.maven.plugin.msbuild.configuration.CxxTestConfiguration;
 
 /**
  *  
@@ -45,6 +50,8 @@ public class CxxTestBuildMojo extends AbstractMSBuildMojo
 
         
         validateForMSBuild();
-        runMSBuild( cxxTest.testTargets() );
+        Map<String, String> environment = new HashMap<String, String>();
+        environment.put( CxxTestConfiguration.CXXTEST_HOME, cxxTest.cxxTestHome().getAbsolutePath() );
+        runMSBuild( cxxTest.testTargets(), environment );
     }
 }

@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
-    <artifactId>minimal-configuration</artifactId>
+    <artifactId>prj-all-platform-configs-include-dirs</artifactId>
     <version>1</version>
     
     <build>

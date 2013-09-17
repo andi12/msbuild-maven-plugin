@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "compute-pi", "compute-pi\compute-pi.vcxproj", "{847233F0-0050-4D41-89BE-66F084FE486F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "compute-pi-test", "compute-pi-test\compute-pi-test.vcxproj", "{2566EFBE-0295-44D9-B7F0-4938ED3A569B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{847233F0-0050-4D41-89BE-66F084FE486F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{847233F0-0050-4D41-89BE-66F084FE486F}.Debug|Win32.Build.0 = Debug|Win32
+		{847233F0-0050-4D41-89BE-66F084FE486F}.Release|Win32.ActiveCfg = Release|Win32
+		{847233F0-0050-4D41-89BE-66F084FE486F}.Release|Win32.Build.0 = Release|Win32
+		{2566EFBE-0295-44D9-B7F0-4938ED3A569B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2566EFBE-0295-44D9-B7F0-4938ED3A569B}.Debug|Win32.Build.0 = Debug|Win32
+		{2566EFBE-0295-44D9-B7F0-4938ED3A569B}.Release|Win32.ActiveCfg = Release|Win32
+		{2566EFBE-0295-44D9-B7F0-4938ED3A569B}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

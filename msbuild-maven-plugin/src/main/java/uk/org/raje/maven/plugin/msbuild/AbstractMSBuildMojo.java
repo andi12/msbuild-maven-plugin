@@ -18,6 +18,7 @@ package uk.org.raje.maven.plugin.msbuild;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -89,13 +90,14 @@ public abstract class AbstractMSBuildMojo extends AbstractMSBuildPluginMojo
                 + "the environment variable " + ENV_MSBUILD_PATH );
     }
 
-    protected void runMSBuild( List<String> targets ) throws MojoExecutionException
+    protected void runMSBuild( List<String> targets, Map<String, String> environment ) throws MojoExecutionException
     {
         try
         {
             MSBuildExecutor msbuild = new MSBuildExecutor( getLog(), msbuildPath, projectFile );
             msbuild.setPlatforms( platforms );
             msbuild.setTargets( targets );
+            msbuild.setEnvironment( environment );
             if ( msbuild.execute() != 0 )
             {
                 throw new MojoExecutionException(

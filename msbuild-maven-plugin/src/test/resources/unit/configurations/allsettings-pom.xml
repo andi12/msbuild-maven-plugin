@@ -68,10 +68,13 @@
                     <!-- Cxxtest -->
                     <cxxTest>
                         <skip>false</skip>
-                        <cxxTestGenPath>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtestgen.cmd</cxxTestGenPath>
+                        <cxxTestHome>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtest-home</cxxTestHome>
                         <testTargets>
                             <target>TestTarget1</target>
                         </testTargets>
+                        <reportNamePrefix>cxxtest-report</reportNamePrefix>
+                        <testRunnerName>cxxtest-runner.cpp</testRunnerName>
+                        <testHeaderPattern>*Test.h</testHeaderPattern>
                     </cxxTest>
                 </configuration>
             </plugin>

@@ -18,16 +18,19 @@
     <modelVersion>4.0.0</modelVersion>
     
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
-    <artifactId>no-msbuild-configuration</artifactId>
+    <artifactId>minimal-cxxtestgen-config</artifactId>
     <version>1</version>
-    <packaging>exe</packaging>
-
+    
     <build>
         <plugins>
             <plugin>
                 <groupId>uk.org.raje.maven.plugins</groupId>
                 <artifactId>msbuild-maven-plugin</artifactId>
-                <configuration />
+                <configuration>
+                    <cxxTest>
+                        <skip>true</skip>
+                    </cxxTest>
+                </configuration>
             </plugin>
         </plugins>
     </build>

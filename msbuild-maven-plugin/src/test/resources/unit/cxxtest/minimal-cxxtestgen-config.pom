@@ -18,8 +18,9 @@
     <modelVersion>4.0.0</modelVersion>
     
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
-    <artifactId>sln-single-platform-multiple-config</artifactId>
+    <artifactId>minimal-cxxtestgen-config</artifactId>
     <version>1</version>
+    <packaging>exe</packaging>
     
     <build>
         <plugins>
@@ -27,23 +28,14 @@
                 <groupId>uk.org.raje.maven.plugins</groupId>
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
-                    <projectFile>${basedir}/src/test/resources/unit/cppcheck/hello-world-solution/hello-world.sln</projectFile>
-                    <platforms>
-                        <platform>
-                            <name>Win32</name>
-                            <configurations>
-                                <configuration>
-                                    <name>Debug</name>
-                                </configuration>
-                                <configuration>
-                                    <name>Release</name>
-                                </configuration>
-                            </configurations>
-                        </platform>
-                    </platforms>
-                    <cppCheck>
-                        <cppCheckPath>${basedir}/src/test/resources/unit/cppcheck/fake-cppcheck.cmd</cppCheckPath>
-                    </cppCheck>
+                    <projectFile>${basedir}/src/test/resources/unit/cxxtest/fake-project.vcxproj/</projectFile>
+                    <cxxTest>
+                        <cxxTestHome>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtest-home</cxxTestHome>
+                        <testTargets>
+                            <testTarget>TestTarget1</testTarget>
+                            <testTarget>TestTarget2</testTarget>
+                        </testTargets>
+                    </cxxTest>
                 </configuration>
             </plugin>
         </plugins>

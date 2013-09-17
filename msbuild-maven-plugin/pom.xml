@@ -99,7 +99,7 @@
         <!-- Support for CxxTest (C++ test framework) -->
         <dependency>
             <groupId>org.python</groupId>
-            <artifactId>jython</artifactId>
+            <artifactId>jython-standalone</artifactId>
             <version>${jython.version}</version>
         </dependency>    
         

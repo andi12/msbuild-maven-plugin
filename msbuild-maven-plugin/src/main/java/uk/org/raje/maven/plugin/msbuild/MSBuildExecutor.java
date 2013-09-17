@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.cli.StreamConsumer;
@@ -49,6 +50,11 @@ final class MSBuildExecutor
     public void setPlatforms( List<BuildPlatform> platforms )
     {
         buildPlatforms = platforms;
+    }
+
+    public void setEnvironment( Map<String, String> environment ) 
+    {
+        this.environment = environment;
     }
 
     /**
@@ -101,6 +107,12 @@ final class MSBuildExecutor
         command.add( projectFile.getAbsolutePath() );
 
         ProcessBuilder pb = new ProcessBuilder( command );
+        
+        if ( environment != null )
+        {
+            pb.environment().putAll( environment );
+        }
+        
         if ( log.isInfoEnabled() )
         {
             StringBuilder cmdLine = new StringBuilder();
@@ -150,4 +162,5 @@ final class MSBuildExecutor
     private File projectFile;
     private List<String> buildTargets;
     private List<BuildPlatform> buildPlatforms;
+    private Map<String, String> environment;
 }

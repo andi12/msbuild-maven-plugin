@@ -49,7 +49,7 @@ public class MSBuildCleanMojo extends AbstractMSBuildMojo
         // but we don't feel that this mirrors normal Maven clean behaviour
         cleanTargets.add( "Clean" );
 
-        runMSBuild( cleanTargets );
+        runMSBuild( cleanTargets, null );
     }
 
 }

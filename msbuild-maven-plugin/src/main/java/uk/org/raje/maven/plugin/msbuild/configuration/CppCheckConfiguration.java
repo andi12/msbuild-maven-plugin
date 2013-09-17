@@ -28,6 +28,16 @@ public class CppCheckConfiguration
 {
 
     /**
+     * The name of the environment variable that can store the PATH TO CppCheck.
+     */
+    public static final String CPPCHECK_PATH_ENVVAR = "CPPCHECK_PATH";
+    
+    /**
+     * The CppCheck name to output on debug/information messages
+     */    
+    public static final String CPPCHECK_NAME = "CppCheck";
+    
+    /**
      * Get the configured value for skip 
      * @return the configured value or false if not configured
      */
@@ -73,7 +83,7 @@ public class CppCheckConfiguration
     }
 
     /**
-     * Set to true to skip cppcheck functionality.
+     * Set to true to skip CppCheck functionality.
      */
     @Parameter( 
             defaultValue = "false", 

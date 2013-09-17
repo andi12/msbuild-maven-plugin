@@ -16,13 +16,12 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 
 /**
  * Test CppCheckMojo configuration options.
  */
-public class CppCheckConfigurationTest extends AbstractMSBuildMojoTestCase 
+public class CppCheckMojoTest extends AbstractMSBuildMojoTestCase 
 {
     @Test
     public final void testAllSettingsConfiguration() throws Exception 
@@ -36,10 +35,8 @@ public class CppCheckConfigurationTest extends AbstractMSBuildMojoTestCase
     @Test
     public final void testMissingCppCheckConfiguration() throws Exception 
     {
-        MavenProject mavenProject = new MavenProject();
-        mavenProject.setPackaging( MSBuildPackaging.MSBUILD_SOLUTION );
         CppCheckMojo cppCheckMojo = ( CppCheckMojo ) lookupConfiguredMojo( CppCheckMojo.MOJO_NAME, 
-                "/unit/cppcheck/no-cppcheck-path-pom.xml" ) ;
+                "/unit/cppcheck/missing-cppcheck-path-pom.xml" ) ;
         
         try
         {
@@ -54,8 +51,6 @@ public class CppCheckConfigurationTest extends AbstractMSBuildMojoTestCase
     @Test
     public final void testMinimalSolutionConfiguration() throws Exception 
     {
-        MavenProject mavenProject = new MavenProject();
-        mavenProject.setPackaging( MSBuildPackaging.MSBUILD_SOLUTION );
         CppCheckMojo cppCheckMojo = ( CppCheckMojo ) lookupConfiguredMojo( CppCheckMojo.MOJO_NAME, 
                 "/unit/cppcheck/sln-single-platform-single-config-pom.xml" );
 

@@ -51,7 +51,7 @@ public class MSBuildMojo extends AbstractMSBuildMojo
         dumpConfiguration();
         validateForMSBuild();
 
-        runMSBuild( targets );
+        runMSBuild( targets, null );
         findAndAttachArtifacts();
     }
 

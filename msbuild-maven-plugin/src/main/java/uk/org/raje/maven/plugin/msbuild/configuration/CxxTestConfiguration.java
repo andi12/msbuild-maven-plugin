@@ -25,6 +25,17 @@ import org.apache.maven.plugins.annotations.Parameter;
  */
 public class CxxTestConfiguration
 {
+    
+    /**
+     * The name of the environment variable that can store the path to CxxTestGen
+     */
+    public static final String CXXTEST_HOME = "CXXTESTGEN_PATH";
+    
+    /**
+     * The CxxTest name to output on debug/information messages
+     */
+    public static final String CXXTEST_NAME = "CxxTest";
+
     /**
      * Get the configured value for skip 
      * @return the configured value or false if not configured
@@ -35,12 +46,12 @@ public class CxxTestConfiguration
     }
 
     /**
-     * Get the configured path to cxxtestgen
-     * @return the path to cxxtestgen
+     * Get the configured home directory for CxxTest
+     * @return the home directory for CxxTest
      */
-    public final File cxxTestGenPath()
+    public final File cxxTestHome()
     {
-        return cxxTestGenPath;
+        return cxxTestHome;
     }
 
     /**
@@ -51,6 +62,34 @@ public class CxxTestConfiguration
     {
         return testTargets;
     }
+    
+    /**
+     * Get the configured name prefix for the generated test reports
+     * @return the report name prefix
+     */
+    public final String reportNamePrefix()
+    {
+        return reportNamePrefix;
+    }    
+    
+    /**
+     * Get the file name for the generated test runner
+     * @return the test runner file name
+     */
+    public final String testRunnerName()
+    {
+        return testRunnerName;
+    }        
+    
+    
+    /**
+     * Get the regular expression defining which header files contain the tests to run. 
+     * @return the test header regular expression
+     */
+    public final String testHeaderPattern()
+    {
+        return testHeaderPattern;
+    }        
 
     /**
      * Set to true to skip CxxTest functionality.
@@ -58,22 +97,51 @@ public class CxxTestConfiguration
     @Parameter( 
             defaultValue = "false", 
             readonly = false )
-    private boolean skip = false; 
+    protected boolean skip = false; 
 
     /**
-     * The path to the cxxtestgen script.
+     * The home directory for CxxTest
      */
     @Parameter( 
-            property = "cxxtestgen.path", 
+            property = "cxxtest.home", 
             readonly = false, 
             required = false )
-    private File cxxTestGenPath;
+    protected File cxxTestHome;
 
     /**
-     * The set of test targets (projects) to build.
+     * The set of test targets (projects) to build. This is in fact a required parameter because the test harness will 
+     * generate an executable for each target, which we will then need to execute to run the tests. We do not want to
+     * enforce it here though, so tests can still be skipped manually without the need to specify dummy test targets.
      */
     @Parameter(
             readonly = false,
             required = false )
     protected List<String> testTargets;
+    
+    /**
+     * The name prefix for the generated test reports (one for each platform/configuration/target combination) 
+     */
+    @Parameter(
+            defaultValue = "cxxtest-report",
+            readonly = false,
+            required = false )
+    protected String reportNamePrefix = "cxxtest-report";
+    
+    /**
+     * The file name for the generated test runner (one for each target) 
+     */
+    @Parameter(
+            defaultValue = "cxxtest-runner.cpp",
+            readonly = false,
+            required = false )
+    protected String testRunnerName = "cxxtest-runner.cpp";
+
+    /**
+     * A pattern defining which header files contain the tests to run. This pattern is common to all targets.
+     */
+    @Parameter(
+            defaultValue = "*Test.h",
+            readonly = false,
+            required = false )
+    protected String testHeaderPattern = "*Test.h";
 }
