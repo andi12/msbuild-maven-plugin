@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Properties;
 
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -88,7 +90,7 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
     /**
      * Add properties to the project that are replaced.
      */
-    private void addProjectProperties()
+    private void addProjectProperties() throws MojoExecutionException
     {
         Properties projectProps = mavenProject.getProperties();
         
@@ -100,25 +102,27 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
         projectProps.setProperty( PROPERTY_NAME_VERSION_INCREMENTAL, "0" );
         projectProps.setProperty( PROPERTY_NAME_VERSION_BUILD, "0" );
         String version = mavenProject.getVersion();
-        if ( version != null )
+        if ( version != null && version.length() > 0 )
         {
-            String[] parts = version.split( "\\." );
-            if ( parts.length >= 1 )
+            ArtifactVersion artifactVersion = new DefaultArtifactVersion( version );
+            if ( version.equals( artifactVersion.getQualifier() ) )
             {
-                projectProps.setProperty( PROPERTY_NAME_VERSION_MAJOR, parts[0] );
+                String msg = "Unable to parse the version string, please use standard maven version format.";
+                getLog().error( msg );
+                throw new MojoExecutionException( msg );
             }
-            if ( parts.length >= 2 )
-            {
-                projectProps.setProperty( PROPERTY_NAME_VERSION_MINOR, parts[1] );
-            }
-            if ( parts.length >= 3 )
-            {
-                projectProps.setProperty( PROPERTY_NAME_VERSION_MINOR, parts[2] );
-            }
-            if ( parts.length >= 4 )
-            {
-                projectProps.setProperty( PROPERTY_NAME_VERSION_MINOR, parts[3] );
-            }
+            projectProps.setProperty( PROPERTY_NAME_VERSION_MAJOR, 
+                    String.valueOf( artifactVersion.getMajorVersion() ) );
+            projectProps.setProperty( PROPERTY_NAME_VERSION_MINOR, 
+                    String.valueOf( artifactVersion.getMinorVersion() ) );
+            projectProps.setProperty( PROPERTY_NAME_VERSION_INCREMENTAL, 
+                    String.valueOf( artifactVersion.getIncrementalVersion() ) );
+            projectProps.setProperty( PROPERTY_NAME_VERSION_BUILD, 
+                    String.valueOf( artifactVersion.getBuildNumber() ) );
+        }
+        else
+        {
+            getLog().warn( "Missing version for project. Version parts will be set to 0" );
         }
     }
 
