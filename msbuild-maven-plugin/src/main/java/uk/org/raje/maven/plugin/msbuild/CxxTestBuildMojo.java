@@ -48,10 +48,14 @@ public class CxxTestBuildMojo extends AbstractMSBuildMojo
             return;
         }
 
-        
         validateForMSBuild();
         Map<String, String> environment = new HashMap<String, String>();
-        environment.put( CxxTestConfiguration.CXXTEST_HOME, cxxTest.cxxTestHome().getAbsolutePath() );
+        
+        if ( cxxTest.cxxTestHome() != null )
+        {
+            environment.put( CxxTestConfiguration.CXXTEST_HOME, cxxTest.cxxTestHome().getAbsolutePath() );
+        }
+        
         runMSBuild( cxxTest.testTargets(), environment );
     }
 }
