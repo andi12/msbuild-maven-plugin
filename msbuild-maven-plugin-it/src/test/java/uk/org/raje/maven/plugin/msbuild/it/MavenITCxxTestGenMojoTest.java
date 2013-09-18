@@ -15,9 +15,11 @@
  */
 package uk.org.raje.maven.plugin.msbuild.it;
 
+import static org.junit.Assert.assertTrue;
 import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.addPropertiesToVerifier;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.ResourceExtractor;
@@ -33,35 +35,32 @@ import uk.org.raje.maven.plugin.msbuild.CxxTestGenMojo;
 public class MavenITCxxTestGenMojoTest 
 {
     @Test
-    public void testCxxTestGenerate() throws Exception
-    {
-        File testDir = ResourceExtractor.simpleExtractResources( getClass(), "/compute-pi-cxxtest-test" );
-
-        Verifier verifier = new Verifier( testDir.getAbsolutePath() );
-        addPropertiesToVerifier( verifier );
-        
-        verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestGenMojo.MOJO_NAME );
-        verifier.verifyErrorFreeLog();
-        verifier.resetStreams();
-    }
-
-    @Test
     public void testCxxTestGenerateAndBuild() throws Exception
     {
-        File testDir = ResourceExtractor.simpleExtractResources( getClass(), "/compute-pi-cxxtest-test" );
+        final File testDir = ResourceExtractor.simpleExtractResources( getClass(), "/compute-pi-cxxtest-test" );
+        final File outputFile = getTestRunnerCpp( "/compute-pi-cxxtest-test/compute-pi-test/" );
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );
+        verifier.getSystemProperties().setProperty( MSBuildMojoITHelper.MSBUILD_PLUGIN_TOOLS_ENABLE, "true" );
         
         verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestGenMojo.MOJO_NAME );
         verifier.verifyErrorFreeLog();
+        assertTrue( "Test class not generated", outputFile.exists() );
         verifier.resetStreams();
 
         verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestBuildMojo.MOJO_NAME );
         verifier.verifyErrorFreeLog();
         verifier.resetStreams();
     }
-    
+
+    private File getTestRunnerCpp( String directory ) throws IOException
+    {
+        final File outputDirectory = ResourceExtractor.simpleExtractResources( getClass(), 
+                directory );
+        return new File( outputDirectory, "cxxtest-runner.cpp" );
+    }
+
     private static final String GROUPID = "uk.org.raje.maven.plugins";
     private static final String ARTIFACTID = "msbuild-maven-plugin";
 }

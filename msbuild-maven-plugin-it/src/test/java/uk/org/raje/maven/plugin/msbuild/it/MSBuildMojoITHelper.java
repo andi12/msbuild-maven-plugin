@@ -32,6 +32,32 @@ import org.apache.maven.it.Verifier;
 class MSBuildMojoITHelper
 {
     /**
+     * In order to run integration tests that use CppCheck and CxxTest you need to
+     * ensure that cppcheck.path and cxxtest.home are NOT set in any active profile.
+     * <p>
+     * We suggest that you create a profile activated by this property that defines
+     * those paths, for example:
+     * <pre>
+     * {@code
+     * <profile>
+     *     <id>msbuild-plugin-tools</id>
+     *     <activation>
+     *         <property>
+     *             <name>msbuild-plugin-tools</name>
+     *         </property>
+     *     </activation>
+     *     <properties>
+     *         <cppcheck.path>C:\path\to\cppcheck.exe</cppcheck.path>
+     *         <cxxtest.home>C:\path\to\cxxtest-4.2.1</cxxtest.home>
+     *     </properties>
+     * </profile>
+     * }
+     * </pre>
+     *  
+     */
+    public static final String MSBUILD_PLUGIN_TOOLS_ENABLE = "msbuild-plugin-tools";
+
+    /**
      * The name of the properties file that contains properties that are used in test POMs 
      * and need to be included by the Verifier.
      */
