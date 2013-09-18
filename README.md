@@ -1,7 +1,9 @@
 msbuild-maven-plugin
 ====================
 
-Maven 3 plugin for building Visual Studio solutions and projects with msbuild
+Maven 3 plugin for building Visual Studio solutions and projects with msbuild.
+
+The plugin also supports creating a version resource from information in you POM and using CppCheck (1.61) to perform static analysis of your code.
 
 Usage
 =====
@@ -10,7 +12,7 @@ For detailed usage instruction see the project Wiki at:
 https://github.com/andi12/msbuild-maven-plugin/wiki
 
 This simple example shows basic setup to build from a solution file. 
-Place the following in the &lt;build&gt; &lt;plugin&gt; section of you POM and
+Place the following in the &lt;build&gt; &lt;plugins&gt; section of you POM and
 use our 'exe' packaging.
 
 ```xml
