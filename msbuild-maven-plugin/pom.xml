@@ -23,7 +23,7 @@
     <parent>
         <groupId>uk.org.raje.maven.plugins</groupId>
         <artifactId>msbuild-maven-plugin-parent</artifactId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.3</version>
     </parent>
 
     <name>MSBuild Maven Plugin - maven-msbuild-plugin</name>
