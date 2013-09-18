@@ -37,16 +37,6 @@ import uk.org.raje.maven.plugin.msbuild.configuration.VersionInfoConfiguration;
  */
 public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
 {
-    /**
-     * The message printed when the test runner generation is skipped.
-     */
-    public static final String CXXTESTGEN_SKIP_MESSAGE = "Skipping test";
-
-    /**
-     * The message printed when the static code analysis generation is skipped.
-     */
-    public static final String CPPCHECK_SKIP_MESSAGE = "Skipping static code analysis";
-
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException
     {
@@ -95,7 +85,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     {
         if ( cxxTest.skip() )
         {
-            getLog().info( CXXTESTGEN_SKIP_MESSAGE + " " + stepName + ", 'skip' set to true in the " 
+            getLog().info( CXXTEST_SKIP_MESSAGE + " " + stepName + ", 'skip' set to true in the " 
                     + CxxTestConfiguration.CXXTEST_NAME + " configuration." );
             
             return false;
@@ -103,7 +93,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         
         if ( cxxTest.cxxTestHome() == null ) 
         {
-            getLog().info( CXXTESTGEN_SKIP_MESSAGE + ", path to " + CxxTestConfiguration.CXXTEST_NAME + " not set." );
+            getLog().info( CXXTEST_SKIP_MESSAGE + ", path to " + CxxTestConfiguration.CXXTEST_NAME + " not set." );
             return false;
         }
         
@@ -268,4 +258,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             readonly = true, 
             required = false )
     private File cxxTestHome;
+    
+    private static final String CXXTEST_SKIP_MESSAGE = "Skipping test";
+    private static final String CPPCHECK_SKIP_MESSAGE = "Skipping static code analysis";
 }

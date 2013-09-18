@@ -50,6 +50,8 @@ public class MojoHelper
     public static void validateToolPath( File toolPath, String toolPathEnvVar, String toolName, Log logger ) 
             throws FileNotFoundException
     {
+        logger.debug( "Validating path for " + toolName + "." );
+        
         if ( toolPath == null )
         {
             // not set in configuration try system environment
@@ -61,12 +63,19 @@ public class MojoHelper
             }
         }
         
-        if ( toolPath == null || !toolPath.exists() || !toolPath.isFile() )
+        if ( toolPath == null )
         {
-            throw new FileNotFoundException( toolPath == null ? "Missing " + toolName + " path " : toolPath.getName() );
+            logger.error( "Missing " + toolName + " path. " );
+            throw new FileNotFoundException();
         }
         
-        logger.debug( toolName + " path: " + toolPath );
+        if ( !toolPath.exists() || !toolPath.isFile() )
+        {
+            logger.error( "Could not find " + toolName + " at " + toolPath + "." );
+            throw new FileNotFoundException( toolPath.getAbsolutePath() );
+        }
+        
+        logger.debug( "Found " + toolName + " at " + toolPath + "." );
     }    
         
     /**
