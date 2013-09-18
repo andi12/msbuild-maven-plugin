@@ -49,7 +49,6 @@
                         <target>compute-pi</target>
                     </targets>
                     <cxxTest>
-                        <cxxTestHome>${cxxtest.home}</cxxTestHome>
                         <testTargets>
                             <testTarget>compute-pi-test</testTarget>
                         </testTargets>
