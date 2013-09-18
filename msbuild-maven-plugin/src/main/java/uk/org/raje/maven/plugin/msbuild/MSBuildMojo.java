@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -44,9 +45,10 @@ public class MSBuildMojo extends AbstractMSBuildMojo
 
     /**
      * @throws MojoExecutionException if execution fails
+     * @throws MojoFailureException if MSBuild return non-zero
      */
     @Override
-    public final void execute() throws MojoExecutionException 
+    public final void doExecute() throws MojoExecutionException, MojoFailureException 
     {
         dumpConfiguration();
         validateForMSBuild();

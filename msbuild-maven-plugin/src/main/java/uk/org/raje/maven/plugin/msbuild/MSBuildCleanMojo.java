@@ -38,7 +38,7 @@ public class MSBuildCleanMojo extends AbstractMSBuildMojo
     public static final String MOJO_NAME = "clean";
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException
+    public void doExecute() throws MojoExecutionException, MojoFailureException
     {
         dumpConfiguration();
         validateForMSBuild();

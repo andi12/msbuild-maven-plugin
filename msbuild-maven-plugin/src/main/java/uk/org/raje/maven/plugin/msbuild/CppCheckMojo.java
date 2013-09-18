@@ -60,7 +60,7 @@ public class CppCheckMojo extends AbstractCIToolsMojo
     public static final String CPPCHECK_SKIP_MESSAGE = "Skipping static code analysis";
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException 
+    public void doExecute() throws MojoExecutionException, MojoFailureException 
     {
         List<VCProject> vcProjects = null;
         

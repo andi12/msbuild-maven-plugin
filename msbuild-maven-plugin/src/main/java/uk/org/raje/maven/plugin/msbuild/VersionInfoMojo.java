@@ -47,7 +47,7 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
     public static final String MOJO_NAME = "version-info";
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException
+    public void doExecute() throws MojoExecutionException, MojoFailureException
     {
         if ( ! MSBuildPackaging.isValid( mavenProject.getPackaging() ) )
         {

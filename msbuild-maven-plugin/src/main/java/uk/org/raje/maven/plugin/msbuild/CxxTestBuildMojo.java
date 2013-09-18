@@ -40,7 +40,7 @@ public class CxxTestBuildMojo extends AbstractMSBuildMojo
     public static final String MOJO_NAME = "testbuild";
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException
+    public void doExecute() throws MojoExecutionException, MojoFailureException
     {
         if ( cxxTest.skip() )
         {

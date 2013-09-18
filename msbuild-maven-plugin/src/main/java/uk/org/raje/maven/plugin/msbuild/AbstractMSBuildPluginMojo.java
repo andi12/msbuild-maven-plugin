@@ -16,9 +16,12 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
@@ -32,6 +35,49 @@ import uk.org.raje.maven.plugin.msbuild.configuration.VersionInfoConfiguration;
  */
 public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
 {
+    @Override
+    public final void execute() throws MojoExecutionException, MojoFailureException
+    {
+        // Fix up configuration
+        // This is done with the following hard coded fixes for parameters that
+        // we want to be able to pull from -D's or settings.xml but are stored
+        // in configuration sub-classes.
+        try
+        {
+            if ( cppCheckPath != null )
+            {
+                Field cppCheckPathField = CppCheckConfiguration.class.getDeclaredField( "cppCheckPath" );
+                cppCheckPathField.setAccessible( true );
+                cppCheckPathField.set( cppCheck, cppCheckPath );
+                getLog().debug( "Found property for cppcheck.path, using this value" );
+            }
+            if ( cxxTestHome != null )
+            {
+                Field cxxTestPathField = CxxTestConfiguration.class.getDeclaredField( "cxxTestHome" );
+                cxxTestPathField.setAccessible( true );
+                cxxTestPathField.set( cxxTest, cxxTestHome );
+                getLog().debug( "Found property for cxxtest.home, using this value" );
+           }
+        }
+        catch ( NoSuchFieldException nsfe )
+        {
+            throw new MojoFailureException( "Internal error, please contact the Mojo developer", nsfe );
+        }
+        catch ( IllegalAccessException iae )
+        {
+            throw new MojoFailureException( "Internal error, please contact the Mojo developer", iae );
+        }
+
+        // Configuration fixed, call child to do real work
+        doExecute();
+    }
+
+    /**
+     * Actually perform the work of this Mojo now the configuration has been fixed.
+     * @see AbstractMojo#execute
+     */
+    protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
+
     /**
      * The MavenProject for the current build.
      */
@@ -88,4 +134,24 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
      */
     @Parameter
     protected CxxTestConfiguration cxxTest = new CxxTestConfiguration();
+
+    /**
+     * This parameter only exists to pickup a -D property or property in settings.xml
+     * @see CppCheckConfiguration#cppCheckPath
+     */
+    @Parameter(
+            property = "cppcheck.path",
+            readonly = true,
+            required = false )
+    private File cppCheckPath;
+
+    /**
+     * This parameter only exists to pickup a -D property or property in settings.xml
+     * @see CxxTestConfiguration#cxxTestHome
+     */
+    @Parameter( 
+            property = "cxxtest.home", 
+            readonly = true, 
+            required = false )
+    private File cxxTestHome;
 }

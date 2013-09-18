@@ -101,9 +101,10 @@ public class CxxTestConfiguration
 
     /**
      * The home directory for CxxTest
+     * Note: The property is not specified here as it doesn't work.
+     * @see uk.org.raje.maven.plugin.msbuild.AbstractMSBuildPluginMojo#cxxTestHome 
      */
     @Parameter( 
-            property = "cxxtest.home", 
             readonly = false, 
             required = false )
     protected File cxxTestHome;
