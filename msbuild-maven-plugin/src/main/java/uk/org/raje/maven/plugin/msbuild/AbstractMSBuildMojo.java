@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 /**
  * Abstract base class for MSBuild Mojos.
@@ -90,7 +91,8 @@ public abstract class AbstractMSBuildMojo extends AbstractMSBuildPluginMojo
                 + "the environment variable " + ENV_MSBUILD_PATH );
     }
 
-    protected void runMSBuild( List<String> targets, Map<String, String> environment ) throws MojoExecutionException
+    protected void runMSBuild( List<String> targets, Map<String, String> environment ) 
+            throws MojoExecutionException, MojoFailureException
     {
         try
         {
@@ -100,7 +102,7 @@ public abstract class AbstractMSBuildMojo extends AbstractMSBuildPluginMojo
             msbuild.setEnvironment( environment );
             if ( msbuild.execute() != 0 )
             {
-                throw new MojoExecutionException(
+                throw new MojoFailureException(
                         "MSBuild execution failed, see log for details." );
             }
         }
