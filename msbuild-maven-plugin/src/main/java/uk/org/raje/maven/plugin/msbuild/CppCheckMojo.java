@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -28,6 +29,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.codehaus.plexus.util.cli.StreamConsumer;
 import org.codehaus.plexus.util.cli.WriterStreamConsumer;
 
 import uk.org.raje.maven.plugin.msbuild.MojoHelper.LogOutputStreamConsumer;
@@ -84,6 +86,9 @@ public class CppCheckMojo extends AbstractCodeAnalysisMojo
         getLog().info( "Static code analysis complete." );
     }
     
+    /**
+     * Runs CppCheck against a given Visual C++ project and produces a static code analysis report
+     */    
     private Writer createCppCheckReportWriter( VCProject vcProject ) throws MojoExecutionException
     {
         BufferedWriter cppCheckReportWriter;
@@ -139,5 +144,78 @@ public class CppCheckMojo extends AbstractCodeAnalysisMojo
         }
 
         getLog().info( "Static code analysis for project " + vcProject.getName() + " succeeded." );
+    }
+    
+    private class CppCheckRunner extends CommandLineRunner
+    {
+        public CppCheckRunner( File cppCheckPath, File vcProjectPath, StreamConsumer outputConsumer, 
+                StreamConsumer errorConsumer )
+        {
+            super( outputConsumer, errorConsumer );
+            this.cppCheckPath = cppCheckPath;
+            this.vcProjectPath = vcProjectPath;
+        }
+        
+        public void setCppCheckType( CppCheckType cppCheckType ) 
+        {
+            this.cppCheckType = cppCheckType;
+        }
+
+        public void setIncludeDirectories( List<String> includeDirectories ) 
+        {
+            this.includeDirectories = includeDirectories;
+        }
+
+        public void setExcludeDirectories( List<String> excludeDirectories ) 
+        {
+            this.excludeDirectories = excludeDirectories;
+        }
+
+        public void setPreprocessorDefs( List<String> preprocessorDefs ) 
+        {
+            this.preprocessorDefs = preprocessorDefs;
+        }    
+        
+        @Override
+        protected List<String> getCommandLineArguments() 
+        {
+            List<String> commandLineArguments = new LinkedList<String>();
+            
+            commandLineArguments.add( cppCheckPath.getAbsolutePath() );
+            commandLineArguments.add( "--quiet" );
+            commandLineArguments.add( "--xml" );
+            commandLineArguments.add( "--xml-version=" + CPPCHECK_XML_VERSION );
+            commandLineArguments.add( "--enable=" + cppCheckType.name() );
+            
+            for ( String includeDirectory : includeDirectories ) 
+            {
+                commandLineArguments.add( "-I" );
+                commandLineArguments.add( "\"" + includeDirectory + "\"" );
+            }
+
+            for ( String excludeDirectory : excludeDirectories ) 
+            {
+                commandLineArguments.add( "-i" );
+                commandLineArguments.add( "\"" + excludeDirectory + "\"" );
+            }
+
+            for ( String preprocessorDef : preprocessorDefs ) 
+            {
+                commandLineArguments.add( "-D" + preprocessorDef );
+            }
+            
+            commandLineArguments.add( vcProjectPath.getAbsolutePath() );
+            
+            return commandLineArguments;
+        }
+        
+        private static final String CPPCHECK_XML_VERSION = "1";
+        
+        private File cppCheckPath;
+        private File vcProjectPath;
+        private CppCheckType cppCheckType = CppCheckType.all;
+        private List<String> includeDirectories = new LinkedList<String>();
+        private List<String> excludeDirectories = new LinkedList<String>();
+        private List<String> preprocessorDefs = new LinkedList<String>();
     }
 }
