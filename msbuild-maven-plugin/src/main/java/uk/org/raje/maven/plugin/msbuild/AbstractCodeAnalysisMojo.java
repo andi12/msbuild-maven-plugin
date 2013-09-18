@@ -70,24 +70,24 @@ public abstract class AbstractCodeAnalysisMojo extends AbstractMSBuildPluginMojo
 
     private void logVCSolutionConfiguration( BuildPlatform platform, BuildConfiguration configuration ) 
     {
-        getLog().info( "Solution " + projectFile.getName() + ": configuration '" + configuration.getName()
-                + "', platform '" + platform.getName() + "'" );
+        getLog().debug( "Solution " + projectFile.getName() + ": platform=" + platform.getName() 
+                + ", configuration=" + configuration.getName() );
     }
 
     private void logVCProjectConfiguration( VCProject project ) 
     {
-        getLog().info( "Project " + project.getName() + ": configuration '" + project.getConfiguration() 
-                + "', platform '" + project.getPlatform() + "'" );
+        getLog().debug( "Project " + project.getName() + ": platform=" + project.getPlatform() 
+                + ", configuration=" + project.getConfiguration() );
         
         if ( project.getIncludeDirectories().size() > 0 ) 
         {
-            getLog().info( "Project " + project.getName() + ": include directories " 
+            getLog().debug( "Project " + project.getName() + ": include directories=" 
                     + project.getIncludeDirectories() );
         }
         
         if ( project.getPreprocessorDefs().size() > 0 ) 
         {
-                getLog().info( "Project " + project.getName() + ": preprocessor definitions "
+                getLog().debug( "Project " + project.getName() + ": preprocessor definitions="
                         + project.getPreprocessorDefs() );
         }
     }
