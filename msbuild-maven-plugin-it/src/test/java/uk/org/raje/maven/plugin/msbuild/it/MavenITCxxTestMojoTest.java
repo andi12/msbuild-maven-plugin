@@ -27,12 +27,13 @@ import org.junit.Test;
 
 import uk.org.raje.maven.plugin.msbuild.CxxTestBuildMojo;
 import uk.org.raje.maven.plugin.msbuild.CxxTestGenMojo;
+import uk.org.raje.maven.plugin.msbuild.CxxTestRunnerMojo;
 
 /**
  * Integration test that runs the hello-world-build-test
  *
  */
-public class MavenITCxxTestGenMojoTest 
+public class MavenITCxxTestMojoTest 
 {
     @Test
     public void testCxxTestGenerateAndBuild() throws Exception
@@ -46,12 +47,16 @@ public class MavenITCxxTestGenMojoTest
         
         verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestGenMojo.MOJO_NAME );
         verifier.verifyErrorFreeLog();
-        assertTrue( "Test class not generated", outputFile.exists() );
+        assertTrue( "Test runner not generated", outputFile.exists() );
         verifier.resetStreams();
 
         verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestBuildMojo.MOJO_NAME );
         verifier.verifyErrorFreeLog();
         verifier.resetStreams();
+        
+        verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestRunnerMojo.MOJO_NAME );
+        verifier.verifyErrorFreeLog();
+        verifier.resetStreams();        
     }
 
     private File getTestRunnerCpp( String directory ) throws IOException
