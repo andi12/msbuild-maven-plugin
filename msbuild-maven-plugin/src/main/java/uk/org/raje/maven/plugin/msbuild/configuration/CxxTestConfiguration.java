@@ -29,7 +29,7 @@ public class CxxTestConfiguration
     /**
      * The name of the environment variable that can store the path to CxxTestGen
      */
-    public static final String CXXTEST_HOME = "CXXTESTGEN_PATH";
+    public static final String CXXTEST_HOME = "CXXTEST_HOME";
     
     /**
      * The CxxTest name to output on debug/information messages
