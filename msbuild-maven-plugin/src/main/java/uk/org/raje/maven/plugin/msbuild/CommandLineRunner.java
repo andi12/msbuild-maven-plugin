@@ -16,6 +16,7 @@
 
 package uk.org.raje.maven.plugin.msbuild;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -41,8 +42,13 @@ public abstract class CommandLineRunner
         List<String> commandLineArguments = getCommandLineArguments();
         ProcessBuilder pb = new ProcessBuilder( commandLineArguments );
         
+        if ( workingDirectory != null )
+        {
+            pb.directory( workingDirectory );
+        }
+        
         commandLineProc = pb.start();
-        final StreamPumper stdoutPumper = new StreamPumper( commandLineProc.getInputStream(), outputConsumer );        
+        final StreamPumper stdoutPumper = new StreamPumper( commandLineProc.getInputStream(), outputConsumer );
         final StreamPumper stderrPumper = new StreamPumper( commandLineProc.getErrorStream(), errorConsumer );
         stdoutPumper.start();        
         stderrPumper.start();
@@ -62,8 +68,14 @@ public abstract class CommandLineRunner
         return commandLine.toString();
     }
     
+    public void setWorkingDirectory( File workingDirectory ) 
+    {
+        this.workingDirectory = workingDirectory;
+    }
+
     protected abstract List<String> getCommandLineArguments();
     
     private StreamConsumer outputConsumer;
     private StreamConsumer errorConsumer;
+    private File workingDirectory;
 }

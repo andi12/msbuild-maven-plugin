@@ -28,7 +28,7 @@
                 <groupId>uk.org.raje.maven.plugins</groupId>
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
-                    <projectFile>${basedir}/src/test/resources/unit/cxxtest/fake-project.vcxproj/</projectFile>
+                    <projectFile>${basedir}/src/test/resources/unit/cxxtest/hello-world-project/hello-world.vcxproj/</projectFile>
                     <cxxTest>
                         <cxxTestHome>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtest-home</cxxTestHome>
                         <testTargets>

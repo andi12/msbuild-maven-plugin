@@ -43,6 +43,9 @@
                     <test-compile>
                         uk.org.raje.maven.plugins:msbuild-maven-plugin:testbuild
                     </test-compile>
+                    <test>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:test
+                    </test>
                     <verify>
                         uk.org.raje.maven.plugins:msbuild-maven-plugin:cppcheck
                     </verify>
@@ -98,6 +101,9 @@
                     <test-compile>
                         uk.org.raje.maven.plugins:msbuild-maven-plugin:testbuild
                     </test-compile>
+                    <test>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:test
+                    </test>
                     <verify>
                         uk.org.raje.maven.plugins:msbuild-maven-plugin:cppcheck
                     </verify>
@@ -148,6 +154,9 @@
                     <test-compile>
                         uk.org.raje.maven.plugins:msbuild-maven-plugin:testbuild
                     </test-compile>
+                    <test>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:test
+                    </test>
                     <verify>
                         uk.org.raje.maven.plugins:msbuild-maven-plugin:cppcheck
                     </verify>
@@ -201,6 +210,9 @@
                     <test-compile>
                         uk.org.raje.maven.plugins:msbuild-maven-plugin:testbuild
                     </test-compile>
+                    <test>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:test
+                    </test>
                     <verify>
                         uk.org.raje.maven.plugins:msbuild-maven-plugin:cppcheck
                     </verify>

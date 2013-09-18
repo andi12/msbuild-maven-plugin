@@ -18,7 +18,7 @@ package uk.org.raje.maven.plugin.msbuild;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.junit.Test;
 
 /**
@@ -35,46 +35,45 @@ public class CxxTestGenMojoTest extends AbstractMSBuildMojoTestCase
     }
     
     @Test
-    public final void testMissingCxxTestGenPath() throws Exception 
+    public final void testMissingCxxTestHomePath() throws Exception 
     {
         CxxTestGenMojo cxxTestGenMojo = ( CxxTestGenMojo ) lookupConfiguredMojo( CxxTestGenMojo.MOJO_NAME, 
-                "/unit/cxxtest/missing-cxxtestgen-path.pom" ) ;
+                "/unit/cxxtest/missing-cxxtest-home-path.pom" ) ;
         
         try
         {
             cxxTestGenMojo.execute();
         }
-        catch ( MojoExecutionException mee )
+        catch ( AbstractMojoExecutionException ame )
         {
-            fail();
+            fail( ame.getCause() != null ? ame.getCause().getMessage() : ame.getMessage() );
         }
         
-        if ( !outputStream.toString().contains( CxxTestGenMojo.CXXTESTGEN_SKIP_MESSAGE ) )
+        if ( !outputStream.toString().contains( CXXTEST_SKIP_MESSAGE ) )
         {
             fail();
         }
     }    
 
-    public final void testSkipCxxTestGen() throws Exception 
+    public final void testSkipCxxTest() throws Exception 
     {
         CxxTestGenMojo cxxTestGenMojo = ( CxxTestGenMojo ) lookupConfiguredMojo( CxxTestGenMojo.MOJO_NAME, 
-                "/unit/cxxtest/skip-cxxtestgen.pom" ) ;
+                "/unit/cxxtest/skip-cxxtest.pom" ) ;
         
         try
         {
             cxxTestGenMojo.execute();
         }
-        catch ( MojoExecutionException mee )
+        catch ( AbstractMojoExecutionException ame )
         {
-            fail();
+            fail( ame.getCause() != null ? ame.getCause().getMessage() : ame.getMessage() );
         }
         
-        if ( !outputStream.toString().contains( CxxTestGenMojo.CXXTESTGEN_SKIP_MESSAGE ) ) 
+        if ( !outputStream.toString().contains( CXXTEST_SKIP_MESSAGE ) ) 
         {
             fail();
         }
     }    
-
     
     @Test
     public final void test() throws Exception 
@@ -86,11 +85,13 @@ public class CxxTestGenMojoTest extends AbstractMSBuildMojoTestCase
         {
             cxxTestGenMojo.execute();
         }
-        catch ( MojoExecutionException mee )
+        catch ( AbstractMojoExecutionException ame )
         {
-            fail();
+            fail( ame.getCause() != null ? ame.getCause().getMessage() : ame.getMessage() );
         }
     }
     
+    private static final String CXXTEST_SKIP_MESSAGE = "Skipping test";
+
     private ByteArrayOutputStream outputStream;
 }
