@@ -16,7 +16,9 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
+import java.security.InvalidParameterException;
 import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -35,6 +37,16 @@ import uk.org.raje.maven.plugin.msbuild.configuration.VersionInfoConfiguration;
  */
 public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
 {
+    /**
+     * The message printed when the test runner generation is skipped.
+     */
+    public static final String CXXTESTGEN_SKIP_MESSAGE = "Skipping test";
+
+    /**
+     * The message printed when the static code analysis generation is skipped.
+     */
+    public static final String CPPCHECK_SKIP_MESSAGE = "Skipping static code analysis";
+
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException
     {
@@ -72,11 +84,113 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         doExecute();
     }
 
+    
     /**
      * Actually perform the work of this Mojo now the configuration has been fixed.
      * @see AbstractMojo#execute
      */
     protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
+
+    protected boolean isCxxTestEnabled( String stepName ) 
+    {
+        if ( cxxTest.skip() )
+        {
+            getLog().info( CXXTESTGEN_SKIP_MESSAGE + " " + stepName + ", 'skip' set to true in the " 
+                    + CxxTestConfiguration.CXXTEST_NAME + " configuration." );
+            
+            return false;
+        }
+        
+        if ( cxxTest.cxxTestHome() == null ) 
+        {
+            getLog().info( CXXTESTGEN_SKIP_MESSAGE + ", path to " + CxxTestConfiguration.CXXTEST_NAME + " not set." );
+            return false;
+        }
+        
+        return true;
+    }
+
+    protected void validateCxxTestConfiguration() throws MojoExecutionException, MojoFailureException 
+    {
+        if ( !getCxxTestPython2Home().isDirectory() )
+        {
+            throw new MojoExecutionException( "Could not find the Python 2 scripts for " 
+                    + CxxTestConfiguration.CXXTEST_NAME + " at " + getCxxTestPython2Home(), 
+                    new FileNotFoundException( getCxxTestPython2Home().getAbsolutePath() ) );
+        }
+        
+        try 
+        {
+            MojoHelper.validateToolPath( new File( getCxxTestPython2Home(), "cxxtest/cxxtestgen.py" ), 
+                    CxxTestConfiguration.CXXTEST_HOME, CxxTestConfiguration.CXXTEST_NAME, getLog() );
+        }
+        catch ( FileNotFoundException fnfe )
+        {
+            throw new MojoExecutionException( CxxTestConfiguration.CXXTEST_NAME 
+                    + " could not be found at " + fnfe.getMessage() + ". "
+                    + "You need to configure it in the plugin configuration section in the "
+                    + "POM file using <cxxTestHome>...</cxxTestHome> "
+                    + "or <properties><cxxtest.home>...</cxxtest.home></properties>; "
+                    + "alternatively, you can use the command-line parameter -Dcxxtest.home=... "
+                    + "or set the environment variable " + CxxTestConfiguration.CXXTEST_HOME, fnfe );
+        }
+        
+        if ( cxxTest.testTargets() == null || cxxTest.testTargets().size() == 0 )
+        {
+            throw new MojoExecutionException( "You must specify at least one test target. If you want to skip "
+                    + "running the tests, please set 'skip' to true in the " + CxxTestConfiguration.CXXTEST_NAME 
+                    + " configuration.", new InvalidParameterException( "testTargets" ) );
+        }
+        
+        MojoHelper.validateProjectFile( mavenProject.getPackaging(), projectFile, getLog() );
+        platforms = MojoHelper.validatePlatforms( platforms );
+    }
+
+    protected File getCxxTestPython2Home() 
+    {
+        return new File( cxxTest.cxxTestHome(), "python" );
+    }
+    
+    protected boolean isCppCheckEnabled() 
+    {
+        if ( cppCheck.skip() )
+        {
+            getLog().info( CPPCHECK_SKIP_MESSAGE + ", 'skip' set to true in the " + CppCheckConfiguration.CPPCHECK_NAME
+                    + " configuration." );
+            
+            return false;
+        }
+        
+        if ( cppCheck.cppCheckPath() == null ) 
+        {
+            getLog().info( CPPCHECK_SKIP_MESSAGE + ", path to " + CppCheckConfiguration.CPPCHECK_NAME + " not set." );
+            return false;
+        }        
+        
+        return true;
+    }
+
+    protected void validateCppCheckConfiguration() throws MojoExecutionException, MojoFailureException 
+    {
+        try 
+        {
+            MojoHelper.validateToolPath( cppCheck.cppCheckPath(), CppCheckConfiguration.CPPCHECK_PATH_ENVVAR, 
+                    CppCheckConfiguration.CPPCHECK_NAME, getLog() );
+        }
+        catch ( FileNotFoundException fnfe )
+        {
+            throw new MojoExecutionException( CppCheckConfiguration.CPPCHECK_NAME 
+                    + "could not be found at " + fnfe.getMessage() + ". "
+                    + "You need to configure it in the plugin configuration section in the "
+                    + "POM file using <cppCheckPath>...</cppCheckPath> "
+                    + "or <properties><cppcheck.path>...</cppcheck.path></properties>; "
+                    + "alternatively, you can use the command-line parameter -Dcppcheck.path=... "
+                    + "or set the environment variable " + CppCheckConfiguration.CPPCHECK_PATH_ENVVAR, fnfe );
+        }
+        
+        MojoHelper.validateProjectFile( mavenProject.getPackaging(), projectFile, getLog() );
+        platforms = MojoHelper.validatePlatforms( platforms );
+    }
 
     /**
      * The MavenProject for the current build.
