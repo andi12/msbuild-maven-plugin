@@ -65,7 +65,7 @@ public class CppCheckConfiguration
     }
 
     /**
-     * Get the configured check type, if not configured the detault CppCheckType.all is returned.
+     * Get the configured check type, if not configured the default CppCheckType.all is returned.
      * @return the CppCheckType
      */
     public final CppCheckType cppCheckType()

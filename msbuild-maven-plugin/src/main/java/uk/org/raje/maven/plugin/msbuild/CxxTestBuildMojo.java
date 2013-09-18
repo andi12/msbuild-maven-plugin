@@ -20,7 +20,6 @@ import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
@@ -29,9 +28,7 @@ import uk.org.raje.maven.plugin.msbuild.configuration.CxxTestConfiguration;
 /**
  *  
  */
-@Mojo( name = CxxTestBuildMojo.MOJO_NAME, 
-defaultPhase = LifecyclePhase.TEST_COMPILE )
-@Execute( phase = LifecyclePhase.TEST_COMPILE )
+@Mojo( name = CxxTestBuildMojo.MOJO_NAME, defaultPhase = LifecyclePhase.TEST_COMPILE )
 public class CxxTestBuildMojo extends AbstractMSBuildMojo
 {
     /**
@@ -42,19 +39,17 @@ public class CxxTestBuildMojo extends AbstractMSBuildMojo
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        if ( cxxTest.skip() )
+        if ( !isCxxTestEnabled( "runner build" ) )
         {
-            getLog().debug( "Skipping cxxtest build, 'skipCxxtest' set to true." );
             return;
         }
-
-        validateForMSBuild();
-        Map<String, String> environment = new HashMap<String, String>();
         
-        if ( cxxTest.cxxTestHome() != null )
-        {
-            environment.put( CxxTestConfiguration.CXXTEST_HOME, cxxTest.cxxTestHome().getAbsolutePath() );
-        }
+        validateCxxTestConfiguration();
+        validateForMSBuild();
+
+        Map<String, String> environment = new HashMap<String, String>();        
+        environment.put( CxxTestConfiguration.CXXTEST_HOME, cxxTest.cxxTestHome().getAbsolutePath() );
+        environment.put( "MAVEN_TESTS", "1" );
         
         runMSBuild( cxxTest.testTargets(), environment );
     }
