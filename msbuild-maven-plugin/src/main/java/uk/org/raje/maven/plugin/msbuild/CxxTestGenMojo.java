@@ -66,9 +66,7 @@ public class CxxTestGenMojo extends AbstractMSBuildPluginMojo
         arguments.add( "--have-eh" );
         arguments.add( "--abort-on-fail" );
         arguments.add( "--xunit-printer" );
-        arguments.add( "--xunit-file=" 
-                + new File( targetPath, cxxTest.getReportNamePrefix() ).getAbsolutePath().replace( "\\", "/" ) );
-        
+        arguments.add( "--xunit-file=" + cxxTest.getReportName() );
         arguments.add( "--output=" + new File( targetPath, cxxTest.getTestRunnerName() ).getAbsolutePath() );
         arguments.add( new File( targetPath, cxxTest.getTestHeaderPattern() ).getAbsolutePath() );
         

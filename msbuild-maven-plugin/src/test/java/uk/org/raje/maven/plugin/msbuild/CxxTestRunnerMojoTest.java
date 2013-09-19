@@ -36,6 +36,15 @@ public class CxxTestRunnerMojoTest extends AbstractMSBuildMojoTestCase
     }
     
     @Test
+    public final void testAllSettingsConfiguration() throws Exception 
+    {
+        CppCheckMojo cppCheckMojo = ( CppCheckMojo ) lookupConfiguredMojo( CppCheckMojo.MOJO_NAME, 
+                "/unit/configurations/allsettings-pom.xml" );
+
+        assertAllSettingsConfiguration( cppCheckMojo );
+    }    
+    
+    @Test
     public final void testMissingCxxTestHomePath() throws Exception 
     {
         CxxTestRunnerMojo cxxTestRunnerMojo = ( CxxTestRunnerMojo ) lookupConfiguredMojo( CxxTestRunnerMojo.MOJO_NAME, 
@@ -111,6 +120,8 @@ public class CxxTestRunnerMojoTest extends AbstractMSBuildMojoTestCase
         {
             fail( ame.getCause() != null ? ame.getCause().getMessage() : ame.getMessage() );
         }
+        
+        fail ( "Expected CxxTest failure." );
     }
     
 

@@ -35,6 +35,15 @@ public class CxxTestGenMojoTest extends AbstractMSBuildMojoTestCase
     }
     
     @Test
+    public final void testAllSettingsConfiguration() throws Exception 
+    {
+        CppCheckMojo cppCheckMojo = ( CppCheckMojo ) lookupConfiguredMojo( CppCheckMojo.MOJO_NAME, 
+                "/unit/configurations/allsettings-pom.xml" );
+
+        assertAllSettingsConfiguration( cppCheckMojo );
+    }    
+    
+    @Test
     public final void testMissingCxxTestHomePath() throws Exception 
     {
         CxxTestGenMojo cxxTestGenMojo = ( CxxTestGenMojo ) lookupConfiguredMojo( CxxTestGenMojo.MOJO_NAME, 
@@ -79,7 +88,7 @@ public class CxxTestGenMojoTest extends AbstractMSBuildMojoTestCase
     public final void test() throws Exception 
     {
         CxxTestGenMojo cxxTestGenMojo = ( CxxTestGenMojo ) lookupConfiguredMojo( CxxTestGenMojo.MOJO_NAME, 
-                "/unit/cxxtest/minimal-cxxtestgen-config.pom" ) ;
+                "/unit/cxxtest/minimal-cxxtestgen-config.pom" );
         
         try
         {

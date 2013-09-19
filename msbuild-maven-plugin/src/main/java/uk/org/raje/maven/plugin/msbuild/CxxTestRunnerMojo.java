@@ -26,11 +26,13 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 
+import com.google.common.io.Files;
+
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 import uk.org.raje.maven.plugin.msbuild.configuration.CxxTestConfiguration;
 import uk.org.raje.maven.plugin.msbuild.streamconsumers.StderrStreamToLog;
-import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamtoLog;
+import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamToLog;
 
 /**
  *  
@@ -52,6 +54,7 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         }
         
         validateCxxTestConfiguration();
+        List<Boolean> allTestPassed = new LinkedList<Boolean>();
 
         for ( String testTarget : cxxTest.getTestTargets() ) 
         {
@@ -59,12 +62,9 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
             {
                 for ( BuildConfiguration configuration : platform.getConfigurations() )
                 {
-                    getLog().info( "Running " + CxxTestConfiguration.CXXTEST_NAME + " tests for target " + testTarget 
-                            + ", platform=" + platform.getName() + ", configuration=" + configuration.getName() );
-
                     try 
                     {
-                        executeCxxTestTarget( testTarget, platform, configuration );
+                        allTestPassed.add( executeCxxTestTarget( testTarget, platform, configuration ) );
                     }
                     catch ( MojoExecutionException mee )
                     {
@@ -79,42 +79,87 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
                 }
             }
         }
+        
+        if ( allTestPassed.contains( false ) )
+        {
+            throw new MojoFailureException( "Some tests failed to pass." );
+        }
 
         getLog().info( "All tests passed." );
     }
     
-    private void executeCxxTestTarget( String testTarget, BuildPlatform platform, BuildConfiguration configuration )
-        throws MojoExecutionException, MojoFailureException
+    private CommandLineRunner createCxxTestRunner( String testTargetName, BuildPlatform platform, 
+            BuildConfiguration configuration ) throws MojoExecutionException
     {
-        int exitCode = 0;
-        
         File workingDirectory = MojoHelper.getConfigurationOutputDirectory( projectFile.getParentFile(), 
                 platform, configuration, getLog() );
         
-        File testTargetExec = new File( workingDirectory, new File ( testTarget ).getName() + ".exe" );
+        File testTargetExec = new File( workingDirectory, testTargetName + ".exe" );
         
         CxxTestRunner cxxTestRunner = new CxxTestRunner( testTargetExec, 
-                new StdoutStreamtoLog( getLog() ), new StderrStreamToLog( getLog() ) );
+                new StdoutStreamToLog( getLog() ), new StderrStreamToLog( getLog() ) );
         
         cxxTestRunner.setWorkingDirectory( workingDirectory );
-
+        
+        return cxxTestRunner;
+    }
+    
+    private Boolean executeCxxTestRunner( CommandLineRunner cxxTestRunner ) throws MojoExecutionException
+    {
         try
         {
-            exitCode = cxxTestRunner.runCommandLine();
+            return cxxTestRunner.runCommandLine() == 0;
         }
         catch ( IOException ioe )
         {
-            throw new MojoExecutionException( "I/O error while executing test command line", ioe );
+            throw new MojoExecutionException( "I/O error while executing command line", ioe );
         }
         catch ( InterruptedException ie )
         {
-            throw new MojoExecutionException( "Process interrupted while test executing command line", ie );
+            throw new MojoExecutionException( "Process interrupted while executing command line", ie );
         }
+    }
+    
+    private void moveCxxTestReport( String testTargetName, BuildPlatform platform, BuildConfiguration configuration, 
+            File sourceDirectory, File destinationDirectory ) throws MojoExecutionException
+    {
+        File reportSource = new File ( sourceDirectory, cxxTest.getReportName() );
+        File reportDest = new File ( destinationDirectory, cxxTest.getReportName() + "-" + testTargetName 
+                + "-" + platform.getName() + "-" + configuration.getName() + ".xml" );
         
-        if ( exitCode != 0 )
+        try 
         {
-            throw new MojoFailureException( "Some tests failed to pass." );
+            Files.createParentDirs( reportDest );
+            Files.copy( reportSource, reportDest );
         }
+        catch ( IOException ioe )
+        { 
+            throw new MojoExecutionException( "Failed to create" + CxxTestConfiguration.CXXTEST_NAME + " report "
+                    + reportSource + " to " + reportDest, ioe );
+        }
+    }    
+    
+    private Boolean executeCxxTestTarget( String testTarget, BuildPlatform platform, BuildConfiguration configuration ) 
+            throws MojoExecutionException, MojoFailureException
+    {
+        getLog().info( "Running " + CxxTestConfiguration.CXXTEST_NAME.toLowerCase() 
+                + " tests for target " + testTarget 
+                + ", platform=" + platform.getName() + ", configuration=" + configuration.getName() + "." );
+        
+        Boolean testPassed;
+        String testTargetName = new File ( testTarget ).getName();
+        
+        CommandLineRunner cxxTestRunner = createCxxTestRunner( testTargetName, platform, configuration );
+        testPassed = executeCxxTestRunner( cxxTestRunner );
+        moveCxxTestReport( testTargetName, platform, configuration, cxxTestRunner.getWorkingDirectory(), 
+                getReportDirectory() );
+
+        return testPassed;
+    }
+    
+    private File getReportDirectory()
+    {
+        return new File( mavenProject.getBuild().getDirectory(), "surefire-reports" );
     }
     
     /**
