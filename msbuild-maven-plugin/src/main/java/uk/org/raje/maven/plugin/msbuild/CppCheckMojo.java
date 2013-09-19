@@ -29,13 +29,16 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.util.cli.StreamConsumer;
+import org.codehaus.plexus.util.cli.WriterStreamConsumer;
+
+import com.google.common.io.Files;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckConfiguration;
+import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckType;
 import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
-import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamtoLog;
-import uk.org.raje.maven.plugin.msbuild.streamconsumers.StreamToWriter;
+import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamToLog;
 
 /**
  * Configure and run Cppcheck static analysis tool.
@@ -60,8 +63,6 @@ public class CppCheckMojo extends AbstractCodeAnalysisMojo
         
         validateCppCheckConfiguration();
         
-        getLog().info( "Performing static code analysis using " + CppCheckConfiguration.CPPCHECK_NAME + "." );
-        
         for ( BuildPlatform platform : platforms ) 
         {
             for ( BuildConfiguration configuration : platform.getConfigurations() )
@@ -79,7 +80,6 @@ public class CppCheckMojo extends AbstractCodeAnalysisMojo
                 {
                     try 
                     {
-                        getLog().info( "Running static code analysis for project " + vcProject.getName() + "." );
                         runCppCheck( vcProject );
                     }
                     catch ( MojoExecutionException mee )
@@ -100,15 +100,17 @@ public class CppCheckMojo extends AbstractCodeAnalysisMojo
     private Writer createCppCheckReportWriter( VCProject vcProject ) throws MojoExecutionException
     {
         BufferedWriter cppCheckReportWriter;
-        File reportFile = getReportFile( vcProject );
+        File reportFile = new File( getReportDirectory( vcProject ), cppCheck.getReportName() + "-" 
+                + vcProject.getName() + "-" + vcProject.getPlatform() + "-" + vcProject.getConfiguration() + ".xml" );
         
         try 
         {
+            Files.createParentDirs( reportFile );
             cppCheckReportWriter = new BufferedWriter( new FileWriter( reportFile ) );
         } 
         catch ( IOException ioe ) 
         {
-            throw new MojoExecutionException( "Could not create " + CppCheckConfiguration.CPPCHECK_NAME + " report " 
+            throw new MojoExecutionException( "Failed to create " + CppCheckConfiguration.CPPCHECK_NAME + " report " 
                     + reportFile, ioe );
         }
 
@@ -124,20 +126,24 @@ public class CppCheckMojo extends AbstractCodeAnalysisMojo
         catch ( IOException ioe ) 
         { 
             throw new MojoExecutionException( "Could not finalise " + CppCheckConfiguration.CPPCHECK_NAME + " report" 
-                    + getReportFile( vcProject ), ioe );
+                    + getReportDirectory( vcProject ), ioe );
         }
     }
     
     private void runCppCheck( VCProject vcProject ) throws MojoExecutionException
     {
+        getLog().info( "Running " + CppCheckConfiguration.CPPCHECK_NAME 
+                + " static code analysis for project " + vcProject.getName() 
+                + ", platform=" + vcProject.getPlatform() + ", configuration=" + vcProject.getConfiguration() + "." );
+
         Writer reportWriter = createCppCheckReportWriter( vcProject );
         CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.getCppCheckPath(), vcProject.getBaseDir(), 
-                new StdoutStreamtoLog( getLog() ), new StreamToWriter( reportWriter ) );
+                new StdoutStreamToLog( getLog() ), new WriterStreamConsumer( reportWriter ) );
         
         cppCheckRunner.setCppCheckType( cppCheck.getCppCheckType() );
         cppCheckRunner.setIncludeDirectories( vcProject.getIncludeDirectories() );
         cppCheckRunner.setPreprocessorDefs( vcProject.getPreprocessorDefs() );
-        
+     
         try
         {
             cppCheckRunner.runCommandLine();
@@ -154,10 +160,9 @@ public class CppCheckMojo extends AbstractCodeAnalysisMojo
         finaliseReportWriter ( reportWriter, vcProject );
     }
     
-    private File getReportFile( VCProject vcProject ) 
+    private File getReportDirectory( VCProject vcProject ) 
     {
-        return new File( vcProject.getBaseDir(), cppCheck.getReportName() + "-" 
-                + vcProject.getPlatform() + "-" + vcProject.getConfiguration() + ".xml" );
+        return new File( mavenProject.getBuild().getDirectory(), "cppcheck-reports" );
     }
     
     private class CppCheckRunner extends CommandLineRunner
