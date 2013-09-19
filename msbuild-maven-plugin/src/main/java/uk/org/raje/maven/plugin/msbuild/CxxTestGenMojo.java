@@ -51,7 +51,7 @@ public class CxxTestGenMojo extends AbstractMSBuildPluginMojo
         validateCxxTestConfiguration();
         initPythonIntepreter();
 
-        for ( String testTarget : cxxTest.testTargets() ) 
+        for ( String testTarget : cxxTest.getTestTargets() ) 
         {
             List<String> arguments = getCxxTestGenArguments( testTarget );
             runCxxTestGen( testTarget, arguments );
@@ -67,10 +67,10 @@ public class CxxTestGenMojo extends AbstractMSBuildPluginMojo
         arguments.add( "--abort-on-fail" );
         arguments.add( "--xunit-printer" );
         arguments.add( "--xunit-file=" 
-                + new File( targetPath, cxxTest.reportNamePrefix() ).getAbsolutePath().replace( "\\", "/" ) );
+                + new File( targetPath, cxxTest.getReportNamePrefix() ).getAbsolutePath().replace( "\\", "/" ) );
         
-        arguments.add( "--output=" + new File( targetPath, cxxTest.testRunnerName() ).getAbsolutePath() );
-        arguments.add( new File( targetPath, cxxTest.testHeaderPattern() ).getAbsolutePath() );
+        arguments.add( "--output=" + new File( targetPath, cxxTest.getTestRunnerName() ).getAbsolutePath() );
+        arguments.add( new File( targetPath, cxxTest.getTestHeaderPattern() ).getAbsolutePath() );
         
         return arguments;
     }
@@ -79,7 +79,7 @@ public class CxxTestGenMojo extends AbstractMSBuildPluginMojo
     {
         final String cxxTestGenArgVar = "cxxTestGenArgs";
         
-        String cxxTestGenPath = cxxTest.cxxTestHome().getAbsolutePath();
+        String cxxTestGenPath = cxxTest.getCxxTestHome().getAbsolutePath();
         PyList cxxTestGenArgs = new PyList( arguments );
         cxxTestGenArgs.add( 0, cxxTestGenPath );
         

@@ -91,7 +91,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             return false;
         }
         
-        if ( cxxTest.cxxTestHome() == null ) 
+        if ( cxxTest.getCxxTestHome() == null ) 
         {
             getLog().info( CXXTEST_SKIP_MESSAGE + ", path to " + CxxTestConfiguration.CXXTEST_NAME + " not set." );
             return false;
@@ -125,7 +125,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
                     + "or set the environment variable " + CxxTestConfiguration.CXXTEST_HOME, fnfe );
         }
         
-        if ( cxxTest.testTargets() == null || cxxTest.testTargets().size() == 0 )
+        if ( cxxTest.getTestTargets() == null || cxxTest.getTestTargets().size() == 0 )
         {
             throw new MojoExecutionException( "You must specify at least one test target. If you want to skip "
                     + "running the tests, please set 'skip' to true in the " + CxxTestConfiguration.CXXTEST_NAME 
@@ -138,7 +138,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
 
     protected File getCxxTestPython2Home() 
     {
-        return new File( cxxTest.cxxTestHome(), "python" );
+        return new File( cxxTest.getCxxTestHome(), "python" );
     }
     
     protected boolean isCppCheckEnabled() 
@@ -151,7 +151,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             return false;
         }
         
-        if ( cppCheck.cppCheckPath() == null ) 
+        if ( cppCheck.getCppCheckPath() == null ) 
         {
             getLog().info( CPPCHECK_SKIP_MESSAGE + ", path to " + CppCheckConfiguration.CPPCHECK_NAME + " not set." );
             return false;
@@ -164,7 +164,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     {
         try 
         {
-            MojoHelper.validateToolPath( cppCheck.cppCheckPath(), CppCheckConfiguration.CPPCHECK_PATH_ENVVAR, 
+            MojoHelper.validateToolPath( cppCheck.getCppCheckPath(), CppCheckConfiguration.CPPCHECK_PATH_ENVVAR, 
                     CppCheckConfiguration.CPPCHECK_NAME, getLog() );
         }
         catch ( FileNotFoundException fnfe )

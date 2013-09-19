@@ -37,7 +37,7 @@ public class VersionInfoConfiguration
      * Get the configured companyName
      * @return the companyName
      */
-    public final String companyName()
+    public final String getCompanyName()
     {
         return companyName;
     }
@@ -46,7 +46,7 @@ public class VersionInfoConfiguration
      * Get the configured copyright string
      * @return copyright string or default if not configured
      */
-    public final String copyright()
+    public final String getCopyright()
     {
         if ( copyright == null )
         {

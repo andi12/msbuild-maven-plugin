@@ -100,7 +100,7 @@ public abstract class AbstractCodeAnalysisMojo extends AbstractMSBuildPluginMojo
         try 
         {
             solutionParser = new VCSolutionParser( projectFile, platform.getName(), configuration.getName(),
-                    cppCheck.excludeProjectRegex() );
+                    cppCheck.getExcludeProjectRegex() );
         }
         catch ( FileNotFoundException fnfe ) 
         {

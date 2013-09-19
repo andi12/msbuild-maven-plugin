@@ -36,8 +36,8 @@ public class VersionInfoConfigurationTest
     {
         VersionInfoConfiguration v = new VersionInfoConfiguration();
         assertEquals( false, v.skip() );
-        assertNull( v.companyName() );
-        assertEquals( "Copyright (c) " + Calendar.getInstance().get( Calendar.YEAR ) + " null", v.copyright() );
+        assertNull( v.getCompanyName() );
+        assertEquals( "Copyright (c) " + Calendar.getInstance().get( Calendar.YEAR ) + " null", v.getCopyright() );
     }
 
     /**
@@ -56,8 +56,8 @@ public class VersionInfoConfigurationTest
         companyNameField.set( v, "Test Org" );
 
         assertEquals( false, v.skip() );
-        assertEquals( "Test Org",  v.companyName() );
-        assertEquals( "Copyright (c) " + Calendar.getInstance().get( Calendar.YEAR ) + " Test Org", v.copyright() );
+        assertEquals( "Test Org",  v.getCompanyName() );
+        assertEquals( "Copyright (c) " + Calendar.getInstance().get( Calendar.YEAR ) + " Test Org", v.getCopyright() );
     }
 
     /**
@@ -79,7 +79,7 @@ public class VersionInfoConfigurationTest
         copyrightField.set( v, "Custom copyright" );
 
         assertEquals( false, v.skip() );
-        assertEquals( "Test Org",  v.companyName() );
-        assertEquals( "Custom copyright", v.copyright() );
+        assertEquals( "Test Org",  v.getCompanyName() );
+        assertEquals( "Custom copyright", v.getCopyright() );
     }
 }

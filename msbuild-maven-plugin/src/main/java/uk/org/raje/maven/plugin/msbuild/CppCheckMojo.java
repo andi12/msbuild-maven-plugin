@@ -131,10 +131,10 @@ public class CppCheckMojo extends AbstractCodeAnalysisMojo
     private void runCppCheck( VCProject vcProject ) throws MojoExecutionException
     {
         Writer reportWriter = createCppCheckReportWriter( vcProject );
-        CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.cppCheckPath(), vcProject.getBaseDir(), 
+        CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.getCppCheckPath(), vcProject.getBaseDir(), 
                 new LogOutputStreamConsumer( getLog() ), new WriterStreamConsumer( reportWriter ) );
         
-        cppCheckRunner.setCppCheckType( cppCheck.cppCheckType() );
+        cppCheckRunner.setCppCheckType( cppCheck.getCppCheckType() );
         cppCheckRunner.setIncludeDirectories( vcProject.getIncludeDirectories() );
         cppCheckRunner.setPreprocessorDefs( vcProject.getPreprocessorDefs() );
         
@@ -156,7 +156,7 @@ public class CppCheckMojo extends AbstractCodeAnalysisMojo
     
     private File getReportFile( VCProject vcProject ) 
     {
-        return new File( vcProject.getBaseDir(), cppCheck.reportName() + "-" 
+        return new File( vcProject.getBaseDir(), cppCheck.getReportName() + "-" 
                 + vcProject.getPlatform() + "-" + vcProject.getConfiguration() + ".xml" );
     }
     

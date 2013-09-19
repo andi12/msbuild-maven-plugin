@@ -49,7 +49,7 @@ public class CxxTestConfiguration
      * Get the configured home directory for CxxTest
      * @return the home directory for CxxTest
      */
-    public final File cxxTestHome()
+    public final File getCxxTestHome()
     {
         return cxxTestHome;
     }
@@ -58,7 +58,7 @@ public class CxxTestConfiguration
      * Get the configured List of test targets
      * @return the List of test targets
      */
-    public final List<String> testTargets()
+    public final List<String> getTestTargets()
     {
         return testTargets;
     }
@@ -67,7 +67,7 @@ public class CxxTestConfiguration
      * Get the configured name prefix for the generated test reports
      * @return the report name prefix
      */
-    public final String reportNamePrefix()
+    public final String getReportNamePrefix()
     {
         return reportNamePrefix;
     }    
@@ -76,7 +76,7 @@ public class CxxTestConfiguration
      * Get the file name for the generated test runner
      * @return the test runner file name
      */
-    public final String testRunnerName()
+    public final String getTestRunnerName()
     {
         return testRunnerName;
     }        
@@ -86,7 +86,7 @@ public class CxxTestConfiguration
      * Get the regular expression defining which header files contain the tests to run. 
      * @return the test header regular expression
      */
-    public final String testHeaderPattern()
+    public final String getTestHeaderPattern()
     {
         return testHeaderPattern;
     }        

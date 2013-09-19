@@ -50,7 +50,7 @@ public class CppCheckConfiguration
      * Get the configured path to CppCheck
      * @return the path to CppCheck
      */
-    public final File cppCheckPath()
+    public final File getCppCheckPath()
     {
         return cppCheckPath;
     }
@@ -59,7 +59,7 @@ public class CppCheckConfiguration
      * Get the configured report name prefix
      * @return the prefix for report file names
      */
-    public final String reportName()
+    public final String getReportName()
     {
         return reportName;
     }
@@ -68,7 +68,7 @@ public class CppCheckConfiguration
      * Get the configured check type, if not configured the default CppCheckType.all is returned.
      * @return the CppCheckType
      */
-    public final CppCheckType cppCheckType()
+    public final CppCheckType getCppCheckType()
     {
         return cppCheckType;
     }
@@ -77,7 +77,7 @@ public class CppCheckConfiguration
      * Get the configured exclusion regex, may be null.
      * @return the configured String or null
      */
-    public final String excludeProjectRegex()
+    public final String getExcludeProjectRegex()
     {
         return excludeProjectRegex;
     }

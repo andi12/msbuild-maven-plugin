@@ -59,7 +59,7 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
             getLog().info( "skipVersionInfo is true. Skipping generating version-info.rc" );
             return;
         }
-        if ( versionInfo.companyName() == null )
+        if ( versionInfo.getCompanyName() == null )
         {
             getLog().warn( "Missing <companyName>. Skipping generating version-info.rc" );
             return;
@@ -94,8 +94,8 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
     {
         Properties projectProps = mavenProject.getProperties();
         
-        projectProps.setProperty( PROPERTY_NAME_COMPANY, versionInfo.companyName() );
-        projectProps.setProperty( PROPERTY_NAME_COPYRIGHT, versionInfo.copyright() );
+        projectProps.setProperty( PROPERTY_NAME_COMPANY, versionInfo.getCompanyName() );
+        projectProps.setProperty( PROPERTY_NAME_COPYRIGHT, versionInfo.getCopyright() );
 
         projectProps.setProperty( PROPERTY_NAME_VERSION_MAJOR, "0" );
         projectProps.setProperty( PROPERTY_NAME_VERSION_MINOR, "0" );

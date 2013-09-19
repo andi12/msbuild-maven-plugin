@@ -51,7 +51,7 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         
         validateCxxTestConfiguration();
 
-        for ( String testTarget : cxxTest.testTargets() ) 
+        for ( String testTarget : cxxTest.getTestTargets() ) 
         {
             for ( BuildPlatform platform : platforms ) 
             {
