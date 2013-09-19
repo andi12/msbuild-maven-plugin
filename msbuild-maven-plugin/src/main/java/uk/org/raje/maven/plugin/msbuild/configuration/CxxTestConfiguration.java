@@ -64,12 +64,12 @@ public class CxxTestConfiguration
     }
     
     /**
-     * Get the configured name prefix for the generated test reports
-     * @return the report name prefix
+     * Get the configured name for the generated test reports
+     * @return the report name
      */
-    public final String getReportNamePrefix()
+    public final String getReportName()
     {
-        return reportNamePrefix;
+        return reportName;
     }    
     
     /**
@@ -120,13 +120,13 @@ public class CxxTestConfiguration
     protected List<String> testTargets;
     
     /**
-     * The name prefix for the generated test reports (one for each platform/configuration/target combination) 
+     * The name for the generated test reports (one for each platform/configuration/target combination) 
      */
     @Parameter(
             defaultValue = "cxxtest-report",
             readonly = false,
             required = false )
-    protected String reportNamePrefix = "cxxtest-report";
+    protected String reportName = "cxxtest-report";
     
     /**
      * The file name for the generated test runner (one for each target) 
