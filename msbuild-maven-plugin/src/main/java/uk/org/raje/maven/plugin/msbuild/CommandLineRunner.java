@@ -68,6 +68,11 @@ public abstract class CommandLineRunner
         return commandLine.toString();
     }
     
+    public File getWorkingDirectory() 
+    {
+        return workingDirectory;
+    }
+
     public void setWorkingDirectory( File workingDirectory ) 
     {
         this.workingDirectory = workingDirectory;
