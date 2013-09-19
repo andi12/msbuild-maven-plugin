@@ -22,11 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.plugin.logging.Log;
-import org.codehaus.plexus.util.cli.StreamConsumer;
 import org.codehaus.plexus.util.cli.StreamPumper;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
+import uk.org.raje.maven.plugin.msbuild.streamconsumers.StderrStreamToLog;
+import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamtoLog;
 
 final class MSBuildExecutor
 {
@@ -124,9 +125,9 @@ final class MSBuildExecutor
         }
         
         Process proc = pb.start();
-        final StreamPumper stdoutPumper = new StreamPumper( proc.getInputStream(), new OutStreamConsumer() );
+        final StreamPumper stdoutPumper = new StreamPumper( proc.getInputStream(), new StdoutStreamtoLog( log ) );
         stdoutPumper.start();
-        final StreamPumper stderrPumper = new StreamPumper( proc.getErrorStream(), new ErrStreamConsumer() );
+        final StreamPumper stderrPumper = new StreamPumper( proc.getErrorStream(), new StderrStreamToLog( log ) );
         stderrPumper.start();
         
         int exitCode = proc.waitFor();
@@ -136,24 +137,6 @@ final class MSBuildExecutor
             log.error( "Error building " + platform + "-" + configuration );
         }
         return exitCode;
-    }
-
-    class OutStreamConsumer implements StreamConsumer
-    {
-        @Override
-        public void consumeLine( String arg0 )
-        {
-            log.info( arg0 );
-        }
-    }
-
-    class ErrStreamConsumer implements StreamConsumer
-    {
-        @Override
-        public void consumeLine( String arg0 )
-        {
-            log.error( arg0 );
-        }
     }
 
     private Log log;

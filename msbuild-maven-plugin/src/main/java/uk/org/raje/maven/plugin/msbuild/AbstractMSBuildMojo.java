@@ -53,7 +53,7 @@ public abstract class AbstractMSBuildMojo extends AbstractMSBuildPluginMojo
             throw new MojoExecutionException( "Please set packaging to one of " + MSBuildPackaging.validPackaging() );
         }
         findMSBuild();
-        MojoHelper.validateProjectFile( mavenProject.getPackaging(), projectFile, getLog() );
+        validateProjectFile();
         platforms = MojoHelper.validatePlatforms( platforms );
     }
 

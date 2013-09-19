@@ -29,13 +29,13 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.util.cli.StreamConsumer;
-import org.codehaus.plexus.util.cli.WriterStreamConsumer;
 
-import uk.org.raje.maven.plugin.msbuild.MojoHelper.LogOutputStreamConsumer;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckConfiguration;
 import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
+import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamtoLog;
+import uk.org.raje.maven.plugin.msbuild.streamconsumers.StreamToWriter;
 
 /**
  * Configure and run Cppcheck static analysis tool.
@@ -132,7 +132,7 @@ public class CppCheckMojo extends AbstractCodeAnalysisMojo
     {
         Writer reportWriter = createCppCheckReportWriter( vcProject );
         CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.getCppCheckPath(), vcProject.getBaseDir(), 
-                new LogOutputStreamConsumer( getLog() ), new WriterStreamConsumer( reportWriter ) );
+                new StdoutStreamtoLog( getLog() ), new StreamToWriter( reportWriter ) );
         
         cppCheckRunner.setCppCheckType( cppCheck.getCppCheckType() );
         cppCheckRunner.setIncludeDirectories( vcProject.getIncludeDirectories() );

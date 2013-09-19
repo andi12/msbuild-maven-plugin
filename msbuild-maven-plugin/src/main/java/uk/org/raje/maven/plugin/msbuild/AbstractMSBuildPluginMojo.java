@@ -81,6 +81,41 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
      */
     protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
 
+    /**
+     * Check that we have a valid project or solution file.
+     * @throws MojoExecutionException if the specified projectFile is invalid.
+     */
+    protected void validateProjectFile() 
+            throws MojoExecutionException
+    {
+        if ( projectFile != null
+                && projectFile.exists()
+                && projectFile.isFile() )
+        {
+            getLog().debug( "Project file validated at " + projectFile );
+
+            boolean solutionFile = projectFile.getName().toLowerCase().endsWith( "." + SOLUTION_EXTENSION ); 
+            if ( ( MSBuildPackaging.isSolution( mavenProject.getPackaging() ) && ! solutionFile )
+                    || ( ! MSBuildPackaging.isSolution( mavenProject.getPackaging() ) && solutionFile ) )
+            {
+                // Solution packaging defined but the projectFile is not a .sln
+                String msg = "Packaging doesn't match project file type. "
+                        + "If you specify a solution file then packaging must be " + MSBuildPackaging.MSBUILD_SOLUTION;
+                getLog().error( msg );
+                throw new MojoExecutionException( msg );
+            }
+            return;
+        }
+        String prefix = "Missing projectFile";
+        if ( projectFile != null )
+        {
+            prefix = ". The specified projectFile '" + projectFile
+                    + "' is not valid";
+        }
+        throw new MojoExecutionException( prefix
+                + ", please check your configuration" );
+    }
+
     protected boolean isCxxTestEnabled( String stepName ) 
     {
         if ( cxxTest.skip() )
@@ -132,7 +167,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
                     + " configuration.", new InvalidParameterException( "testTargets" ) );
         }
         
-        MojoHelper.validateProjectFile( mavenProject.getPackaging(), projectFile, getLog() );
+        validateProjectFile();
         platforms = MojoHelper.validatePlatforms( platforms );
     }
 
@@ -178,7 +213,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
                     + "or set the environment variable " + CppCheckConfiguration.CPPCHECK_PATH_ENVVAR, fnfe );
         }
         
-        MojoHelper.validateProjectFile( mavenProject.getPackaging(), projectFile, getLog() );
+        validateProjectFile();
         platforms = MojoHelper.validatePlatforms( platforms );
     }
 
@@ -259,6 +294,11 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             required = false )
     private File cxxTestHome;
     
+    /**
+     * The file extension for solution files.
+     */
+    private static final String SOLUTION_EXTENSION = "sln";
+
     private static final String CXXTEST_SKIP_MESSAGE = "Skipping test";
     private static final String CPPCHECK_SKIP_MESSAGE = "Skipping static code analysis";
 }

@@ -29,6 +29,8 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 import uk.org.raje.maven.plugin.msbuild.configuration.CxxTestConfiguration;
+import uk.org.raje.maven.plugin.msbuild.streamconsumers.StderrStreamToLog;
+import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamtoLog;
 
 /**
  *  
@@ -92,7 +94,7 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         File testTargetExec = new File( workingDirectory, new File ( testTarget ).getName() + ".exe" );
         
         CxxTestRunner cxxTestRunner = new CxxTestRunner( testTargetExec, 
-                new MojoHelper.LogOutputStreamConsumer( getLog() ), new MojoHelper.ErrStreamConsumer( getLog() ) );
+                new StdoutStreamtoLog( getLog() ), new StderrStreamToLog( getLog() ) );
         
         cxxTestRunner.setWorkingDirectory( workingDirectory );
 

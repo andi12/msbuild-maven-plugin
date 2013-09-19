@@ -18,8 +18,6 @@ package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,14 +25,12 @@ import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
-import org.codehaus.plexus.util.cli.StreamConsumer;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 
 /**
- * @author dmasato
- *
+ * Collection of utilities used by Mojo's in the msbuild-maven-plugin.
  */
 public class MojoHelper 
 {
@@ -45,6 +41,10 @@ public class MojoHelper
     
     /**
      * Validates the path to a command-line tool.
+     * @param toolPath the configured tool path from the POM
+     * @param toolPathEnvVar the name of an environment variable to look up the path in if toolPath is null
+     * @param toolName the name of the tool, used for logging messages
+     * @param logger a Log to write messages to
      * @throws FileNotFoundException if the tool cannot be found
      */
     public static void validateToolPath( File toolPath, String toolPathEnvVar, String toolName, Log logger ) 
@@ -78,44 +78,6 @@ public class MojoHelper
         logger.debug( "Found " + toolName + " at " + toolPath + "." );
     }    
         
-    /**
-     * Check that we have a valid project or solution file.
-     * @param packaging the project packing
-     * @param projectFile the configured project file to check
-     * @param log a Log to write to
-     * @throws MojoExecutionException if the specified projectFile is invalid.
-     */
-    protected static void validateProjectFile( String packaging, File projectFile, Log log ) 
-            throws MojoExecutionException
-    {
-        if ( projectFile != null
-                && projectFile.exists()
-                && projectFile.isFile() )
-        {
-            log.debug( "Project file validated at " + projectFile );
-
-            boolean solutionFile = projectFile.getName().toLowerCase().endsWith( "." + SOLUTION_EXTENSION ); 
-            if ( ( MSBuildPackaging.isSolution( packaging ) && ! solutionFile )
-                    || ( ! MSBuildPackaging.isSolution( packaging ) && solutionFile ) )
-            {
-                // Solution packaging defined but the projectFile is not a .sln
-                String msg = "Packaging doesn't match project file type. "
-                        + "If you specify a solution file then packaging must be " + MSBuildPackaging.MSBUILD_SOLUTION;
-                log.error( msg );
-                throw new MojoExecutionException( msg );
-            }
-            return;
-        }
-        String prefix = "Missing projectFile";
-        if ( projectFile != null )
-        {
-            prefix = ". The specified projectFile '" + projectFile
-                    + "' is not valid";
-        }
-        throw new MojoExecutionException( prefix
-                + ", please check your configuration" );
-    }
-
     /**
      * Check that we have a valid set of platforms.
      * If no platforms are configured we create 1 default platform.
@@ -203,75 +165,4 @@ public class MojoHelper
             throw new MojoExecutionException( exceptionMessage );
         }
     }
-
-    /**
-     * StreamConsumer that writes lines from the stream to the supplied Log at 'info' level.
-     */
-    protected static class LogOutputStreamConsumer implements StreamConsumer
-    {
-        public LogOutputStreamConsumer( Log logger ) 
-        {
-            this.logger = logger;
-        }
-        
-        @Override
-        public void consumeLine( String line )
-        {
-            logger.info( line );
-        }
-        
-        private Log logger;
-    }
-
-    /**
-     * StreamConsumer that writes lines from the stream to the supplied Log at 'error' level.
-     */
-    protected static class ErrStreamConsumer implements StreamConsumer
-    {
-        public ErrStreamConsumer( Log logger ) 
-        {
-            this.logger = logger;
-        }
-        
-        @Override
-        public void consumeLine( String line )
-        {
-            logger.error( line );
-        }
-        
-        private Log logger;
-    }
-    
-    /**
-     * @author dmasato
-     *
-     */
-    protected static class WriterStreamConsumer implements StreamConsumer
-    {
-        public WriterStreamConsumer( Writer writer ) 
-        {
-            this.writer = writer;
-        }
-        
-        @Override
-        public void consumeLine( String line )
-        {
-            try 
-            {
-                writer.write( line );
-            } 
-            catch ( IOException ioe ) 
-            {
-                ioe.printStackTrace();
-            }
-        }
-        
-        private Writer writer;
-    }
-    
-    /**
-     * The file extension for solution files.
-     */
-    private static final String SOLUTION_EXTENSION = "sln";
-
 }

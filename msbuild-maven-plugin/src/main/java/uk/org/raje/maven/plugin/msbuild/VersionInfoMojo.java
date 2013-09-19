@@ -65,7 +65,7 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
             return;
         }
         
-        MojoHelper.validateProjectFile( mavenProject.getPackaging(), projectFile, getLog() );
+        validateProjectFile();
 
         addProjectProperties();
         
@@ -167,13 +167,6 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
     private static final String PROPERTY_NAME_VERSION_INCREMENTAL = MOJO_NAME + ".incrementalVersion";
     private static final String PROPERTY_NAME_VERSION_BUILD = MOJO_NAME + ".buildNumber";
 
-    // THIS IS NOT WORKING, luckily we don't need the MavenSession at present
-    //@Parameter( 
-    //        defaultValue = "${session}", 
-    //        required = true, 
-    //        readonly = true )
-    //protected MavenSession mavenSession;
-    
     @Component(
             role = MavenFileFilter.class,
             hint = "default" )
