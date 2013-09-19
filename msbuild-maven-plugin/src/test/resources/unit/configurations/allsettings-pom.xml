@@ -72,7 +72,7 @@
                         <testTargets>
                             <target>TestTarget1</target>
                         </testTargets>
-                        <reportNamePrefix>cxxtest-report</reportNamePrefix>
+                        <reportName>cxxtest-report</reportName>
                         <testRunnerName>cxxtest-runner.cpp</testRunnerName>
                         <testHeaderPattern>*Test.h</testHeaderPattern>
                     </cxxTest>

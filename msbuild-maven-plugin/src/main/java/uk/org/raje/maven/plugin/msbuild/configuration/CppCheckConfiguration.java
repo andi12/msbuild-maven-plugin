@@ -19,7 +19,6 @@ import java.io.File;
 
 import org.apache.maven.plugins.annotations.Parameter;
 
-import uk.org.raje.maven.plugin.msbuild.CppCheckType;
 
 /**
  * Configuration holder for CppCheck configuration values.

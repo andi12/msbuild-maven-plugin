@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.raje.maven.plugin.msbuild;
+package uk.org.raje.maven.plugin.msbuild.configuration;
 
 /**
  * @author dmasato
