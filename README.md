@@ -3,7 +3,11 @@ msbuild-maven-plugin
 
 Maven 3 plugin for building Visual Studio solutions and projects with msbuild.
 
-The plugin also supports creating a version resource from information in you POM and using CppCheck (1.61) to perform static analysis of your code.
+In addition to building using msbuild the plugin also supports:
+
+* Creating a version resource from information in your POM
+* Running CppCheck (1.61) to perform static analysis of your code.
+* Generating, building and executing unit tests using CxxTest (4.2.1, don't use 4.3)
 
 Usage
 =====
@@ -19,7 +23,7 @@ use our 'exe' packaging.
     <plugin>
         <groupId>uk.org.raje.maven.plugins</groupId>
         <artifactId>msbuild-maven-plugin</artifactId>
-        <version>0.3</version>
+        <version>0.4</version>
         <extensions>true</extensions>
         <configuration>
             <projectFile>${basedir}/hello-world.vcxproj</projectFile>
