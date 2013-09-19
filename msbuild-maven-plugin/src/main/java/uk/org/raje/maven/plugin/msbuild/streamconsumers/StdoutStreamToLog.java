@@ -15,34 +15,28 @@
  */
 package uk.org.raje.maven.plugin.msbuild.streamconsumers;
 
-import java.io.IOException;
-import java.io.Writer;
-
+import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 
 /**
- * Stream consumer to write to the supplied Writer
+ * StreamConsumer that writes lines from the stream to the supplied Log at 'info' level.
  */
-public class StreamToWriter implements StreamConsumer
+public class StdoutStreamToLog implements StreamConsumer
 {
-
-    public StreamToWriter( Writer writer )
+    /**
+     * Construct instance to log to specified Log
+     * @param logger the Log to write to
+     */
+    public StdoutStreamToLog( Log logger ) 
     {
-        this.writer = writer;
+        this.logger = logger;
     }
-
+    
     @Override
-    public void consumeLine ( String line )
+    public void consumeLine( String line )
     {
-        try
-        {
-            writer.write( line );
-        }
-        catch ( IOException ioe )
-        {
-            ioe.printStackTrace();
-        }
+        logger.info( line );
     }
-
-    private Writer writer;
+    
+    private Log logger;
 }

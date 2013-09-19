@@ -27,7 +27,7 @@ import org.codehaus.plexus.util.cli.StreamPumper;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 import uk.org.raje.maven.plugin.msbuild.streamconsumers.StderrStreamToLog;
-import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamtoLog;
+import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamToLog;
 
 final class MSBuildExecutor
 {
@@ -125,7 +125,7 @@ final class MSBuildExecutor
         }
         
         Process proc = pb.start();
-        final StreamPumper stdoutPumper = new StreamPumper( proc.getInputStream(), new StdoutStreamtoLog( log ) );
+        final StreamPumper stdoutPumper = new StreamPumper( proc.getInputStream(), new StdoutStreamToLog( log ) );
         stdoutPumper.start();
         final StreamPumper stderrPumper = new StreamPumper( proc.getErrorStream(), new StderrStreamToLog( log ) );
         stderrPumper.start();
