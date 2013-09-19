@@ -85,7 +85,7 @@ public class CxxTestGenMojoTest extends AbstractMSBuildMojoTestCase
     }    
     
     @Test
-    public final void test() throws Exception 
+    public final void testExecuteCxxTestGen() throws Exception 
     {
         CxxTestGenMojo cxxTestGenMojo = ( CxxTestGenMojo ) lookupConfiguredMojo( CxxTestGenMojo.MOJO_NAME, 
                 "/unit/cxxtest/minimal-cxxtestgen-config.pom" );

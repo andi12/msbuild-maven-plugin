@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
-    <artifactId>minimal-cxxtestgen-config</artifactId>
+    <artifactId>passing-test-config</artifactId>
     <version>1</version>
     <packaging>exe</packaging>
     
@@ -40,7 +40,7 @@
                         </platform>
                     </platforms>
                     <cxxTest>
-                        <cxxTestHome>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtest-home</cxxTestHome>
+                        <cxxTestHome>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtest-4.2.1-home</cxxTestHome>
                         <testTargets>
                             <testTarget>hello-world</testTarget>
                         </testTargets>

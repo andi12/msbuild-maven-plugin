@@ -30,7 +30,7 @@
                 <configuration>
                     <projectFile>${basedir}/src/test/resources/unit/cxxtest/hello-world-project/hello-world.vcxproj/</projectFile>
                     <cxxTest>
-                        <cxxTestHome>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtest-home</cxxTestHome>
+                        <cxxTestHome>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtest-4.2.1-home</cxxTestHome>
                         <testTargets>
                             <testTarget>TestTarget1</testTarget>
                             <testTarget>TestTarget2</testTarget>
