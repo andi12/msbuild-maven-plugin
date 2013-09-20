@@ -101,6 +101,8 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         
         cxxTestRunner.setWorkingDirectory( directory );
         
+        getLog().debug( cxxTestRunner.getCommandLine() );
+        
         return cxxTestRunner;
     }
     

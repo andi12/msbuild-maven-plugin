@@ -35,7 +35,14 @@ public class StdoutStreamToLog implements StreamConsumer
     @Override
     public void consumeLine( String line )
     {
-        logger.info( line );
+        if ( line.toLowerCase().contains( "warning:" ) )
+        {
+            logger.warn( line );
+        }
+        else
+        {
+            logger.info( line );
+        }
     }
     
     private Log logger;

@@ -152,6 +152,8 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         cppCheckRunner.setCppCheckType( cppCheck.getCppCheckType() );
         cppCheckRunner.setIncludeDirectories( vcProject.getIncludeDirectories() );
         cppCheckRunner.setPreprocessorDefs( vcProject.getPreprocessorDefs() );
+        
+        getLog().debug( cppCheckRunner.getCommandLine() );
      
         try
         {
@@ -222,7 +224,10 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
             for ( String includeDirectory : includeDirectories ) 
             {
                 commandLineArguments.add( "-I" );
-                commandLineArguments.add( "\"" + includeDirectory + "\"" );
+                // Remove any trailing slashes from the include paths
+                // CppCheck can fail if these are present
+                File includeDirectoryFile = new File( includeDirectory );
+                commandLineArguments.add( "\"" + includeDirectoryFile.getPath() + "\"" );
             }
 
             for ( String excludeDirectory : excludeDirectories ) 
