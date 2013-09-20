@@ -73,7 +73,7 @@ public class VCProject
     /**
      * Return the target name that indicates this project.
      * Only valid for projects found via a Solution file.
-     * @return the target name
+     * @return the target name or null if there was no solution file
      */
     public String getTargetName()
     {
@@ -119,9 +119,9 @@ public class VCProject
      * Get the value of the configured 'Output Directory'
      * @return the string value
      */
-    public File getOutDir()
+    public File getOutputDirectory()
     {
-        if ( outDir == null )
+        if ( outputDirectory == null )
         {
             File baseDir = getBaseDir();
             if ( solutionFilePath != null )
@@ -132,14 +132,14 @@ public class VCProject
             if ( "Win32".equals( platform ) )
             {
                 // Win32 is a special case in VS
-                outDir = new File( baseDir, configuration );
+                outputDirectory = new File( baseDir, configuration );
             }
             else
             {
-                outDir = new File( baseDir, platform + File.separator + configuration );
+                outputDirectory = new File( baseDir, platform + File.separator + configuration );
             }
         }
-        return outDir;
+        return outputDirectory;
     }
 
     /**
@@ -150,12 +150,12 @@ public class VCProject
     {
         if ( outDir == null )
         {
-            this.outDir = null;
+            this.outputDirectory = null;
         }
         else
         {
-            this.outDir = new File( outDir ); 
-            if ( ! this.outDir.isAbsolute() )
+            this.outputDirectory = new File( outDir ); 
+            if ( ! this.outputDirectory.isAbsolute() )
             {
                 if ( outDir.startsWith( "$(SolutionDir)"  ) )
                 {
@@ -167,11 +167,11 @@ public class VCProject
                     {
                         outDir = outDir.replace( "$(SolutionDir)", getBaseDir().getPath() + File.separator );
                     }
-                    this.outDir = new File( outDir );
+                    this.outputDirectory = new File( outDir );
                 }
                 else
                 {
-                    this.outDir = new File( getBaseDir(), outDir );
+                    this.outputDirectory = new File( getBaseDir(), outDir );
                 }
             }
         }
@@ -206,7 +206,7 @@ public class VCProject
     private File solutionFilePath;
     private String configuration;
     private String platform;
-    private File outDir;
+    private File outputDirectory;
     private List<String> includeDirectories;
     private List<String> preprocessorDefs;
 }

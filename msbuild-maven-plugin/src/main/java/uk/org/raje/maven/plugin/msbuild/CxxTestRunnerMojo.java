@@ -66,7 +66,7 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
                     try 
                     {
                         VCProject vcProject = parsedProject( testTarget, platform, configuration );
-                        allTestPassed.add( executeCxxTestTarget( vcProject.getOutDir(), testTarget, 
+                        allTestPassed.add( executeCxxTestTarget( vcProject.getOutputDirectory(), testTarget, 
                                 platform, configuration ) );
                     }
                     catch ( MojoExecutionException mee )
