@@ -65,7 +65,7 @@ public class VCProject
      * Return the name of the project
      * @return
      */
-    public String getName() // TODO: Change this is the filename
+    public String getName()
     {
         return name;
     }
