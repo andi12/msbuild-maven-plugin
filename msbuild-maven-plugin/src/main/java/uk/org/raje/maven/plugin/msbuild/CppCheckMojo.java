@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -61,6 +63,11 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         
         validateCppCheckConfiguration();
         
+        Pattern projectExcludePattern = null;
+        if ( cppCheck.getExcludeProjectRegex() != null )
+        {
+            projectExcludePattern = Pattern.compile( cppCheck.getExcludeProjectRegex() );
+        }
         for ( BuildPlatform platform : platforms ) 
         {
             for ( BuildConfiguration configuration : platform.getConfigurations() )
@@ -68,15 +75,20 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
 
                 for ( VCProject vcProject : parsedProjects( platform, configuration ) )
                 {
-                    /*
-                    projectExcludePattern = Pattern.compile( excludeProjectRegex == null ? "" : excludeProjectRegex );
-                    Matcher prjExcludeMatcher = projectExcludePattern.matcher( line );
-                    cppCheck.getExcludeProjectRegex()
-                    */
-                    // TODO: Filter based on regex
                     try 
                     {
-                        runCppCheck( vcProject );
+                        if ( projectExcludePattern == null )
+                        {
+                            runCppCheck( vcProject );
+                        }
+                        else
+                        {
+                            Matcher prjExcludeMatcher = projectExcludePattern.matcher( vcProject.getName() );
+                            if ( ! prjExcludeMatcher.matches() )
+                            {
+                                runCppCheck( vcProject );
+                            }
+                        }
                     }
                     catch ( MojoExecutionException mee )
                     {
@@ -126,7 +138,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         }
     }
     
-    private void runCppCheck( VCProject vcProject ) throws MojoExecutionException
+    private void runCppCheck( VCProject vcProject ) throws MojoExecutionException, MojoFailureException
     {
         getLog().info( "Running " + CppCheckConfiguration.CPPCHECK_NAME 
                 + " static code analysis for project " + vcProject.getName() 
@@ -136,13 +148,18 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.getCppCheckPath(), vcProject.getBaseDir(), 
                 new StdoutStreamToLog( getLog() ), new WriterStreamConsumer( reportWriter ) );
         
+        cppCheckRunner.setWorkingDirectory( vcProject.getBaseDir() );
         cppCheckRunner.setCppCheckType( cppCheck.getCppCheckType() );
         cppCheckRunner.setIncludeDirectories( vcProject.getIncludeDirectories() );
         cppCheckRunner.setPreprocessorDefs( vcProject.getPreprocessorDefs() );
      
         try
         {
-            cppCheckRunner.runCommandLine();
+            int result = cppCheckRunner.runCommandLine();
+            if ( result != 0 )
+            {
+                throw new MojoFailureException( "Error running CppCheck" );
+            }
         }
         catch ( IOException ioe )
         {

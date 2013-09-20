@@ -17,6 +17,8 @@ package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -29,6 +31,7 @@ import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
+import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
 
 /**
  * Mojo to execute MSBuild to build the required platform/configuration pairs.
@@ -98,8 +101,7 @@ public class MSBuildMojo extends AbstractMSBuildMojo
         {
             for ( BuildConfiguration configuration : platform.getConfigurations() )
             {
-                final File archiveSource = MojoHelper.getConfigurationOutputDirectory( projectFile.getParentFile(), 
-                        platform, configuration, getLog() );
+                final List<File> archiveSources = getOutputDirectories( platform, configuration );
                 StringBuilder artifactName = new StringBuilder();
                 artifactName.append( mavenProject.getArtifactId() ).append( "-" )
                             .append( mavenProject.getVersion() ).append( "-" )
@@ -114,7 +116,10 @@ public class MSBuildMojo extends AbstractMSBuildMojo
                 {
                     zipArchiver.reset();
                     zipArchiver.setDestFile( artifactFile );
-                    zipArchiver.addDirectory( archiveSource );
+                    for ( File archiveSource : archiveSources )
+                    {
+                        zipArchiver.addDirectory( archiveSource );
+                    }
                     zipArchiver.createArchive();
                 }
                 catch ( IOException ioe )
@@ -140,8 +145,7 @@ public class MSBuildMojo extends AbstractMSBuildMojo
                               .append( "." )
                               .append( mavenProject.getPackaging() );
                 
-                final File artifactDirectory = MojoHelper.getConfigurationOutputDirectory( projectFile.getParentFile(), 
-                        platform, configuration, getLog() );
+                final File artifactDirectory = getOutputDirectories( platform, configuration ).get( 0 );
                 final File artifactFile = new File( artifactDirectory, outputFilename.toString() );
                 if ( !artifactFile.exists() )
                 {
@@ -162,6 +166,81 @@ public class MSBuildMojo extends AbstractMSBuildMojo
                 }
             }
         }
+    }
+
+    /**
+     * Determine the directories that msbuild will write output files to for a given platform and configuration.
+     * If an outputDirectory is configured in the POM this will take precedence and be the only result.
+     * @param p the BuildPlatform
+     * @param c the BuildConfiguration
+     * @return a List of File objects
+     * @throws MojoExecutionException if an output directory cannot be determined or does not exist
+     */
+    private List<File> getOutputDirectories( BuildPlatform p, BuildConfiguration c )
+            throws MojoExecutionException
+    {
+        List<File> result = new ArrayList<File>();
+        
+        // If there is a configured value use it
+        File configured = c.getOutputDirectory();
+        if ( configured != null )
+        {
+            result.add( configured );
+        }
+        else
+        {
+            List<VCProject> projects = parsedProjects( p, c );
+            if ( projects.size() == 1 )
+            {
+                // probably a standalone project
+                result.add( projects.get( 0 ).getOutputDirectory() );
+            }
+            else
+            {
+                // a solution
+                for ( VCProject project : projects )
+                {
+                    boolean addResult = false;
+                    if ( targets == null )
+                    {
+                        // building all targets, add all outputs
+                        addResult = true;
+                    }
+                    else
+                    {
+                        // building select targets, only add ones we were asked for
+                        if ( targets.contains( project.getTargetName() ) )
+                        {
+                            addResult = true;
+                        }
+                    }
+    
+                    if ( addResult && ! result.contains( project.getOutputDirectory() ) )
+                    {
+                        result.add( project.getOutputDirectory() );
+                    }
+                }
+            }            
+        }
+
+        if ( result.size() < 1 )
+        {
+            String exceptionMessage = "Could not identify any output directories, configuration error?"; 
+            getLog().error( exceptionMessage );
+            throw new MojoExecutionException( exceptionMessage );
+        }
+        for ( File toTest: result )
+        {
+            // result will be populated, now check if it was created
+            if ( ! toTest.exists() && ! toTest.isDirectory() )
+            {
+                String exceptionMessage = "Expected output directory was not created, configuration error?"; 
+                getLog().error( exceptionMessage );
+                getLog().error( "Looking for build output at " + toTest.getAbsolutePath() );
+                throw new MojoExecutionException( exceptionMessage );
+            }
+        }
+        return result;
     }
 
 

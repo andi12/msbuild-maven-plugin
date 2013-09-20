@@ -15,7 +15,9 @@
  */
 package uk.org.raje.maven.plugin.msbuild;
 
-import org.apache.maven.plugin.MojoExecutionException;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import org.junit.Test;
 
 /**
@@ -23,6 +25,14 @@ import org.junit.Test;
  */
 public class CppCheckMojoTest extends AbstractMSBuildMojoTestCase 
 {
+    public void setUp() throws Exception
+    {
+        super.setUp();
+        
+        outputStream = new ByteArrayOutputStream();
+        System.setOut( new PrintStream( outputStream ) );
+    }
+
     @Test
     public final void testAllSettingsConfiguration() throws Exception 
     {
@@ -38,14 +48,7 @@ public class CppCheckMojoTest extends AbstractMSBuildMojoTestCase
         CppCheckMojo cppCheckMojo = ( CppCheckMojo ) lookupConfiguredMojo( CppCheckMojo.MOJO_NAME, 
                 "/unit/cppcheck/missing-cppcheck-path-pom.xml" ) ;
         
-        try
-        {
-            cppCheckMojo.execute();
-        }
-        catch ( MojoExecutionException mee )
-        {
-            fail();
-        }
+        cppCheckMojo.execute();
     }
     
     @Test
@@ -54,13 +57,19 @@ public class CppCheckMojoTest extends AbstractMSBuildMojoTestCase
         CppCheckMojo cppCheckMojo = ( CppCheckMojo ) lookupConfiguredMojo( CppCheckMojo.MOJO_NAME, 
                 "/unit/cppcheck/sln-single-platform-single-config-pom.xml" );
 
-        try
-        {
-            cppCheckMojo.execute();
-        }
-        catch ( MojoExecutionException mee )
-        {
-            fail();
-        }
+        cppCheckMojo.execute();
     }    
+
+    @Test
+    public final void testSolutionExcludesConfiguration() throws Exception 
+    {
+        CppCheckMojo cppCheckMojo = ( CppCheckMojo ) lookupConfiguredMojo( CppCheckMojo.MOJO_NAME, 
+                "/unit/cppcheck/sln-single-platform-single-config-excludes-pom.xml" );
+
+        cppCheckMojo.execute();
+        
+        assertTrue( "[INFO] Static code analysis complete.".equals( outputStream.toString().trim() ) );
+    }    
+
+    private ByteArrayOutputStream outputStream;
 }
