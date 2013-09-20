@@ -374,6 +374,11 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             required = false )
     private File cxxTestHome;
 
+    /**
+     * A Map containing data parsed from the project files for each platform-configuration pair.
+     * The Map is populated as needed (lazy load) by the method 
+     * {@link #parsedProjects(BuildPlatform, BuildConfiguration)}.
+     */
     private Map<String, VisualStudioProjectParser> projectParsers = new HashMap<String, VisualStudioProjectParser>();
 
     /**
