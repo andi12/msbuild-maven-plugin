@@ -69,7 +69,12 @@ public class VisualStudioProjectParser
     public void loadProjectFile( BuildPlatform platform, BuildConfiguration configuration )
             throws MojoExecutionException 
     {
-        VCProject project = new VCProject( projectFile.getName(), projectFile );
+        String name = projectFile.getName();
+        if ( name.indexOf( '.' ) != -1 )
+        {
+            name = name.substring( 0, name.lastIndexOf( '.' ) );
+        }
+        VCProject project = new VCProject( name, projectFile );
         project.setPlatform( platform.getName() );
         project.setConfiguration( configuration.getName() );
         
