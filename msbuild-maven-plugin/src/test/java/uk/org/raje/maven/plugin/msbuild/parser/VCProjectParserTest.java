@@ -118,7 +118,7 @@ public class VCProjectParserTest
         {
             VCProject vcProject = testProject( TEST_PROJECT_OUTDIR_SET, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
                     TEST_PREPROCESSOR_DEFS[0][i], new String[0] );
-            assertEquals( new File( vcProject.getPath().getParent(), "Runtime\\" + TEST_CONFIGURATIONS[i] ),
+            assertEquals( new File( vcProject.getPath().getParentFile(), "Runtime\\" + TEST_CONFIGURATIONS[i] ),
                     vcProject.getOutDir() );
         }
     }

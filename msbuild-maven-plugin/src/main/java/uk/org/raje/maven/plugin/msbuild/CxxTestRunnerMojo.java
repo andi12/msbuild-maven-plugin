@@ -31,6 +31,7 @@ import com.google.common.io.Files;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 import uk.org.raje.maven.plugin.msbuild.configuration.CxxTestConfiguration;
+import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
 import uk.org.raje.maven.plugin.msbuild.streamconsumers.StderrStreamToLog;
 import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamToLog;
 
@@ -64,7 +65,9 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
                 {
                     try 
                     {
-                        allTestPassed.add( executeCxxTestTarget( testTarget, platform, configuration ) );
+                        VCProject vcProject = parsedProject( testTarget, platform, configuration );
+                        allTestPassed.add( executeCxxTestTarget( vcProject.getOutDir(), testTarget, 
+                                platform, configuration ) );
                     }
                     catch ( MojoExecutionException mee )
                     {
@@ -88,18 +91,15 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         getLog().info( "All tests passed." );
     }
     
-    private CommandLineRunner createCxxTestRunner( String testTargetName, BuildPlatform platform, 
-            BuildConfiguration configuration ) throws MojoExecutionException
+    private CommandLineRunner createCxxTestRunner( File directory, String testTargetName )
+            throws MojoExecutionException
     {
-        File workingDirectory = MojoHelper.getConfigurationOutputDirectory( projectFile.getParentFile(), 
-                platform, configuration, getLog() );
-        
-        File testTargetExec = new File( workingDirectory, testTargetName + ".exe" );
+        File testTargetExec = new File( directory, testTargetName + ".exe" );
         
         CxxTestRunner cxxTestRunner = new CxxTestRunner( testTargetExec, 
                 new StdoutStreamToLog( getLog() ), new StderrStreamToLog( getLog() ) );
         
-        cxxTestRunner.setWorkingDirectory( workingDirectory );
+        cxxTestRunner.setWorkingDirectory( directory );
         
         return cxxTestRunner;
     }
@@ -139,7 +139,9 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         }
     }    
     
-    private Boolean executeCxxTestTarget( String testTarget, BuildPlatform platform, BuildConfiguration configuration ) 
+    private Boolean executeCxxTestTarget( 
+            File directory, String testTarget, 
+            BuildPlatform platform, BuildConfiguration configuration ) 
             throws MojoExecutionException, MojoFailureException
     {
         getLog().info( "Running " + CxxTestConfiguration.CXXTEST_NAME.toLowerCase() 
@@ -149,7 +151,7 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         Boolean testPassed;
         String testTargetName = new File ( testTarget ).getName();
         
-        CommandLineRunner cxxTestRunner = createCxxTestRunner( testTargetName, platform, configuration );
+        CommandLineRunner cxxTestRunner = createCxxTestRunner( directory, testTargetName );
         testPassed = executeCxxTestRunner( cxxTestRunner );
         moveCxxTestReport( testTargetName, platform, configuration, cxxTestRunner.getWorkingDirectory(), 
                 getReportDirectory() );

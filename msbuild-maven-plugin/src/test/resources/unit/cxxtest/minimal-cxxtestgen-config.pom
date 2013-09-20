@@ -20,7 +20,7 @@
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
     <artifactId>minimal-cxxtestgen-config</artifactId>
     <version>1</version>
-    <packaging>exe</packaging>
+    <packaging>msbuild-solution</packaging>
     
     <build>
         <plugins>
@@ -28,7 +28,7 @@
                 <groupId>uk.org.raje.maven.plugins</groupId>
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
-                    <projectFile>${basedir}/src/test/resources/unit/cxxtest/hello-world-project/hello-world.vcxproj/</projectFile>
+                    <projectFile>${basedir}/src/test/resources/unit/cxxtest/hello-world/hello-world.sln/</projectFile>
                     <cxxTest>
                         <cxxTestHome>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtest-4.2.1-home</cxxTestHome>
                         <testTargets>

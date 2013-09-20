@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.org.raje.maven.plugin.msbuild.parser;
 
 import java.io.BufferedReader;
@@ -29,12 +28,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
-/**
- * @author dmasato
- *
- */
-public class VCSolutionParser extends BaseParser 
+class VCSolutionParser extends BaseParser 
 {
     private enum ProjectProperty 
     {
@@ -84,7 +78,7 @@ public class VCSolutionParser extends BaseParser
     private static final String SLN_END_GLOBAL_SECTION = "EndGlobalSection";
     private static final String PRJ_END_GLOBAL_SECTION = "EndGlobalSection";
     
-    public VCSolutionParser( File solutionFile, String platform, String configuration, String excludeProjectRegex ) 
+    public VCSolutionParser( File solutionFile, String platform, String configuration ) 
             throws FileNotFoundException 
         {
         
@@ -100,8 +94,7 @@ public class VCSolutionParser extends BaseParser
             projectPatternRegex.append( property.getRegex() );
         }
         
-        projectPattern = Pattern.compile( projectPatternRegex.toString() );
-        projectExcludePattern = Pattern.compile( excludeProjectRegex == null ? "" : excludeProjectRegex );
+        projectPropertiesPattern = Pattern.compile( projectPatternRegex.toString() );
     }
     
     public List<VCProject> getVCProjects() 
@@ -146,10 +139,9 @@ public class VCSolutionParser extends BaseParser
                 break;
                 
             default:
-                Matcher prjMatcher = projectPattern.matcher( line );
-                Matcher prjExcludeMatcher = projectExcludePattern.matcher( line );
+                Matcher prjMatcher = projectPropertiesPattern.matcher( line );
                 
-                if ( prjMatcher.matches() && !prjExcludeMatcher.matches() ) 
+                if ( prjMatcher.matches() ) 
                 {
                     parseProjectEntry( prjMatcher );
                 }
@@ -207,8 +199,10 @@ public class VCSolutionParser extends BaseParser
     private void parseProjectEntry( Matcher projMatcher ) 
     {
         VCProject project = new VCProject( ProjectProperty.name.getValue( projMatcher ), 
-                new File( getInputFileParent(), ProjectProperty.path.getValue( projMatcher ) ) );
+                new File( getInputFileParent(), ProjectProperty.path.getValue( projMatcher ) ),
+                getInputFile() );
         
+        project.setTargetName( new File( ProjectProperty.path.getValue( projMatcher ) ).getParent() );
         project.setGuid( ProjectProperty.guid.getValue( projMatcher ) );
         project.setSolutionGuid( ProjectProperty.solutionGuid.getValue( projMatcher ) );
             
@@ -257,7 +251,6 @@ public class VCSolutionParser extends BaseParser
     
     private SolutionParserState solutionParserState;
     private boolean configPlatformFound;
-    private Pattern projectPattern;
-    private Pattern projectExcludePattern;
+    private Pattern projectPropertiesPattern;
     private Map<String, VCProject> projects;
 }

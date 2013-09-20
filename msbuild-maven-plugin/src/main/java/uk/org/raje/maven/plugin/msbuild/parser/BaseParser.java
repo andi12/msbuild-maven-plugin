@@ -24,10 +24,9 @@ import java.text.ParseException;
 
 
 /**
- * @author dmasato
- *
+ * Abstract base class for Solution/Project parsing functionality.
  */
-public abstract class BaseParser 
+abstract class BaseParser 
 {
     public BaseParser( File inputFile, String platform, String configuration ) throws FileNotFoundException 
     {

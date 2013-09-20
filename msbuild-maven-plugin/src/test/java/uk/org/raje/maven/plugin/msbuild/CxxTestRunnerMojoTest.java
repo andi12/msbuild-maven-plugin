@@ -101,8 +101,8 @@ public class CxxTestRunnerMojoTest extends AbstractMSBuildMojoTestCase
             fail( ame.getCause() != null ? ame.getCause().getMessage() : ame.getMessage() );
         }
     }
+
     @Test
-    
     public final void testFailingCxxTest() throws Exception 
     {
         CxxTestRunnerMojo cxxTestRunnerMojo = ( CxxTestRunnerMojo ) lookupConfiguredMojo( CxxTestRunnerMojo.MOJO_NAME, 
@@ -123,7 +123,6 @@ public class CxxTestRunnerMojoTest extends AbstractMSBuildMojoTestCase
         
         fail ( "Expected CxxTest failure." );
     }
-    
 
     private static final String CXXTEST_SKIP_MESSAGE = "Skipping test";
     

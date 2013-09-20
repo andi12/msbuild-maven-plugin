@@ -19,7 +19,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import java.security.InvalidParameterException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -27,10 +29,13 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.CxxTestConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.VersionInfoConfiguration;
+import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
+import uk.org.raje.maven.plugin.msbuild.parser.VisualStudioProjectParser;
 
 /**
  * Abstract base class for the msbuild-maven-plugin which defines all configuration properties exposed.
@@ -116,8 +121,83 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
                 + ", please check your configuration" );
     }
 
-    protected boolean isCxxTestEnabled( String stepName ) 
+    /**
+     * Return project configurations for the specified platform and configuration.
+     * @param platform the platform to parse for
+     * @param configuration the configuration to parse for
+     * @return a list of VCProject objects containing configuration for the specified platform and configuration
+     * @throws MojoExecutionException if parsing fails
+     */
+    protected List<VCProject> parsedProjects( BuildPlatform platform, BuildConfiguration configuration ) 
+            throws MojoExecutionException
     {
+        String key = platform + "|" + configuration;
+
+        VisualStudioProjectParser parser = projectParsers.get( key );
+        if ( parser == null )
+        {
+            try
+            {
+                parser = new VisualStudioProjectParser( projectFile, getLog() );
+                if ( MSBuildPackaging.isSolution( mavenProject.getPackaging() ) ) 
+                {
+                    parser.loadSolutionFile( platform, configuration );
+                }
+                else 
+                {
+                    parser.loadProjectFile( platform, configuration );
+                }
+                projectParsers.put( key, parser );
+            }
+            catch ( MojoExecutionException mje )
+            {
+                throw mje;
+            }
+            
+        }
+
+        return parser.projects();
+    }
+
+    /**
+     * Return the project configuration for the specified target, platform and configuration
+     * Note: This is only valid for solutions as target names don't apply for a standalone project file
+     * @param targetName the target to look for
+     * @param platform the platform to parse for
+     * @param configuration the configuration to parse for
+     * @return the VCProject for the specified target
+     * @throws MojoExecutionException if the requested project cannot be identified
+     */
+    protected VCProject parsedProject( String targetName, BuildPlatform platform, BuildConfiguration configuration )
+            throws MojoExecutionException
+    {
+        List<VCProject> projects = parsedProjects( platform, configuration );
+        for ( VCProject project : projects )
+        {
+            if ( targetName.equals( project.getTargetName() ) )
+            {
+                return project;
+            }
+        }
+        throw new MojoExecutionException( "Target '" + targetName + "' not found in project files" );
+    }
+
+    /**
+     * Determine whether CxxTest is enabled by the configuration
+     * @param stepName the string to use in log messages to describe the process being attempted
+     * @return true if CxxTest is configured, false otherwise
+     * @throws MojoExecutionException if CxxTest is configured for a project not a solution
+     */
+    protected boolean isCxxTestEnabled( String stepName ) throws MojoExecutionException
+    {
+        if ( ! MSBuildPackaging.isSolution( mavenProject.getPackaging() )
+            && ( cxxTest.getTestTargets() != null ) )
+        {
+            String msg = "CxxTest is only supported for solution (.sln) files!";
+            getLog().error( msg );
+            throw new MojoExecutionException( msg );
+        }
+
         if ( cxxTest.skip() )
         {
             getLog().info( CXXTEST_SKIP_MESSAGE + " " + stepName + ", 'skip' set to true in the " 
@@ -293,7 +373,9 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             readonly = true, 
             required = false )
     private File cxxTestHome;
-    
+
+    private Map<String, VisualStudioProjectParser> projectParsers = new HashMap<String, VisualStudioProjectParser>();
+
     /**
      * The file extension for solution files.
      */

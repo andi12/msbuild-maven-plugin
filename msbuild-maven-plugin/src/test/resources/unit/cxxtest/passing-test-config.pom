@@ -20,7 +20,7 @@
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
     <artifactId>passing-test-config</artifactId>
     <version>1</version>
-    <packaging>exe</packaging>
+    <packaging>msbuild-solution</packaging>
     
     <build>
         <plugins>
@@ -28,7 +28,7 @@
                 <groupId>uk.org.raje.maven.plugins</groupId>
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
-                    <projectFile>${basedir}/src/test/resources/unit/cxxtest/hello-world-project/hello-world.vcxproj</projectFile>
+                    <projectFile>${basedir}/src/test/resources/unit/cxxtest/hello-world/hello-world.sln</projectFile>
                     <platforms>
                         <platform>
                             <name>Win32</name>
@@ -42,7 +42,7 @@
                     <cxxTest>
                         <cxxTestHome>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtest-4.2.1-home</cxxTestHome>
                         <testTargets>
-                            <testTarget>hello-world</testTarget>
+                            <testTarget>hello-world-project</testTarget>
                         </testTargets>
                     </cxxTest>
                 </configuration>

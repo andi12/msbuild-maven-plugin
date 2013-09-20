@@ -95,7 +95,7 @@ public class VCSolutionParserTest
         
         try 
         {
-            solutionParser = new VCSolutionParser( solutionFile, platform, configuration, null );
+            solutionParser = new VCSolutionParser( solutionFile, platform, configuration );
         } 
         catch ( FileNotFoundException fnfe ) 
         {

@@ -13,49 +13,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.org.raje.maven.plugin.msbuild.parser;
 
-package uk.org.raje.maven.plugin.msbuild;
-
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 import org.xml.sax.SAXException;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
-import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
-import uk.org.raje.maven.plugin.msbuild.parser.VCProjectParser;
-import uk.org.raje.maven.plugin.msbuild.parser.VCSolutionParser;
 
 /**
- * Abstract base class for MSBuild Mojos.
+ * This class wraps project parsing functionality.
  */
-public abstract class AbstractCodeAnalysisMojo extends AbstractMSBuildPluginMojo
+public class VisualStudioProjectParser
 {
+    /**
+     * Construct a project parser.
+     * @param projectFile the solution or project file that will be read
+     * @param logger the Log for this plugin instance
+     */
+    public VisualStudioProjectParser( File projectFile, Log logger )
+    {
+        this.projectFile = projectFile;
+        this.log = logger;
+    }
 
-    protected List<VCProject> processVCSolutionFile( BuildPlatform platform, BuildConfiguration configuration )
+    public List<VCProject> projects()
+    {
+        return projects;
+    }
+
+    public void loadSolutionFile( BuildPlatform platform, BuildConfiguration configuration )
             throws MojoExecutionException 
     {
-        List<VCProject> vcProjects = null;
-        vcProjects = parseVCSolution( platform, configuration );
+        projects = parseVCSolution( platform, configuration );
         logVCSolutionConfiguration( platform, configuration );
         
-        for ( VCProject project : vcProjects ) 
+        for ( VCProject project : projects ) 
         {
             parseVCProject( project );
             logVCProjectConfiguration( project );
         }
-        
-        return vcProjects;
     }
 
-    protected List<VCProject> processVCProjectFile( BuildPlatform platform, BuildConfiguration configuration )
+    public void loadProjectFile( BuildPlatform platform, BuildConfiguration configuration )
             throws MojoExecutionException 
     {
         VCProject project = new VCProject( projectFile.getName(), projectFile );
@@ -65,29 +76,29 @@ public abstract class AbstractCodeAnalysisMojo extends AbstractMSBuildPluginMojo
         parseVCProject( project );
         logVCProjectConfiguration( project );
         
-        return Arrays.asList( project );
+        projects = Arrays.asList( project );
     }
 
     private void logVCSolutionConfiguration( BuildPlatform platform, BuildConfiguration configuration ) 
     {
-        getLog().debug( "Solution " + projectFile.getName() + ": platform=" + platform.getName() 
+        log.debug( "Solution " + projectFile.getName() + ": platform=" + platform.getName() 
                 + ", configuration=" + configuration.getName() );
     }
 
     private void logVCProjectConfiguration( VCProject project ) 
     {
-        getLog().debug( "Project " + project.getName() + ": platform=" + project.getPlatform() 
+        log.debug( "Project " + project.getName() + ": platform=" + project.getPlatform() 
                 + ", configuration=" + project.getConfiguration() );
         
         if ( project.getIncludeDirectories().size() > 0 ) 
         {
-            getLog().debug( "Project " + project.getName() + ": include directories=" 
+            log.debug( "Project " + project.getName() + ": include directories=" 
                     + project.getIncludeDirectories() );
         }
         
         if ( project.getPreprocessorDefs().size() > 0 ) 
         {
-                getLog().debug( "Project " + project.getName() + ": preprocessor definitions="
+                log.debug( "Project " + project.getName() + ": preprocessor definitions="
                         + project.getPreprocessorDefs() );
         }
     }
@@ -99,8 +110,7 @@ public abstract class AbstractCodeAnalysisMojo extends AbstractMSBuildPluginMojo
         
         try 
         {
-            solutionParser = new VCSolutionParser( projectFile, platform.getName(), configuration.getName(),
-                    cppCheck.getExcludeProjectRegex() );
+            solutionParser = new VCSolutionParser( projectFile, platform.getName(), configuration.getName() );
         }
         catch ( FileNotFoundException fnfe ) 
         {
@@ -164,4 +174,9 @@ public abstract class AbstractCodeAnalysisMojo extends AbstractMSBuildPluginMojo
         
         projectParser.updateVCProject( project );
     }
+
+
+    private Log log;
+    private File projectFile;
+    private List<VCProject> projects = new ArrayList<VCProject>();
 }

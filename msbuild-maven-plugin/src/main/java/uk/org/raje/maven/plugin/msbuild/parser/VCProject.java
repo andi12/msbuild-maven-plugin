@@ -24,17 +24,23 @@ import java.util.List;
  */
 public class VCProject 
 {
-    public VCProject( String name, File path ) 
+    public VCProject( String name, File projectPath, File solutionPath ) 
     {
-        if ( name == null || path == null ) 
+        if ( name == null || projectPath == null ) 
         {
             throw new InvalidParameterException();
         }
         
         this.name = name;
-        this.path = path.getAbsoluteFile();
+        this.path = projectPath;
+        this.solutionFilePath = solutionPath;
     }
-    
+
+    public VCProject( String name, File projectPath ) 
+    {
+        this( name, projectPath, null );
+    }
+
     public String getGuid() 
     {
         return guid;
@@ -54,12 +60,31 @@ public class VCProject
     {
         this.solutionGuid = solutionGuid;
     }
-    
-    public String getName() 
+
+    /**
+     * Return the name of the project
+     * @return
+     */
+    public String getName() // TODO: Change this is the filename
     {
         return name;
     }
-    
+
+    /**
+     * Return the target name that indicates this project.
+     * Only valid for projects found via a Solution file.
+     * @return the target name
+     */
+    public String getTargetName()
+    {
+        return targetName;
+    }
+
+    protected void setTargetName( String targetName )
+    {
+        this.targetName = targetName;
+    }
+
     public File getPath() 
     {
         return path;
@@ -98,14 +123,20 @@ public class VCProject
     {
         if ( outDir == null )
         {
+            File baseDir = getBaseDir();
+            if ( solutionFilePath != null )
+            {
+                baseDir = solutionFilePath.getParentFile();
+            }
+
             if ( "Win32".equals( platform ) )
             {
                 // Win32 is a special case in VS
-                outDir = new File( path.getParentFile(), configuration );
+                outDir = new File( baseDir, configuration );
             }
             else
             {
-                outDir = new File( path.getParentFile(), platform + File.separator + configuration );
+                outDir = new File( baseDir, platform + File.separator + configuration );
             }
         }
         return outDir;
@@ -126,8 +157,22 @@ public class VCProject
             this.outDir = new File( outDir ); 
             if ( ! this.outDir.isAbsolute() )
             {
-                outDir = outDir.replace( "$(SolutionDir)", "" );
-                this.outDir = new File( path.getParent(), outDir );
+                if ( outDir.startsWith( "$(SolutionDir)"  ) )
+                {
+                    if ( solutionFilePath != null )
+                    {
+                        outDir = outDir.replace( "$(SolutionDir)", solutionFilePath.getParent() + File.separator );
+                    }
+                    else
+                    {
+                        outDir = outDir.replace( "$(SolutionDir)", getBaseDir().getPath() + File.separator );
+                    }
+                    this.outDir = new File( outDir );
+                }
+                else
+                {
+                    this.outDir = new File( getBaseDir(), outDir );
+                }
             }
         }
     }
@@ -156,7 +201,9 @@ public class VCProject
     private String guid;
     private String solutionGuid;
     private String name;
+    private String targetName;
     private File path;
+    private File solutionFilePath;
     private String configuration;
     private String platform;
     private File outDir;

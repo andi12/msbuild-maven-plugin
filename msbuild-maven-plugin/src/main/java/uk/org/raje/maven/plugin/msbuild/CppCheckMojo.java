@@ -44,7 +44,7 @@ import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamToLog;
  * Configure and run Cppcheck static analysis tool.
  */
 @Mojo( name = CppCheckMojo.MOJO_NAME, defaultPhase = LifecyclePhase.VERIFY )
-public class CppCheckMojo extends AbstractCodeAnalysisMojo 
+public class CppCheckMojo extends AbstractMSBuildPluginMojo 
 {
     /**
      * The name this Mojo declares, also represents the goal.
@@ -54,8 +54,6 @@ public class CppCheckMojo extends AbstractCodeAnalysisMojo
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException 
     {
-        List<VCProject> vcProjects = null;
-        
         if ( !isCppCheckEnabled() ) 
         {
             return;
@@ -67,17 +65,15 @@ public class CppCheckMojo extends AbstractCodeAnalysisMojo
         {
             for ( BuildConfiguration configuration : platform.getConfigurations() )
             {
-                if ( MSBuildPackaging.isSolution( mavenProject.getPackaging() ) ) 
-                {
-                    vcProjects = processVCSolutionFile( platform, configuration );
-                }
-                else 
-                {
-                    vcProjects = processVCProjectFile( platform, configuration );
-                }
 
-                for ( VCProject vcProject : vcProjects )
+                for ( VCProject vcProject : parsedProjects( platform, configuration ) )
                 {
+                    /*
+                    projectExcludePattern = Pattern.compile( excludeProjectRegex == null ? "" : excludeProjectRegex );
+                    Matcher prjExcludeMatcher = projectExcludePattern.matcher( line );
+                    cppCheck.getExcludeProjectRegex()
+                    */
+                    // TODO: Filter based on regex
                     try 
                     {
                         runCppCheck( vcProject );

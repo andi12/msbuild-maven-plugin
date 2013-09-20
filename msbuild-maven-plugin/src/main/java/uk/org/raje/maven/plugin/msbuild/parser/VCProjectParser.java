@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.org.raje.maven.plugin.msbuild.parser;
 
 import java.io.File;
@@ -35,13 +34,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-
-
-/**
- * @author dmasato
- *
- */
-public class VCProjectParser extends BaseParser 
+class VCProjectParser extends BaseParser 
 {
     private static final String PATH_SEPARATOR = "/";
     private static final String PATH_ROOT = "ROOT";
