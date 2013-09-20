@@ -45,10 +45,14 @@ public class VCProjectParser extends BaseParser
 {
     private static final String PATH_SEPARATOR = "/";
     private static final String PATH_ROOT = "ROOT";
-    private static final String PATH_ITEMDEF_GROUP = PATH_ROOT + PATH_SEPARATOR + "Project" + PATH_SEPARATOR
+
+    private static final String PATH_PROPERTY_GROUP = PATH_ROOT + PATH_SEPARATOR + "Project" + PATH_SEPARATOR
+            + "PropertyGroup";
+    private static final String PATH_OUTDIR = PATH_PROPERTY_GROUP + PATH_SEPARATOR + "OutDir";
+
+    private static final String PATH_ITEMDEFINITION_GROUP = PATH_ROOT + PATH_SEPARATOR + "Project" + PATH_SEPARATOR
             + "ItemDefinitionGroup";
-    
-    private static final String PATH_CLCOMPILE = PATH_ITEMDEF_GROUP + PATH_SEPARATOR + "ClCompile";
+    private static final String PATH_CLCOMPILE = PATH_ITEMDEFINITION_GROUP + PATH_SEPARATOR + "ClCompile";
     private static final String PATH_ADDITIONAL_INCDIRS = PATH_CLCOMPILE + PATH_SEPARATOR 
             + "AdditionalIncludeDirectories";
     
@@ -70,11 +74,17 @@ public class VCProjectParser extends BaseParser
         {
             throw new InvalidParameterException();
         }
-        
+
+        project.setOutDir( outDir );
         project.setPreprocessorDefs( preprocessorDefs );
         project.setIncludeDirectories( includeDirs );
     }
-    
+
+    public String getOutDir()
+    {
+        return outDir;
+    }
+
     public List<String> getIncludeDirs() 
     {
         return includeDirs;
@@ -105,12 +115,14 @@ public class VCProjectParser extends BaseParser
     private enum ElementParserState 
     {
         PARSE_IGNORE,
+        PARSE_PROPERTY_GROUP,
         PARSE_CONFIGPLATFORM_GROUP,
     }
 
     private enum CharParserState 
     {
         PARSE_IGNORE,
+        PARSE_OUTDIR,
         PARSE_INCLUDE_DIRS,
         PARSE_PREPROCESSOR_DEFS
     }
@@ -127,6 +139,13 @@ public class VCProjectParser extends BaseParser
             
             switch ( elementParserState ) 
             {
+            case PARSE_PROPERTY_GROUP:
+                if ( path.compareTo( PATH_OUTDIR ) == 0 ) 
+                {
+                    charParserState = CharParserState.PARSE_OUTDIR;
+                }
+                break;
+
             case PARSE_CONFIGPLATFORM_GROUP: 
                 if ( path.compareTo( PATH_ADDITIONAL_INCDIRS ) == 0 ) 
                 {
@@ -141,7 +160,16 @@ public class VCProjectParser extends BaseParser
                 break;
             
             default: 
-                if ( path.compareTo( PATH_ITEMDEF_GROUP ) == 0 )
+                if ( path.compareTo( PATH_PROPERTY_GROUP ) == 0 )
+                {
+                    String condition = attributes.getValue( "Condition" );
+
+                    if ( condition != null && condition.contains( getRequiredConfigurationPlatform() ) ) 
+                    {
+                        elementParserState = ElementParserState.PARSE_PROPERTY_GROUP;
+                    }
+                }
+                else if ( path.compareTo( PATH_ITEMDEFINITION_GROUP ) == 0 )
                 {
                     String condition = attributes.getValue( "Condition" );
 
@@ -159,7 +187,11 @@ public class VCProjectParser extends BaseParser
         {
             String path = paths.pop();
 
-            if ( path.compareTo( PATH_ITEMDEF_GROUP ) == 0 ) 
+            if ( path.compareTo( PATH_PROPERTY_GROUP ) == 0 ) 
+            {
+                elementParserState = ElementParserState.PARSE_IGNORE;
+            }
+            if ( path.compareTo( PATH_ITEMDEFINITION_GROUP ) == 0 ) 
             {
                 elementParserState = ElementParserState.PARSE_IGNORE;
             }
@@ -176,9 +208,15 @@ public class VCProjectParser extends BaseParser
             
             switch ( charParserState ) 
             {
+            case PARSE_OUTDIR:
+                entries = entries.replace( "$(Configuration)", getRequiredConfiguration() );
+                entries = entries.replace( "$(Platform)", getRequiredPlatform() );
+                outDir = new String( entries );
+                break;
+
             case PARSE_INCLUDE_DIRS:
-                entries.replace( "$(Configuration)", getRequiredConfiguration() );
-                entries.replace( "$(Platform)", getRequiredPlatform() );
+                entries = entries.replace( "$(Configuration)", getRequiredConfiguration() );
+                entries = entries.replace( "$(Platform)", getRequiredPlatform() );
                 includeDirs = splitEntries( entries );
                 break;
                 
@@ -210,6 +248,7 @@ public class VCProjectParser extends BaseParser
     private LinkedList<String> paths = new LinkedList<String>( Arrays.asList( PATH_ROOT ) ); 
     private ElementParserState elementParserState = ElementParserState.PARSE_IGNORE;
     private CharParserState charParserState = CharParserState.PARSE_IGNORE;
+    private String outDir;
     private List<String> includeDirs = new ArrayList<String>();
     private List<String> preprocessorDefs = new ArrayList<String>();
 }

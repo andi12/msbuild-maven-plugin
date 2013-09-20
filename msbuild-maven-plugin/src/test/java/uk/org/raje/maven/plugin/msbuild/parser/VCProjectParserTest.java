@@ -16,6 +16,8 @@
 
 package uk.org.raje.maven.plugin.msbuild.parser;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -96,15 +98,41 @@ public class VCProjectParserTest
                     new String[0], new String[0] );
         }
     }    
+
+    @Test
+    public void testOutDefaultDir()
+    {
+        for ( int i = 0; i < TEST_CONFIGURATIONS.length; i++ )
+        {
+            VCProject vcProject = testProject( TEST_PROJECT_OUTDIR_DEFAULT, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
+                    TEST_PREPROCESSOR_DEFS[0][i], new String[0] );
+            assertEquals( new File( vcProject.getPath().getParent(), TEST_CONFIGURATIONS[i] ),
+                    vcProject.getOutDir() );
+        }
+    }
+
+    @Test
+    public void testOutDir()
+    {
+        for ( int i = 0; i < TEST_CONFIGURATIONS.length; i++ )
+        {
+            VCProject vcProject = testProject( TEST_PROJECT_OUTDIR_SET, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
+                    TEST_PREPROCESSOR_DEFS[0][i], new String[0] );
+            assertEquals( new File( vcProject.getPath().getParent(), "Runtime\\" + TEST_CONFIGURATIONS[i] ),
+                    vcProject.getOutDir() );
+        }
+    }
     
-    private void testProject( String projectPath, String platform, String configuration, String[] preprocessorDefs, 
-            String[] includeDirs )
+    private VCProject testProject( String projectPath, String platform, String configuration, 
+            String[] preprocessorDefs, String[] includeDirs )
     {
         File projectFile = new File( this.getClass().getResource( projectPath ).getPath() );
         VCProject vcProject = parseProject( projectFile, platform, configuration ); 
 
-        Assert.assertEquals( Arrays.asList( preprocessorDefs ), vcProject.getPreprocessorDefs() );
-        Assert.assertEquals( Arrays.asList( includeDirs ), vcProject.getIncludeDirectories() );
+        assertEquals( Arrays.asList( preprocessorDefs ), vcProject.getPreprocessorDefs() );
+        assertEquals( Arrays.asList( includeDirs ), vcProject.getIncludeDirectories() );
+        
+        return vcProject;
     }
 
     private VCProject parseProject( File projectFile, String platform, String configuration )
@@ -142,22 +170,30 @@ public class VCProjectParserTest
         }
         
         VCProject vcProject = new VCProject( TEST_PROJECT_NAMES[0], projectFile );
+        vcProject.setPlatform( platform );
+        vcProject.setConfiguration( configuration );
         projectParser.updateVCProject( vcProject );
         
         return vcProject;
     }
     
-    private static final String TEST_RESOURCE_DIR = "/unit/cppcheck/";
+    private static final String CONFIG_TEST_RESOURCE_DIR = "/unit/configurations/";
+    private static final String CPPCHECK_TEST_RESOURCE_DIR = "/unit/cppcheck/";
 
-    private static final String TEST_PROJECT_PREPROCESSOR_DEFS = TEST_RESOURCE_DIR
+    private static final String TEST_PROJECT_PREPROCESSOR_DEFS = CPPCHECK_TEST_RESOURCE_DIR
             + "hello-world-project-preprocesor-defs/hello-world-app.vcxproj";    
 
-    private static final String TEST_PROJECT_INCLUDE_DIRS = TEST_RESOURCE_DIR
+    private static final String TEST_PROJECT_INCLUDE_DIRS = CPPCHECK_TEST_RESOURCE_DIR
             + "hello-world-project-include-dirs/hello-world-app.vcxproj";    
 
-    private static final String TEST_PROJECT_EMPTY_SETTINGS = TEST_RESOURCE_DIR
+    private static final String TEST_PROJECT_EMPTY_SETTINGS = CPPCHECK_TEST_RESOURCE_DIR
             + "hello-world-project-empty-settings/hello-world-makefile.vcxproj";    
 
+    private static final String TEST_PROJECT_OUTDIR_DEFAULT = CONFIG_TEST_RESOURCE_DIR
+            + "configurations-test.vcxproj";    
+
+    private static final String TEST_PROJECT_OUTDIR_SET = CONFIG_TEST_RESOURCE_DIR
+            + "configurations-outdir-test.vcxproj";    
     
     private static final String[] TEST_PROJECT_NAMES = { "hello-world", "goodbye-world" };
     private static final String[] TEST_PLATFORMS = { "Win32", "x64" };

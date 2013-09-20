@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.org.raje.maven.plugin.msbuild.parser;
 
 import java.io.File;
 import java.security.InvalidParameterException;
 import java.util.List;
 
-
 /**
- * @author dmasato
- *
+ * Bean to hold properties parsed from a Visual Studio project file.
  */
 public class VCProject 
 {
@@ -92,15 +89,47 @@ public class VCProject
     {
         this.platform = platform;
     }
-    
-    public List<String> getPreprocessorDefs() 
+
+    /**
+     * Get the value of the configured 'Output Directory'
+     * @return the string value
+     */
+    public File getOutDir()
     {
-        return preprocessorDefs;
+        if ( outDir == null )
+        {
+            if ( "Win32".equals( platform ) )
+            {
+                // Win32 is a special case in VS
+                outDir = new File( path.getParentFile(), configuration );
+            }
+            else
+            {
+                outDir = new File( path.getParentFile(), platform + File.separator + configuration );
+            }
+        }
+        return outDir;
     }
 
-    public void setPreprocessorDefs( List<String> preprocessorDefs ) 
+    /**
+     * Set the stored value for outDir
+     * @param outDir the new value
+     */
+    protected void setOutDir( String outDir )
     {
-        this.preprocessorDefs = preprocessorDefs;
+        if ( outDir == null )
+        {
+            this.outDir = null;
+        }
+        else
+        {
+            this.outDir = new File( outDir ); 
+            if ( ! this.outDir.isAbsolute() )
+            {
+                outDir = outDir.replace( "$(SolutionDir)", "" );
+                this.outDir = new File( path.getParent(), outDir );
+            }
+        }
     }
 
     public List<String> getIncludeDirectories() 
@@ -108,17 +137,29 @@ public class VCProject
         return includeDirectories;
     }
 
-    public void setIncludeDirectories( List<String> includeDirectories ) 
+    protected void setIncludeDirectories( List<String> includeDirectories ) 
     {
         this.includeDirectories = includeDirectories;
     }
 
-    private String guid = null;
-    private String solutionGuid = null;
-    private String name = null;
-    private File path = null;
-    private String configuration = null;
-    private String platform = null;
-    private List<String> includeDirectories = null;
-    private List<String> preprocessorDefs = null;
+    public List<String> getPreprocessorDefs() 
+    {
+        return preprocessorDefs;
+    }
+
+    protected void setPreprocessorDefs( List<String> preprocessorDefs ) 
+    {
+        this.preprocessorDefs = preprocessorDefs;
+    }
+
+
+    private String guid;
+    private String solutionGuid;
+    private String name;
+    private File path;
+    private String configuration;
+    private String platform;
+    private File outDir;
+    private List<String> includeDirectories;
+    private List<String> preprocessorDefs;
 }
