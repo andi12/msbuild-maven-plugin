@@ -46,6 +46,12 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
      */
     public static final String MOJO_NAME = "test";
 
+    /**
+     * The name of the directory created under 'target' where we store CxxTest report files.
+     * Use the standard surefire-reports directory as the files are in that format.
+     */
+    public static final String REPORT_DIRECTORY = "surefire-reports";
+
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException
     {
@@ -161,7 +167,7 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
     
     private File getReportDirectory()
     {
-        return new File( mavenProject.getBuild().getDirectory(), "surefire-reports" );
+        return new File( mavenProject.getBuild().getDirectory(), REPORT_DIRECTORY );
     }
     
     /**
