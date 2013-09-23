@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +120,46 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         }
         throw new MojoExecutionException( prefix
                 + ", please check your configuration" );
+    }
+
+    /**
+     * Compute the relative path portion from a path and a base directory.
+     * For example: Given C:\foo\bar and C:\foo\bar\baz this method will return baz
+     * @param basedir the base directory
+     * @param target the path to express as relative to basedir
+     * @return the relative portion of the path between basedir and target
+     * @throws MojoExecutionException if the target is not a subpath of basedir
+     */
+    protected File getRelativeFile( File basedir, File target ) throws MojoExecutionException
+    {
+        String basedirStr = basedir.getPath() + File.separator;
+        String origDir = target.getPath();
+        
+        if ( origDir.startsWith( basedirStr ) )
+        {
+            return new File( origDir.substring( basedirStr.length() ) ); 
+        }
+        throw new MojoExecutionException( "Unable to relativize " + origDir + " to " + basedir );
+    }
+
+    /**
+     * Computes the relative path portions for each of the supplied targets.
+     * @see #getRelativeFile(File, File)
+     * @param basedir the base directory
+     * @param targetList the list of targets to calculate
+     * @return a list of targets expressed relative to basedir
+     * @throws MojoExecutionException if any target is not a subpath of basedir
+     */
+    protected List<File> getRelativeFiles( File basedir, List<File> targetList ) throws MojoExecutionException
+    {
+        List<File> result = new ArrayList<File>( targetList.size() );
+        
+        for ( File f : targetList )
+        {
+            result.add( getRelativeFile( basedir, f.getAbsoluteFile() ) );
+        }
+        
+        return result;
     }
 
     /**
