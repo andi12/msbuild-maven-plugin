@@ -49,6 +49,13 @@ public class AbstractMSBuildPluginMojoTest
     }
 
     @Test
+    public void getRelativeFileDotTest() throws Exception
+    {
+        assertEquals( new File( "." ), 
+                instance.getRelativeFile( new File( "C:\\foo\\bar" ), new File( "C:\\foo\\bar" ) ) );
+    }
+
+    @Test
     public void getRelativeFileUnixSlashTest() throws Exception
     {
         assertEquals( new File( "baz/qux" ), 

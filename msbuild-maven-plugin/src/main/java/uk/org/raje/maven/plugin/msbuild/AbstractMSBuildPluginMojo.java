@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,42 +123,27 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
 
     /**
      * Compute the relative path portion from a path and a base directory.
+     * If basedir and target are the same "." is returned.
      * For example: Given C:\foo\bar and C:\foo\bar\baz this method will return baz
      * @param basedir the base directory
      * @param target the path to express as relative to basedir
      * @return the relative portion of the path between basedir and target
-     * @throws MojoExecutionException if the target is not a subpath of basedir
+     * @throws MojoExecutionException if the target is not basedir or a subpath of basedir
      */
     protected File getRelativeFile( File basedir, File target ) throws MojoExecutionException
     {
-        String basedirStr = basedir.getPath() + File.separator;
-        String origDir = target.getPath();
+        String basedirStr = basedir.getPath();
+        String targetDirStr = target.getPath();
         
-        if ( origDir.startsWith( basedirStr ) )
+        if ( targetDirStr.equals( basedirStr ) )
         {
-            return new File( origDir.substring( basedirStr.length() ) ); 
+            return new File( "." );
         }
-        throw new MojoExecutionException( "Unable to relativize " + origDir + " to " + basedir );
-    }
-
-    /**
-     * Computes the relative path portions for each of the supplied targets.
-     * @see #getRelativeFile(File, File)
-     * @param basedir the base directory
-     * @param targetList the list of targets to calculate
-     * @return a list of targets expressed relative to basedir
-     * @throws MojoExecutionException if any target is not a subpath of basedir
-     */
-    protected List<File> getRelativeFiles( File basedir, List<File> targetList ) throws MojoExecutionException
-    {
-        List<File> result = new ArrayList<File>( targetList.size() );
-        
-        for ( File f : targetList )
+        else if ( targetDirStr.startsWith( basedirStr + File.separator ) ) // add slash to ensure directory
         {
-            result.add( getRelativeFile( basedir, f.getAbsoluteFile() ) );
+            return new File( targetDirStr.substring( basedirStr.length() + 1 ) ); // + slash char
         }
-        
-        return result;
+        throw new MojoExecutionException( "Unable to relativize " + targetDirStr + " to " + basedir );
     }
 
     /**
