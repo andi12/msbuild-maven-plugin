@@ -189,7 +189,7 @@ public class MSBuildMojo extends AbstractMSBuildMojo
         }
         else
         {
-            List<VCProject> projects = parsedProjects( p, c );
+            List<VCProject> projects = getParsedProjects( p, c );
             if ( projects.size() == 1 )
             {
                 // probably a standalone project

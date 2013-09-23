@@ -33,9 +33,9 @@ import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.CxxTestConfiguration;
+import uk.org.raje.maven.plugin.msbuild.configuration.SonarConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.VersionInfoConfiguration;
 import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
-import uk.org.raje.maven.plugin.msbuild.parser.VisualStudioProjectParser;
 
 /**
  * Abstract base class for the msbuild-maven-plugin which defines all configuration properties exposed.
@@ -128,35 +128,40 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
      * @return a list of VCProject objects containing configuration for the specified platform and configuration
      * @throws MojoExecutionException if parsing fails
      */
-    protected List<VCProject> parsedProjects( BuildPlatform platform, BuildConfiguration configuration ) 
+    protected List<VCProject> getParsedProjects( BuildPlatform platform, BuildConfiguration configuration ) 
             throws MojoExecutionException
     {
         String key = platform + "|" + configuration;
+        List<VCProject> vcProjects;
 
-        VisualStudioProjectParser parser = projectParsers.get( key );
-        if ( parser == null )
+        vcProjects = parsedProjects.get( key );
+        
+        if ( vcProjects == null )
         {
+            VCParserHelper vcParserHelper = new VCParserHelper( getLog() );
+            
             try
             {
-                parser = new VisualStudioProjectParser( projectFile, getLog() );
                 if ( MSBuildPackaging.isSolution( mavenProject.getPackaging() ) ) 
                 {
-                    parser.loadSolutionFile( platform, configuration );
+                    vcParserHelper.loadSolutionFile( projectFile, platform, configuration );
                 }
                 else 
                 {
-                    parser.loadProjectFile( platform, configuration );
+                    vcParserHelper.loadProjectFile( projectFile, platform, configuration );
                 }
-                projectParsers.put( key, parser );
+                
+                vcProjects = vcParserHelper.getVCProjects();
+                parsedProjects.put( key, vcProjects );
             }
-            catch ( MojoExecutionException mje )
+            catch ( MojoExecutionException mee )
             {
-                throw mje;
+                getLog().error( mee.getMessage() );
+                throw mee;
             }
-            
         }
 
-        return parser.projects();
+        return vcProjects;
     }
 
     /**
@@ -168,10 +173,10 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
      * @return the VCProject for the specified target
      * @throws MojoExecutionException if the requested project cannot be identified
      */
-    protected VCProject parsedProject( String targetName, BuildPlatform platform, BuildConfiguration configuration )
+    protected VCProject getParsedProject( String targetName, BuildPlatform platform, BuildConfiguration configuration )
             throws MojoExecutionException
     {
-        List<VCProject> projects = parsedProjects( platform, configuration );
+        List<VCProject> projects = getParsedProjects( platform, configuration );
         for ( VCProject project : projects )
         {
             if ( targetName.equals( project.getTargetName() ) )
@@ -355,6 +360,12 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     protected CxxTestConfiguration cxxTest = new CxxTestConfiguration();
 
     /**
+     * Configure the Sonar Mojo.
+     */
+    @Parameter
+    protected SonarConfiguration sonar = new SonarConfiguration();
+    
+    /**
      * This parameter only exists to pickup a -D property or property in settings.xml
      * @see CppCheckConfiguration#cppCheckPath
      */
@@ -379,7 +390,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
      * The Map is populated as needed (lazy load) by the method 
      * {@link #parsedProjects(BuildPlatform, BuildConfiguration)}.
      */
-    private Map<String, VisualStudioProjectParser> projectParsers = new HashMap<String, VisualStudioProjectParser>();
+    private Map<String, List<VCProject> > parsedProjects = new HashMap<String, List<VCProject>>();
 
     /**
      * The file extension for solution files.

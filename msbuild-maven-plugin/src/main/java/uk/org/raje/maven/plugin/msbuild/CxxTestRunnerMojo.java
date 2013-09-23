@@ -65,7 +65,7 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
                 {
                     try 
                     {
-                        VCProject vcProject = parsedProject( testTarget, platform, configuration );
+                        VCProject vcProject = getParsedProject( testTarget, platform, configuration );
                         allTestPassed.add( executeCxxTestTarget( vcProject.getOutputDirectory(), testTarget, 
                                 platform, configuration ) );
                     }
@@ -100,9 +100,7 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
                 new StdoutStreamToLog( getLog() ), new StderrStreamToLog( getLog() ) );
         
         cxxTestRunner.setWorkingDirectory( directory );
-        
-        getLog().debug( cxxTestRunner.getCommandLine() );
-        
+
         return cxxTestRunner;
     }
     
@@ -150,11 +148,11 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
                 + " tests for target " + testTarget 
                 + ", platform=" + platform.getName() + ", configuration=" + configuration.getName() + "." );
         
-        Boolean testPassed;
         String testTargetName = new File ( testTarget ).getName();
-        
         CommandLineRunner cxxTestRunner = createCxxTestRunner( directory, testTargetName );
-        testPassed = executeCxxTestRunner( cxxTestRunner );
+        getLog().debug( cxxTestRunner.getCommandLine() );
+
+        Boolean testPassed = executeCxxTestRunner( cxxTestRunner );
         moveCxxTestReport( testTargetName, platform, configuration, cxxTestRunner.getWorkingDirectory(), 
                 getReportDirectory() );
 
