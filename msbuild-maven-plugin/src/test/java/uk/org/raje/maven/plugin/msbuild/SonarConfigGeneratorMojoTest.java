@@ -16,6 +16,7 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
 
 import org.apache.maven.plugin.AbstractMojoExecutionException;
@@ -69,6 +70,9 @@ public class SonarConfigGeneratorMojoTest extends AbstractMSBuildMojoTestCase
                 lookupConfiguredMojo( SonarConfigGeneratorMojo.MOJO_NAME, "/unit/sonar/minimal-sonar-config.pom" ) ;
         
         sonarConfigGeneratorMojo.execute();
+        assertTrue( "Expected output file not created", 
+                new File( sonarConfigGeneratorMojo.mavenProject.getBuild().getDirectory(),
+                        "sonar-configuration-Win32-Release.properties" ).exists() );
     }      
     
     private static final String SONAR_SKIP_MESSAGE = "[INFO] Skipping Sonar analysis";

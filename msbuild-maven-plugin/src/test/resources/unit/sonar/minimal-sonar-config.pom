@@ -28,7 +28,7 @@
                 <groupId>uk.org.raje.maven.plugins</groupId>
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
-                    <projectFile>${basedir}/src/test/resources/unit/sonar/hello-world/hello-world.sln/</projectFile>
+                    <projectFile>${basedir}/src/test/resources/unit/sonar/hello-world/hello-world.sln</projectFile>
                     <sonar>
                         <skip>false</skip>
                     </sonar>

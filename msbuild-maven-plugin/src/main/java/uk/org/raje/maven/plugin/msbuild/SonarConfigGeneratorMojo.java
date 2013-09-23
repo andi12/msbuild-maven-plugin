@@ -16,10 +16,10 @@
 
 package uk.org.raje.maven.plugin.msbuild;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,12 +66,12 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         
     }
     
-    private Writer createSonarConfigWriter( File configFile ) throws MojoExecutionException
+    private PrintWriter createSonarConfigWriter( File configFile ) throws MojoExecutionException
     {
         try 
         {
             Files.createParentDirs( configFile );
-            return new BufferedWriter( new FileWriter( configFile ) );
+            return new PrintWriter( new FileWriter( configFile ) );
         }
         catch ( IOException ioe )
         { 
@@ -98,7 +98,7 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
     {
         String platformConfigPattern = "-*-" + platform.getName() + "-" + configuration.getName();
         File configFile = getSonarConfigFile( platform, configuration );
-        Writer configWriter = createSonarConfigWriter( configFile );
+        PrintWriter configWriter = createSonarConfigWriter( configFile );
         List<VCProject> vcProjects = getParsedProjects( platform, configuration );
         List<String> vcProjectNames = new ArrayList<String>( vcProjects.size() );
         List<File> systemIncludeDirs = getSystemIncludeDirs();
@@ -110,21 +110,27 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         
         try 
         {
-            configWriter.write( "sonar.projectKey=" + mavenProject.getModel().getGroupId() + ":" 
+            configWriter.println( "sonar.projectKey=" + mavenProject.getModel().getGroupId() + ":" 
                     + mavenProject.getModel().getArtifactId() );
 
-            configWriter.write( "sonar.projectName=" + mavenProject.getModel().getArtifactId() );
-            configWriter.write( "sonar.projectVersion=" + mavenProject.getModel().getVersion() );
-            configWriter.write( "sonar.sources=." );
-            configWriter.write( "sonar.langage=c++" );
-            configWriter.write( "sonar.modules=" + joinList( vcProjectNames ) );
+            configWriter.println( "sonar.projectName=" + mavenProject.getModel().getArtifactId() );
+            configWriter.println( "sonar.projectVersion=" + mavenProject.getModel().getVersion() );
+            configWriter.println( "sonar.sources=." );
+            configWriter.println( "sonar.langage=c++" );
+            configWriter.println( "sonar.modules=" + joinList( vcProjectNames ) );
             
-            configWriter.write( "sonar.cxx.cppcheck.reportPath=" + cppCheck.getReportName() + platformConfigPattern
-                    + ".xml" );
+            configWriter.println( new StringBuilder().append( "sonar.cxx.cppcheck.reportPath=" )
+                    .append( getRelativeFile( mavenProject.getBasedir(), 
+                            new File( mavenProject.getBuild().getDirectory() ) ) )
+                    .append( File.separator )
+                    .append( CppCheckMojo.REPORT_DIRECTORY ) 
+                    .append( File.separator )
+                    .append( cppCheck.getReportName() )
+                    .append( platformConfigPattern )
+                    .append( ".xml" ).toString() );
             
-            configWriter.write( "sonar.cxx.xunit.reportPath=" + cxxTest.getReportName() + platformConfigPattern
+            configWriter.println( "sonar.cxx.xunit.reportPath=" + cxxTest.getReportName() + platformConfigPattern
                     + ".xml" );
-
 
             for ( VCProject vcProject: vcProjects )
             {
@@ -141,7 +147,7 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
     }
     
     private void generateProjectSonarConfiguration( VCProject vcProject, List<File> systemIncludeDirs, 
-            Writer writer ) throws IOException, MojoExecutionException
+            PrintWriter writer ) throws IOException, MojoExecutionException
     {
         List<File> includeDirectories = new ArrayList<File>( vcProject.getIncludeDirectories() );
         includeDirectories.addAll( systemIncludeDirs );
@@ -149,8 +155,8 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         List<String> preprocessorDefs = new ArrayList<String>( vcProject.getPreprocessorDefs() );
         preprocessorDefs.addAll( sonar.getPreprocessorDefs() );
         
-        writer.write( vcProject.getName() + ".sonar.projectBaseDir=" 
-                + getRelativeFile( mavenProject.getBasedir(), vcProject.getBaseDirectory() ) );
+        writer.println( vcProject.getName() + ".sonar.projectBaseDir=" 
+                + getRelativeFile( vcProject.getBaseDirectory(), vcProject.getProjectFile().getParentFile() ) );
         
         if ( includeDirectories.size() > 0 )
         {
@@ -161,17 +167,17 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
                 includeDirectoryStr.add( includeDirectory.getPath() );
             }
             
-            writer.write( vcProject.getName() + ".sonar.cxx.include_directories=" + joinList( includeDirectoryStr ) );
+            writer.println( vcProject.getName() + ".sonar.cxx.include_directories=" + joinList( includeDirectoryStr ) );
         }
             
         if ( preprocessorDefs.size() > 0 )
         {
-            writer.write( vcProject.getName() + ".sonar.cxx.defines==" + joinList( preprocessorDefs ) );
+            writer.println( vcProject.getName() + ".sonar.cxx.defines=" + joinList( preprocessorDefs ) );
         }
         
         if ( sonar.getExcludes().size() > 0 )
         {
-            writer.write( vcProject.getName() + ".sonar.exclusions==" + joinList( sonar.getExcludes() ) );
+            writer.println( vcProject.getName() + ".sonar.exclusions=" + joinList( sonar.getExcludes() ) );
         }
     }
     
@@ -193,7 +199,7 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
             
     private File getSonarConfigFile( BuildPlatform platform, BuildConfiguration configuration )
     {
-        return new File( mavenProject.getBuild().getOutputDirectory(), "sonar-configuration-" 
+        return new File( mavenProject.getBuild().getDirectory(), "sonar-configuration-" 
                 + platform.getName() + "-" + configuration.getName() + ".properties" );
     }
     
