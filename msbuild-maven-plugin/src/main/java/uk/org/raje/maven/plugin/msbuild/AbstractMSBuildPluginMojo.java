@@ -342,6 +342,22 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         validateProjectFile();
         platforms = MojoHelper.validatePlatforms( platforms );
     }
+    
+    protected boolean isSonarEnabled() throws MojoExecutionException
+    {
+        if ( sonar.skip() )
+        {
+            getLog().info( SONAR_SKIP_MESSAGE + ", 'skip' set to true in the " + SonarConfiguration.SONAR_NAME
+                    + " configuration." );
+            
+            return false;
+        }
+        
+        validateProjectFile();
+        platforms = MojoHelper.validatePlatforms( platforms );
+        
+        return true;
+    }    
 
     /**
      * The MavenProject for the current build.
@@ -440,4 +456,5 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
 
     private static final String CXXTEST_SKIP_MESSAGE = "Skipping test";
     private static final String CPPCHECK_SKIP_MESSAGE = "Skipping static code analysis";
+    private static final String SONAR_SKIP_MESSAGE = "Skipping Sonar analysis";
 }

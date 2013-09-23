@@ -34,7 +34,7 @@ public class VCProject
         return guid;
     }
         
-    public void setGuid( String guid ) 
+    protected void setGuid( String guid ) 
     {
         this.guid = guid;
     }
@@ -44,7 +44,7 @@ public class VCProject
         return solutionGuid;
     }
     
-    public void setSolutionGuid( String solutionGuid ) 
+    protected void setSolutionGuid( String solutionGuid ) 
     {
         this.solutionGuid = solutionGuid;
     }

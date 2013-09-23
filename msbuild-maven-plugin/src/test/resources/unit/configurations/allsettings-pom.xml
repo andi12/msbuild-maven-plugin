@@ -76,6 +76,22 @@
                         <testRunnerName>cxxtest-runner.cpp</testRunnerName>
                         <testHeaderPattern>*Test.h</testHeaderPattern>
                     </cxxTest>
+                    <!--  Sonar -->
+                    <sonar>
+                        <skip>false</skip>
+                        <sourceSuffixes>
+                            <sourceSuffix>*.cpp</sourceSuffix>
+                        </sourceSuffixes>
+                        <headerSuffixes>
+                            <headerSuffix>*.h</headerSuffix>
+                        </headerSuffixes>
+                        <excludes>
+                            <exclude>**/test</exclude>
+                        </excludes>
+                        <preprocessorDefs>
+                            <preprocessorDef>TEST_MACRO(x) 0</preprocessorDef>
+                        </preprocessorDefs>
+                    </sonar>
                 </configuration>
             </plugin>
         </plugins>
