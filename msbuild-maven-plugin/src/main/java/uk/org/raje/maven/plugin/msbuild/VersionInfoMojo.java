@@ -46,6 +46,11 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
      */
     public static final String MOJO_NAME = "version-info";
 
+    /**
+     * The filename for the generated file.
+     */
+    public static final String VERSION_INFO_FILENAME = "maven-version-info.rc";
+
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException
     {
@@ -72,7 +77,7 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
         try
         {
             File versionInfoSrc = writeVersionInfoTemplateToTempFile();
-            final File versionInfoDest = new File( projectFile.getParentFile(), "version-info.rc" ); 
+            final File versionInfoDest = new File( projectFile.getParentFile(), VERSION_INFO_FILENAME ); 
     
             fileFiltering.copyFile( versionInfoSrc, versionInfoDest, true, mavenProject, 
                     Collections.<String> emptyList(), true, "UTF-8", null );
@@ -84,6 +89,18 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
             String msg = "Error replacing properties in version file";
             getLog().error( msg );
             throw new MojoExecutionException( msg, mfe );
+        }
+    }
+
+    static void clean( File projectFile ) throws MojoFailureException
+    {
+        final File versionInfoDest = new File( projectFile.getParentFile(), VERSION_INFO_FILENAME );
+        if ( versionInfoDest.exists() )
+        {
+            if ( ! versionInfoDest.delete() )
+            {
+                throw new MojoFailureException( "Failed to delete " + versionInfoDest.getAbsolutePath() );
+            }
         }
     }
 

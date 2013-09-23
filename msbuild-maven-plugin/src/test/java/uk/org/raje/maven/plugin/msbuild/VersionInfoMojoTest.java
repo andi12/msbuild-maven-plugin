@@ -46,7 +46,7 @@ public class VersionInfoMojoTest extends AbstractMSBuildMojoTestCase
         
         viMojo.execute();
         
-        assertTrue( "version-info.rc should not be created", ! rcFile.exists() );
+        assertTrue( "maven-version-info.rc should not be created", ! rcFile.exists() );
     }
 
     @Test
@@ -64,7 +64,7 @@ public class VersionInfoMojoTest extends AbstractMSBuildMojoTestCase
 
     private File calculateAndDleteVersionInfoFile( File directory )
     {
-        final File rcFile = new File( directory, "version-info.rc" );
+        final File rcFile = new File( directory, "maven-version-info.rc" );
         rcFile.delete();
         return rcFile;
     }
