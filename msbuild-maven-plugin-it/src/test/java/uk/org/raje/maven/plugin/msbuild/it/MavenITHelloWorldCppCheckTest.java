@@ -49,11 +49,11 @@ public class MavenITHelloWorldCppCheckTest
         
         FileAssert.assertEquals( 
                 new File( testDir, "expected\\cppcheck-report-hello-world-Win32-Debug.xml" ), 
-                new File( testDir, "target\\cppcheck-reports\\cppcheck-report-hello-world-Win32-Debug.xml" ) );
+                new File( testDir, "hello-world\\cppcheck-reports\\cppcheck-report-hello-world-Win32-Debug.xml" ) );
 
         FileAssert.assertEquals( 
                 new File( testDir, "expected\\cppcheck-report-hello-world-Win32-Release.xml" ), 
-                new File( testDir, "target\\cppcheck-reports\\cppcheck-report-hello-world-Win32-Release.xml" ) );
+                new File( testDir, "hello-world\\cppcheck-reports\\cppcheck-report-hello-world-Win32-Release.xml" ) );
     }
 
     @Test
@@ -71,11 +71,11 @@ public class MavenITHelloWorldCppCheckTest
         
         FileAssert.assertEquals( 
                 new File( testDir, "expected\\cppcheck-report-hello-world-Win32-Debug.xml" ), 
-                new File( testDir, "target\\cppcheck-reports\\cppcheck-report-hello-world-Win32-Debug.xml" ) );
+                new File( testDir, "cppcheck-reports\\cppcheck-report-hello-world-Win32-Debug.xml" ) );
 
         FileAssert.assertEquals( 
                 new File( testDir, "expected\\cppcheck-report-hello-world-Win32-Release.xml" ), 
-                new File( testDir, "target\\cppcheck-reports\\cppcheck-report-hello-world-Win32-Release.xml" ) );
+                new File( testDir, "cppcheck-reports\\cppcheck-report-hello-world-Win32-Release.xml" ) );
     }
 
     private static final String GROUPID = "uk.org.raje.maven.plugins";

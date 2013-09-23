@@ -19,9 +19,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -188,6 +191,38 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
 
         return vcProjects;
     }
+
+    /**
+     * Return project configurations for the specified platform and configuration filtered by name using the specified 
+     * Pattern.
+     * @param platform the platform to parse for
+     * @param configuration the configuration to parse for
+     * @param filterRegex a Pattern to use to filter the projects
+     * @return a list of VCProject objects containing configuration for the specified platform and configuration
+     * @throws MojoExecutionException if parsing fails
+     */
+    protected List<VCProject> getParsedProjects( BuildPlatform platform, BuildConfiguration configuration, 
+            Pattern filterRegex ) throws MojoExecutionException
+    {
+        List<VCProject> unfiltered = getParsedProjects( platform, configuration );
+        List<VCProject> filteredList = new ArrayList<VCProject>( unfiltered.size() );
+        for ( VCProject p : unfiltered )
+        {
+            if ( filterRegex == null )
+            {
+                filteredList.add( p );
+            }
+            else
+            {
+                Matcher prjExcludeMatcher = filterRegex.matcher( p.getName() );
+                if ( ! prjExcludeMatcher.matches() )
+                {
+                    filteredList.add( p );
+                }
+            }
+        }
+        return filteredList;
+    }    
 
     /**
      * Return the project configuration for the specified target, platform and configuration

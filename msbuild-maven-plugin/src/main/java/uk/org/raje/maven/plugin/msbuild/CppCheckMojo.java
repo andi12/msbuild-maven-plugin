@@ -24,13 +24,15 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 import org.codehaus.plexus.util.cli.WriterStreamConsumer;
 
@@ -80,22 +82,11 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
             for ( BuildConfiguration configuration : platform.getConfigurations() )
             {
 
-                for ( VCProject vcProject : getParsedProjects( platform, configuration ) )
+                for ( VCProject vcProject : getParsedProjects( platform, configuration, projectExcludePattern ) )
                 {
                     try 
                     {
-                        if ( projectExcludePattern == null )
-                        {
-                            allChecksPassed.add( runCppCheck( vcProject ) );
-                        }
-                        else
-                        {
-                            Matcher prjExcludeMatcher = projectExcludePattern.matcher( vcProject.getName() );
-                            if ( ! prjExcludeMatcher.matches() )
-                            {
-                                allChecksPassed.add( runCppCheck( vcProject ) );
-                            }
-                        }
+                        allChecksPassed.add( runCppCheck( vcProject ) );
                     }
                     catch ( MojoExecutionException mee )
                     {
@@ -113,7 +104,34 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         
         getLog().info( "Static code analysis complete." );
     }
-    
+
+    /**
+     * Finds 'cppcheck-reports' directories and removes them.
+     * @throws MojoFailureException
+     */
+    static void clean( File projectFile, Log log ) throws MojoFailureException
+    {
+        final DirectoryScanner directoryScanner = new DirectoryScanner();
+        directoryScanner.setIncludes( new String[]{ "**\\" + REPORT_DIRECTORY } );
+        directoryScanner.setBasedir( projectFile.getParentFile() );
+        directoryScanner.scan();
+
+        for ( String dirName : directoryScanner.getIncludedDirectories() )
+        {
+            final File dir = new File( projectFile.getParentFile(), dirName );
+            log.debug( "Deleting " + dir );
+            try
+            {
+                FileUtils.deleteDirectory( dir );
+            }
+            catch ( IOException ioe )
+            {
+                log.error( "Failed to delete " + dir );
+                throw new MojoFailureException( ioe.getMessage(), ioe );
+            }
+        }       
+    }
+
     /**
      * Runs CppCheck against a given Visual C++ project and produces a static code analysis report
      */    
@@ -231,7 +249,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
     
     private File getReportFile( VCProject vcProject ) 
     {
-        File reportDirectory = new File( mavenProject.getBuild().getDirectory(), REPORT_DIRECTORY );
+        File reportDirectory = new File( vcProject.getProjectFile().getParentFile(), REPORT_DIRECTORY );
         return new File( reportDirectory, cppCheck.getReportName() + "-" + vcProject + ".xml" );
     }
     
