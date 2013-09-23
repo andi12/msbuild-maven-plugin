@@ -31,7 +31,7 @@
                 <version>${msbuild-maven-plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <projectFile>${basedir}/hello-world-lib.sln</projectFile>
+                    <projectFile>hello-world-lib.sln</projectFile>
                     <platforms>
                         <platform>
                             <name>Win32</name>
