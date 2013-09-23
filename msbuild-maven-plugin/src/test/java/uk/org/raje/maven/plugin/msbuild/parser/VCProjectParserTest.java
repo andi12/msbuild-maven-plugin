@@ -39,7 +39,7 @@ public class VCProjectParserTest
     public void testSinglePlatformSingleConfigProprocessorDefs()
     {
         testProject( TEST_PROJECT_PREPROCESSOR_DEFS, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[0], 
-                TEST_PREPROCESSOR_DEFS[0][0], new String[0] );
+                TEST_PREPROCESSOR_DEFS[0][0], new File[0] );
     }
 
     @Test
@@ -48,7 +48,7 @@ public class VCProjectParserTest
         for ( int i = 0; i < TEST_CONFIGURATIONS.length; i++ )
         {
             testProject( TEST_PROJECT_PREPROCESSOR_DEFS, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
-                    TEST_PREPROCESSOR_DEFS[0][i], new String[0] );
+                    TEST_PREPROCESSOR_DEFS[0][i], new File[0] );
         }
     }
 
@@ -58,7 +58,7 @@ public class VCProjectParserTest
         for ( int i = 0; i < TEST_PLATFORMS.length; i++ )
         {
             testProject( TEST_PROJECT_PREPROCESSOR_DEFS, TEST_PLATFORMS[i], TEST_CONFIGURATIONS[0], 
-                    TEST_PREPROCESSOR_DEFS[i][0], new String[0] );
+                    TEST_PREPROCESSOR_DEFS[i][0], new File[0] );
         }
     }
     
@@ -95,7 +95,7 @@ public class VCProjectParserTest
         for ( int i = 0; i < TEST_CONFIGURATIONS.length; i++ )
         {
             testProject( TEST_PROJECT_EMPTY_SETTINGS, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
-                    new String[0], new String[0] );
+                    new String[0], new File[0] );
         }
     }    
 
@@ -105,8 +105,8 @@ public class VCProjectParserTest
         for ( int i = 0; i < TEST_CONFIGURATIONS.length; i++ )
         {
             VCProject vcProject = testProject( TEST_PROJECT_OUTDIR_DEFAULT, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
-                    TEST_PREPROCESSOR_DEFS[0][i], new String[0] );
-            assertEquals( new File( vcProject.getPath().getParent(), TEST_CONFIGURATIONS[i] ),
+                    TEST_PREPROCESSOR_DEFS[0][i], new File[0] );
+            assertEquals( new File( vcProject.getProjectFile().getParent(), TEST_CONFIGURATIONS[i] ),
                     vcProject.getOutputDirectory() );
         }
     }
@@ -117,14 +117,14 @@ public class VCProjectParserTest
         for ( int i = 0; i < TEST_CONFIGURATIONS.length; i++ )
         {
             VCProject vcProject = testProject( TEST_PROJECT_OUTDIR_SET, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
-                    TEST_PREPROCESSOR_DEFS[0][i], new String[0] );
-            assertEquals( new File( vcProject.getPath().getParentFile(), "Runtime\\" + TEST_CONFIGURATIONS[i] ),
+                    TEST_PREPROCESSOR_DEFS[0][i], new File[0] );
+            assertEquals( new File( vcProject.getProjectFile().getParentFile(), "Runtime\\" + TEST_CONFIGURATIONS[i] ),
                     vcProject.getOutputDirectory() );
         }
     }
     
     private VCProject testProject( String projectPath, String platform, String configuration, 
-            String[] preprocessorDefs, String[] includeDirs )
+            String[] preprocessorDefs, File[] includeDirs )
     {
         File projectFile = new File( this.getClass().getResource( projectPath ).getPath() );
         VCProject vcProject = parseProject( projectFile, platform, configuration ); 
@@ -211,15 +211,15 @@ public class VCProjectParserTest
         },
     };
 
-    private static final String[][][] TEST_INCLUDE_DIRS = 
+    private static final File[][][] TEST_INCLUDE_DIRS = 
     {  
         {                                               //Win32
-            { "test-include-win32-debug" },             //  Debug
-            { "test-include-win32-release" }            //  Release
+            { new File( "test-include-win32-debug" ) },             //  Debug
+            { new File( "test-include-win32-release" ) }            //  Release
         },
         {                                               //x64
-            { "test-include-win64-debug" },             //  Debug
-            { "test-include-win64-release" }            //  Release
+            { new File( "test-include-win64-debug" ) },             //  Debug
+            { new File( "test-include-win64-release" ) }            //  Release
         },
     };
     
