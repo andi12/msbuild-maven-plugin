@@ -50,6 +50,15 @@ public class MSBuildCleanMojo extends AbstractMSBuildMojo
         cleanTargets.add( "Clean" );
 
         runMSBuild( cleanTargets, null );
+        
+        if ( ! versionInfo.skip() )
+        {
+            VersionInfoMojo.clean( projectFile );
+        }
+        if ( isCppCheckEnabled() )
+        {
+            CppCheckMojo.clean( projectFile, getLog() );
+        }
     }
 
 }
