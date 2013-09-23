@@ -102,6 +102,10 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         List<VCProject> vcProjects = getParsedProjects( platform, configuration );
         List<String> vcProjectNames = new ArrayList<String>( vcProjects.size() );
         List<File> systemIncludeDirs = getSystemIncludeDirs();
+
+        // The relative path from basedir to the target directory
+        File targetRelPath = getRelativeFile( 
+                mavenProject.getBasedir(), new File( mavenProject.getBuild().getDirectory() ) ); 
         
         for ( VCProject vcProject: vcProjects )
         {
@@ -116,21 +120,32 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
             configWriter.println( "sonar.projectName=" + mavenProject.getModel().getArtifactId() );
             configWriter.println( "sonar.projectVersion=" + mavenProject.getModel().getVersion() );
             configWriter.println( "sonar.sources=." );
-            configWriter.println( "sonar.langage=c++" );
+            configWriter.println( "sonar.language=c++" );
             configWriter.println( "sonar.modules=" + joinList( vcProjectNames ) );
-            
-            configWriter.println( new StringBuilder().append( "sonar.cxx.cppcheck.reportPath=" )
-                    .append( getRelativeFile( mavenProject.getBasedir(), 
-                            new File( mavenProject.getBuild().getDirectory() ) ) )
-                    .append( File.separator )
-                    .append( CppCheckMojo.REPORT_DIRECTORY ) 
-                    .append( File.separator )
-                    .append( cppCheck.getReportName() )
-                    .append( platformConfigPattern )
-                    .append( ".xml" ).toString() );
-            
-            configWriter.println( "sonar.cxx.xunit.reportPath=" + cxxTest.getReportName() + platformConfigPattern
-                    + ".xml" );
+
+            if ( isCppCheckEnabled() )
+            {
+                // Note: Due to issues in the Sonar C++ Community Plugin the report files must
+                // be under the module 'projectBaseDir'.
+                configWriter.println( new StringBuilder().append( "sonar.cxx.cppcheck.reportPath=" )
+                        .append( CppCheckMojo.REPORT_DIRECTORY ) 
+                        .append( File.separator )
+                        .append( cppCheck.getReportName() )
+                        .append( platformConfigPattern )
+                        .append( ".xml" ).toString().replace( "\\", "\\\\" ) );
+            }            
+
+            if ( isCxxTestEnabled( MOJO_NAME ) )
+            {
+                configWriter.println( new StringBuilder().append( "sonar.cxx.xunit.reportPath=" )
+                        .append( targetRelPath )
+                        .append( File.separator )
+                        .append( CxxTestRunnerMojo.REPORT_DIRECTORY ) 
+                        .append( File.separator )
+                        .append( cxxTest.getReportName() )
+                        .append( platformConfigPattern )
+                        .append( ".xml" ).toString().replace( "\\", "\\\\" ) );
+            }
 
             for ( VCProject vcProject: vcProjects )
             {
@@ -144,6 +159,7 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         }
         
         finaliseConfigWriter( configWriter, configFile );
+        getLog().info( "Written sonar configuration file " + configFile.getAbsolutePath() );
     }
     
     private void generateProjectSonarConfiguration( VCProject vcProject, List<File> systemIncludeDirs, 
@@ -167,7 +183,9 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
                 includeDirectoryStr.add( includeDirectory.getPath() );
             }
             
-            writer.println( vcProject.getName() + ".sonar.cxx.include_directories=" + joinList( includeDirectoryStr ) );
+            writer.println( vcProject.getName() 
+                    + ".sonar.cxx.include_directories=" 
+                    + joinList( includeDirectoryStr ).replace( "\\", "\\\\" ) );
         }
             
         if ( preprocessorDefs.size() > 0 )
