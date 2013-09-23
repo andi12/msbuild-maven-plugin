@@ -53,7 +53,12 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
      * The name this Mojo declares, also represents the goal.
      */
     public static final String MOJO_NAME = "cppcheck";
-    
+
+    /**
+     * The name of the directory created under 'target' where we store CppCheck report files.
+     */
+    public static final String REPORT_DIRECTORY = "cppcheck-reports";
+
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException 
     {
@@ -168,6 +173,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
                 }
                 catch ( IOException ioe )
                 {
+                    getLog().error( "Unexpected error calculating relative paths for include directories" );
                     throw new MojoExecutionException( ioe.getMessage() );
                 }
             }
@@ -225,7 +231,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
     
     private File getReportFile( VCProject vcProject ) 
     {
-        File reportDirectory = new File( mavenProject.getBuild().getDirectory(), "cppcheck-reports" );
+        File reportDirectory = new File( mavenProject.getBuild().getDirectory(), REPORT_DIRECTORY );
         return new File( reportDirectory, cppCheck.getReportName() + "-" + vcProject + ".xml" );
     }
     
