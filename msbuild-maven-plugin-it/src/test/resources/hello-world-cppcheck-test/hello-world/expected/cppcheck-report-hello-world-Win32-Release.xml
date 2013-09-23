@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<results>
+<error file="hello-world.cpp" line="17" id="unreadVariable" severity="style" msg="Variable 'var1' is assigned a value that is never used."/>
+<error id="missingInclude" severity="style" msg="Cppcheck cannot find all the include files (use --check-config for details)"/>
+</results>

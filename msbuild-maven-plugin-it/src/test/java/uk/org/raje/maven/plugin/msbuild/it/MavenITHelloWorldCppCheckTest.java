@@ -35,10 +35,32 @@ public class MavenITHelloWorldCppCheckTest
 {
 
     @Test
-    public void testSolutionBuild() throws Exception
+    public void solutionCheck() throws Exception
     {
         File testDir = ResourceExtractor.simpleExtractResources( getClass(),
                 "/hello-world-cppcheck-test" );
+
+        Verifier verifier = new Verifier( testDir.getAbsolutePath() );
+        addPropertiesToVerifier( verifier );
+        verifier.getSystemProperties().setProperty( MSBuildMojoITHelper.MSBUILD_PLUGIN_TOOLS_ENABLE, "true" );
+        
+        verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CppCheckMojo.MOJO_NAME );
+        verifier.verifyErrorFreeLog();
+        
+        FileAssert.assertEquals( 
+                new File( testDir, "expected\\cppcheck-report-hello-world-Win32-Debug.xml" ), 
+                new File( testDir, "target\\cppcheck-reports\\cppcheck-report-hello-world-Win32-Debug.xml" ) );
+
+        FileAssert.assertEquals( 
+                new File( testDir, "expected\\cppcheck-report-hello-world-Win32-Release.xml" ), 
+                new File( testDir, "target\\cppcheck-reports\\cppcheck-report-hello-world-Win32-Release.xml" ) );
+    }
+
+    @Test
+    public void projectCheck() throws Exception
+    {
+        File testDir = ResourceExtractor.simpleExtractResources( getClass(),
+                "/hello-world-cppcheck-test/hello-world" );
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );

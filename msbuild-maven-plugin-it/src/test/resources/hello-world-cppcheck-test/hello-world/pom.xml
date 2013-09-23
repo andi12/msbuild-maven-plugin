@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.org.raje.maven.plugins.msbuild.it</groupId>
-    <artifactId>hello-world-build-project-test</artifactId>
+    <artifactId>hello-world-cppcheck-project-test</artifactId>
     <version>1-SNAPSHOT</version>
     <packaging>exe</packaging>
 
@@ -31,7 +31,7 @@
                 <version>${msbuild-maven-plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <projectFile>${basedir}/hello-world.vcxproj</projectFile>
+                    <projectFile>hello-world.vcxproj</projectFile>
                     <platforms>
                         <platform>
                             <name>Win32</name>
