@@ -19,20 +19,19 @@ package uk.org.raje.maven.plugin.msbuild.parser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.text.ParseException;
-
 
 /**
  * Abstract base class for Solution/Project parsing functionality.
  */
 abstract class BaseParser 
 {
-    public BaseParser( File inputFile, String platform, String configuration ) throws FileNotFoundException 
+    public BaseParser( File inputFile, String platform, String configuration ) 
+            throws FileNotFoundException
     {
         if ( inputFile == null ) 
         {
-            throw new InvalidParameterException();
+            throw new FileNotFoundException( "No input file specified." );
         }
         
         if ( !inputFile.exists() || !inputFile.isFile() ) 
@@ -48,11 +47,6 @@ abstract class BaseParser
     public File getInputFile() 
     {
         return inputFile;
-    }
-
-    public File getInputFileParent() 
-    {
-        return inputFile.getParentFile();
     }
 
     public String getRequiredConfiguration() 

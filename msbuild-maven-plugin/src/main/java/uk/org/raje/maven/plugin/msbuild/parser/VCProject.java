@@ -16,7 +16,6 @@
 package uk.org.raje.maven.plugin.msbuild.parser;
 
 import java.io.File;
-import java.security.InvalidParameterException;
 import java.util.List;
 
 /**
@@ -24,21 +23,10 @@ import java.util.List;
  */
 public class VCProject 
 {
-    public VCProject( String name, File projectPath, File solutionPath ) 
+    public VCProject( String name, File projectFile ) 
     {
-        if ( name == null || projectPath == null ) 
-        {
-            throw new InvalidParameterException();
-        }
-        
         this.name = name;
-        this.path = projectPath;
-        this.solutionFilePath = solutionPath;
-    }
-
-    public VCProject( String name, File projectPath ) 
-    {
-        this( name, projectPath, null );
+        this.projectFile = projectFile;
     }
 
     public String getGuid() 
@@ -69,7 +57,7 @@ public class VCProject
     {
         return name;
     }
-
+ 
     /**
      * Return the target name that indicates this project.
      * Only valid for projects found via a Solution file.
@@ -85,14 +73,14 @@ public class VCProject
         this.targetName = targetName;
     }
 
-    public File getPath() 
+    public File getProjectFile() 
     {
-        return path;
+        return projectFile;
     }
 
-    public File getBaseDir() 
+    public File getBaseDirectory() 
     {
-        return getPath().getParentFile();
+        return getProjectFile().getParentFile();
     }
     
     public String getConfiguration() 
@@ -121,68 +109,30 @@ public class VCProject
      */
     public File getOutputDirectory()
     {
-        if ( outputDirectory == null )
-        {
-            File baseDir = getBaseDir();
-            if ( solutionFilePath != null )
-            {
-                baseDir = solutionFilePath.getParentFile();
-            }
-
-            if ( "Win32".equals( platform ) )
-            {
-                // Win32 is a special case in VS
-                outputDirectory = new File( baseDir, configuration );
-            }
-            else
-            {
-                outputDirectory = new File( baseDir, platform + File.separator + configuration );
-            }
-        }
         return outputDirectory;
+    }
+    
+    @Override
+    public String toString()
+    { 
+        return name + "-" + platform + "-" + configuration;
     }
 
     /**
      * Set the stored value for outDir
-     * @param outDir the new value
+     * @param outputDirectory the new value
      */
-    protected void setOutDir( String outDir )
+    protected void setOutputDirectory( File outputDirectory )
     {
-        if ( outDir == null )
-        {
-            this.outputDirectory = null;
-        }
-        else
-        {
-            this.outputDirectory = new File( outDir ); 
-            if ( ! this.outputDirectory.isAbsolute() )
-            {
-                if ( outDir.startsWith( "$(SolutionDir)"  ) )
-                {
-                    if ( solutionFilePath != null )
-                    {
-                        outDir = outDir.replace( "$(SolutionDir)", solutionFilePath.getParent() + File.separator );
-                    }
-                    else
-                    {
-                        outDir = outDir.replace( "$(SolutionDir)", getBaseDir().getPath() + File.separator );
-                    }
-                    this.outputDirectory = new File( outDir );
-                }
-                else
-                {
-                    this.outputDirectory = new File( getBaseDir(), outDir );
-                }
-            }
-        }
+        this.outputDirectory = outputDirectory;
     }
 
-    public List<String> getIncludeDirectories() 
+    public List<File> getIncludeDirectories() 
     {
         return includeDirectories;
     }
 
-    protected void setIncludeDirectories( List<String> includeDirectories ) 
+    protected void setIncludeDirectories( List<File> includeDirectories ) 
     {
         this.includeDirectories = includeDirectories;
     }
@@ -197,16 +147,14 @@ public class VCProject
         this.preprocessorDefs = preprocessorDefs;
     }
 
-
     private String guid;
     private String solutionGuid;
     private String name;
     private String targetName;
-    private File path;
-    private File solutionFilePath;
+    private File projectFile;
     private String configuration;
     private String platform;
     private File outputDirectory;
-    private List<String> includeDirectories;
+    private List<File> includeDirectories;
     private List<String> preprocessorDefs;
 }

@@ -48,7 +48,7 @@ class VCSolutionParser extends BaseParser
                 return getStringPattern( name() ) + ",";
             } 
         },
-        path 
+        relativePath 
         {
             @Override
             String getRegex() 
@@ -198,11 +198,11 @@ class VCSolutionParser extends BaseParser
     
     private void parseProjectEntry( Matcher projMatcher ) 
     {
+        String relativeProjectPath = ProjectProperty.relativePath.getValue( projMatcher );
         VCProject project = new VCProject( ProjectProperty.name.getValue( projMatcher ), 
-                new File( getInputFileParent(), ProjectProperty.path.getValue( projMatcher ) ),
-                getInputFile() );
+                new File( getInputFile().getParentFile(), relativeProjectPath ) );
         
-        project.setTargetName( new File( ProjectProperty.path.getValue( projMatcher ) ).getParent() );
+        project.setTargetName( new File( relativeProjectPath ).getParent() );
         project.setGuid( ProjectProperty.guid.getValue( projMatcher ) );
         project.setSolutionGuid( ProjectProperty.solutionGuid.getValue( projMatcher ) );
             

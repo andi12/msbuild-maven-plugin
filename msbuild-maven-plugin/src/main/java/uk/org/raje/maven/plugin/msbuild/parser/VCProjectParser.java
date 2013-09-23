@@ -41,24 +41,34 @@ class VCProjectParser extends BaseParser
 
     private static final String PATH_PROPERTY_GROUP = PATH_ROOT + PATH_SEPARATOR + "Project" + PATH_SEPARATOR
             + "PropertyGroup";
+    
     private static final String PATH_OUTDIR = PATH_PROPERTY_GROUP + PATH_SEPARATOR + "OutDir";
 
     private static final String PATH_ITEMDEFINITION_GROUP = PATH_ROOT + PATH_SEPARATOR + "Project" + PATH_SEPARATOR
             + "ItemDefinitionGroup";
+    
     private static final String PATH_CLCOMPILE = PATH_ITEMDEFINITION_GROUP + PATH_SEPARATOR + "ClCompile";
+    
     private static final String PATH_ADDITIONAL_INCDIRS = PATH_CLCOMPILE + PATH_SEPARATOR 
             + "AdditionalIncludeDirectories";
     
     private static final String PATH_PREPROCESSOR_DEFS = PATH_CLCOMPILE + PATH_SEPARATOR + "PreprocessorDefinitions";
     
-    public VCProjectParser( File projectFile, String platform, String configuration ) 
+    public VCProjectParser( File projectFile, File solutionFile, String platform, String configuration ) 
             throws FileNotFoundException, SAXException, ParserConfigurationException 
     {
-        
         super( projectFile, platform, configuration );
         SAXParserFactory factory = SAXParserFactory.newInstance();
 
         parser = factory.newSAXParser();
+        this.solutionFile = solutionFile;
+        outputDirectory = getDefaultOutputDirectory();
+    }
+
+    public VCProjectParser( File projectFile, String platform, String configuration ) 
+            throws FileNotFoundException, SAXException, ParserConfigurationException 
+    {
+        this( projectFile, null, platform, configuration );
     }
 
     public void updateVCProject( VCProject project )
@@ -68,17 +78,17 @@ class VCProjectParser extends BaseParser
             throw new InvalidParameterException();
         }
 
-        project.setOutDir( outDir );
+        project.setOutputDirectory( outputDirectory );
         project.setPreprocessorDefs( preprocessorDefs );
         project.setIncludeDirectories( includeDirs );
     }
 
-    public String getOutDir()
+    public File getOutputDirectory()
     {
-        return outDir;
+        return outputDirectory;
     }
 
-    public List<String> getIncludeDirs() 
+    public List<File> getIncludeDirs() 
     {
         return includeDirs;
     }
@@ -195,22 +205,27 @@ class VCProjectParser extends BaseParser
         @Override
         public void characters( char[] chars, int start, int length ) 
                 throws SAXException 
-                {
-
-            String entries = new String( chars, start, length );
+        {
+            String entries = replaceVariables( new String( chars, start, length ) );
             
             switch ( charParserState ) 
             {
             case PARSE_OUTDIR:
-                entries = entries.replace( "$(Configuration)", getRequiredConfiguration() );
-                entries = entries.replace( "$(Platform)", getRequiredPlatform() );
-                outDir = new String( entries );
+                outputDirectory = new File( entries );
+                
+                if ( ! outputDirectory.isAbsolute() ) 
+                {
+                    outputDirectory = new File( getBaseOutputDirectory(), outputDirectory.getPath() );
+                }
+                
                 break;
 
             case PARSE_INCLUDE_DIRS:
-                entries = entries.replace( "$(Configuration)", getRequiredConfiguration() );
-                entries = entries.replace( "$(Platform)", getRequiredPlatform() );
-                includeDirs = splitEntries( entries );
+                for ( String directory : splitEntries( entries ) )
+                {
+                    includeDirs.add( new File( directory ) );
+                }
+                
                 break;
                 
             case PARSE_PREPROCESSOR_DEFS:
@@ -228,20 +243,48 @@ class VCProjectParser extends BaseParser
             for ( String entry : entries.split( ";" ) ) 
             {
                 if ( !entry.startsWith( "%" ) && !entry.startsWith( "$" ) && !entry.trim().isEmpty() ) 
-                {                        
-                    entryList.add( entry );
+                {
+                    entryList.add( entry.trim() );
                 }
             }
             
             return entryList;
         }
+        
+        private String replaceVariables( String entries )
+        {
+            entries = entries.replace( "$(SolutionDir)", getBaseOutputDirectory().getPath() + File.separator );
+            entries = entries.replace( "$(Configuration)", getRequiredConfiguration() );
+            entries = entries.replace( "$(Platform)", getRequiredPlatform() );
+
+            return entries;
+        }
+    }
+    
+    private File getDefaultOutputDirectory()
+    {
+        String childOutputDirectory = getRequiredConfiguration();
+        
+        if ( ! getRequiredPlatform().equals( "Win32" ) )
+        {
+            childOutputDirectory = new File( getRequiredPlatform(), childOutputDirectory ).getPath();
+        }
+        
+        return new File( getBaseOutputDirectory(), childOutputDirectory );
+    }
+    
+    private File getBaseOutputDirectory()
+    {
+        File referenceFile = ( solutionFile != null ? solutionFile : getInputFile() );
+        return referenceFile.getParentFile(); 
     };    
     
     private SAXParser parser = null; 
     private LinkedList<String> paths = new LinkedList<String>( Arrays.asList( PATH_ROOT ) ); 
     private ElementParserState elementParserState = ElementParserState.PARSE_IGNORE;
     private CharParserState charParserState = CharParserState.PARSE_IGNORE;
-    private String outDir;
-    private List<String> includeDirs = new ArrayList<String>();
+    private List<File> includeDirs = new ArrayList<File>();
     private List<String> preprocessorDefs = new ArrayList<String>();
+    private File outputDirectory;
+    private File solutionFile;
 }
