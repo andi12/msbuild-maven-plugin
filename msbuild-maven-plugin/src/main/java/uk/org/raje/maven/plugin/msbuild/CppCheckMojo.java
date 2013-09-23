@@ -193,7 +193,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         }
     }
 
-    public void finaliseReportWriter( Writer reportWriter, File reportFile ) throws MojoExecutionException
+    private void finaliseReportWriter( Writer reportWriter, File reportFile ) throws MojoExecutionException
     {
         try 
         {
