@@ -38,7 +38,7 @@ public class AbstractMSBuildPluginMojoTest
     @Test( expected = MojoExecutionException.class )
     public void getRelativeFileErrorTest() throws Exception
     {
-        instance.getRelativeFile( new File( "C:\\foo\\bar\\baz\\" ), new File( "C:\\foo\bar\\" ) );
+        instance.getRelativeFile( new File( "C:\\foo\\bar\\baz\\" ), new File( "C:\\foo\\bar\\" ) );
     }
     
     @Test
@@ -53,6 +53,20 @@ public class AbstractMSBuildPluginMojoTest
     {
         assertEquals( new File( "baz/qux" ), 
                 instance.getRelativeFile( new File( "C:/foo/bar/" ), new File( "C:\\foo\\bar\\baz\\qux" ) ) );
+    }
+
+    @Test
+    public void getRelativeFileRelativeTest() throws Exception
+    {
+        assertEquals( new File( "baz\\qux" ), 
+                instance.getRelativeFile( new File( ".\\foo\\bar" ), new File( ".\\foo\\bar\\baz\\qux" ) ) );
+    }
+
+    @Test
+    public void getRelativeFileDotdotTest() throws Exception
+    {
+        assertEquals( new File( "foo" ), 
+                instance.getRelativeFile( new File( ".." ), new File( "..\\foo" ) ) );
     }
 
     private class ConcretetMSBuildPluginMojo extends AbstractMSBuildPluginMojo
