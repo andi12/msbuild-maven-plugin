@@ -80,7 +80,12 @@ public class VCProject
 
     public File getBaseDirectory() 
     {
-        return getProjectFile().getParentFile();
+        return baseDirectory;
+    }
+    
+    protected void setBaseDirectory( File baseDirectory )
+    {
+        this.baseDirectory = baseDirectory;
     }
     
     public String getConfiguration() 
@@ -152,6 +157,11 @@ public class VCProject
     private String name;
     private String targetName;
     private File projectFile;
+    /**
+     * The directory where the solution for this project lives, typically one level up from the project file.
+     * If this project is 'standalone' i.e. has no solution this will be the directory that the project file is in.
+     */
+    private File baseDirectory;
     private String configuration;
     private String platform;
     private File outputDirectory;

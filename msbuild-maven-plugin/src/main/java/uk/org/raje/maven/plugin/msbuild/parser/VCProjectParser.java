@@ -78,6 +78,7 @@ class VCProjectParser extends BaseParser
             throw new InvalidParameterException();
         }
 
+        project.setBaseDirectory( getBaseDirectory() );
         project.setOutputDirectory( outputDirectory );
         project.setPreprocessorDefs( preprocessorDefs );
         project.setIncludeDirectories( includeDirs );
@@ -215,7 +216,7 @@ class VCProjectParser extends BaseParser
                 
                 if ( ! outputDirectory.isAbsolute() ) 
                 {
-                    outputDirectory = new File( getBaseOutputDirectory(), outputDirectory.getPath() );
+                    outputDirectory = new File( getBaseDirectory(), outputDirectory.getPath() );
                 }
                 
                 break;
@@ -253,7 +254,7 @@ class VCProjectParser extends BaseParser
         
         private String replaceVariables( String entries )
         {
-            entries = entries.replace( "$(SolutionDir)", getBaseOutputDirectory().getPath() + File.separator );
+            entries = entries.replace( "$(SolutionDir)", getBaseDirectory().getPath() + File.separator );
             entries = entries.replace( "$(Configuration)", getRequiredConfiguration() );
             entries = entries.replace( "$(Platform)", getRequiredPlatform() );
 
@@ -270,10 +271,10 @@ class VCProjectParser extends BaseParser
             childOutputDirectory = new File( getRequiredPlatform(), childOutputDirectory ).getPath();
         }
         
-        return new File( getBaseOutputDirectory(), childOutputDirectory );
+        return new File( getBaseDirectory(), childOutputDirectory );
     }
     
-    private File getBaseOutputDirectory()
+    private File getBaseDirectory()
     {
         File referenceFile = ( solutionFile != null ? solutionFile : getInputFile() );
         return referenceFile.getParentFile(); 
