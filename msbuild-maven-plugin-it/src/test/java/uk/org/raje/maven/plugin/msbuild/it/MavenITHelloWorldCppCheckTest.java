@@ -19,6 +19,8 @@ import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.addPropert
 
 import java.io.File;
 
+import junitx.framework.FileAssert;
+
 import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.ResourceExtractor;
 import org.junit.Test;
@@ -44,6 +46,14 @@ public class MavenITHelloWorldCppCheckTest
         
         verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CppCheckMojo.MOJO_NAME );
         verifier.verifyErrorFreeLog();
+        
+        FileAssert.assertEquals( 
+                new File( testDir, "expected\\cppcheck-report-hello-world-Win32-Debug.xml" ), 
+                new File( testDir, "target\\cppcheck-reports\\cppcheck-report-hello-world-Win32-Debug.xml" ) );
+
+        FileAssert.assertEquals( 
+                new File( testDir, "expected\\cppcheck-report-hello-world-Win32-Release.xml" ), 
+                new File( testDir, "target\\cppcheck-reports\\cppcheck-report-hello-world-Win32-Release.xml" ) );
     }
 
     private static final String GROUPID = "uk.org.raje.maven.plugins";
