@@ -202,11 +202,16 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
     private List<File> getSystemIncludeDirs()
     {
         List<File> systemIncludeDirs = new ArrayList<File>();
-        String systemIncludeDirsEnv = System.getenv( "INCLUDE" );
         
-        if ( systemIncludeDirsEnv != null )
+        String systemIncludeDirsStr = msbuildSystemIncludes;
+        if ( systemIncludeDirsStr == null )
         {
-            for ( String includeDir : systemIncludeDirsEnv.split( ";" ) )
+            systemIncludeDirsStr = System.getenv( "INCLUDE" );
+        }
+        
+        if ( systemIncludeDirsStr != null )
+        {
+            for ( String includeDir : systemIncludeDirsStr.split( ";" ) )
             {
                 systemIncludeDirs.add( new File( includeDir ) );
             }

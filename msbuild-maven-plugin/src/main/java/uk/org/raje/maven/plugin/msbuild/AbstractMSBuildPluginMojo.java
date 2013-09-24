@@ -418,6 +418,17 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     protected File msbuildPath;
 
     /**
+     * The system includes to use.
+     * A semi-colon separated list of paths.
+     * Currently only used to generate Sonar configuration.
+     */
+    @Parameter(
+            property = "msbuild.includes",
+            readonly = false,
+            required = false )
+    protected String msbuildSystemIncludes;
+
+    /**
      * Configure the version-info Mojo.
      */
     @Parameter
