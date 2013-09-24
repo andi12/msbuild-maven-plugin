@@ -131,6 +131,8 @@ final class MSBuildExecutor
         stderrPumper.start();
         
         int exitCode = proc.waitFor();
+        stdoutPumper.waitUntilDone();
+        stderrPumper.waitUntilDone();
         if ( exitCode != 0 )
         {
             log.error( "MSBuild returned non-zero exit code (" + exitCode + ")" );
