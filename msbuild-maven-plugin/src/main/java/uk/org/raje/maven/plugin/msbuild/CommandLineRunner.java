@@ -53,7 +53,11 @@ public abstract class CommandLineRunner
         stdoutPumper.start();        
         stderrPumper.start();
 
-        return commandLineProc.waitFor();
+        int exitCode = commandLineProc.waitFor();
+        stdoutPumper.waitUntilDone();
+        stderrPumper.waitUntilDone();
+        
+        return exitCode; 
     }    
     
     public String getCommandLine() 
