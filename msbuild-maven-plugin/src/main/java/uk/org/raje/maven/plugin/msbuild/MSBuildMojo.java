@@ -116,10 +116,13 @@ public class MSBuildMojo extends AbstractMSBuildMojo
                 {
                     zipArchiver.reset();
                     zipArchiver.setDestFile( artifactFile );
+                    getLog().debug( "Adding outputs to archive..." );
                     for ( File archiveSource : archiveSources )
                     {
+                        getLog().debug( "    " + archiveSource );
                         zipArchiver.addDirectory( archiveSource );
                     }
+                    getLog().debug( "Done adding outputs to archive." );
                     zipArchiver.createArchive();
                 }
                 catch ( IOException ioe )
