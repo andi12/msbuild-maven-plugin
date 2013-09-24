@@ -122,6 +122,22 @@ public class VCProjectParserTest
                     vcProject.getOutputDirectory() );
         }
     }
+
+    /**
+     * Test OutDir with older style layout in project file.
+     */
+    @Test
+    public void testOutDir2()
+    {
+        for ( int i = 0; i < TEST_CONFIGURATIONS.length; i++ )
+        {
+            VCProject vcProject = testProject( TEST_PROJECT_OUTDIR2_SET, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
+                    TEST_PREPROCESSOR_DEFS[0][i], new File[0] );
+            assertEquals( new File( vcProject.getProjectFile().getParentFile(), 
+                    "Runtime\\" + TEST_PLATFORMS[0] + "\\" + TEST_CONFIGURATIONS[i] ),
+                    vcProject.getOutputDirectory() );
+        }
+    }
     
     @Test
     public void testRelativeOutDir()
@@ -231,6 +247,8 @@ public class VCProjectParserTest
 
     private static final String TEST_PROJECT_OUTDIR_SET = CONFIG_TEST_RESOURCE_DIR
             + "configurations-project/configurations-outdir-test.vcxproj";    
+    private static final String TEST_PROJECT_OUTDIR2_SET = CONFIG_TEST_RESOURCE_DIR
+            + "configurations-project/configurations-outdir2-test.vcxproj";    
     private static final String TEST_PROJECT_RELATIVE_OUTDIR_SET = CONFIG_TEST_RESOURCE_DIR
             + "configurations-project/configurations-relative-outdir-test.vcxproj";    
 

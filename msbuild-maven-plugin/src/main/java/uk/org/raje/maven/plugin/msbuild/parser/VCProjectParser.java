@@ -120,6 +120,7 @@ class VCProjectParser extends BaseParser
     {
         PARSE_IGNORE,
         PARSE_PROPERTY_GROUP,
+        PARSE_PROPERTY_GROUP_NO_CONDITION,
         PARSE_CONFIGPLATFORM_GROUP,
     }
 
@@ -136,8 +137,8 @@ class VCProjectParser extends BaseParser
         @Override
         public void startElement( String uri, String localName, String qName, Attributes attributes ) 
                 throws SAXException 
-            {
-            
+        {
+            String condition;
             String path = paths.peek() + PATH_SEPARATOR + qName;
             paths.push( path );
             
@@ -147,6 +148,17 @@ class VCProjectParser extends BaseParser
                 if ( path.compareTo( PATH_OUTDIR ) == 0 ) 
                 {
                     charParserState = CharParserState.PARSE_OUTDIR;
+                }
+                break;
+
+            case PARSE_PROPERTY_GROUP_NO_CONDITION:
+                condition = attributes.getValue( "Condition" );
+                if ( condition != null && condition.contains( getRequiredConfigurationPlatform() ) )
+                {
+                    if ( path.compareTo( PATH_OUTDIR ) == 0 ) 
+                    {
+                        charParserState = CharParserState.PARSE_OUTDIR;
+                    }
                 }
                 break;
 
@@ -166,16 +178,20 @@ class VCProjectParser extends BaseParser
             default: 
                 if ( path.compareTo( PATH_PROPERTY_GROUP ) == 0 )
                 {
-                    String condition = attributes.getValue( "Condition" );
+                    condition = attributes.getValue( "Condition" );
 
-                    if ( condition != null && condition.contains( getRequiredConfigurationPlatform() ) ) 
+                    if ( condition == null )
+                    {
+                        elementParserState = ElementParserState.PARSE_PROPERTY_GROUP_NO_CONDITION;
+                    }
+                    else if ( condition.contains( getRequiredConfigurationPlatform() ) )
                     {
                         elementParserState = ElementParserState.PARSE_PROPERTY_GROUP;
                     }
                 }
                 else if ( path.compareTo( PATH_ITEMDEFINITION_GROUP ) == 0 )
                 {
-                    String condition = attributes.getValue( "Condition" );
+                    condition = attributes.getValue( "Condition" );
 
                     if ( condition != null && condition.contains( getRequiredConfigurationPlatform() ) ) 
                     {
