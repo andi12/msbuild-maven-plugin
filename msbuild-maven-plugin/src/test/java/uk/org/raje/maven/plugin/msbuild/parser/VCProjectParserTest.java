@@ -138,6 +138,23 @@ public class VCProjectParserTest
                     vcProject.getOutputDirectory() );
         }
     }
+
+    /**
+     * As {@link #testOutDir2()} but including a solution file
+     */
+    @Test
+    public void testOutDir2WithSolution()
+    {
+        for ( int i = 0; i < TEST_CONFIGURATIONS.length; i++ )
+        {
+            VCProject vcProject = testProject( TEST_PROJECT_OUTDIR2_SET, TEST_CONFIG_SOLUTION, 
+                    TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
+                    TEST_PREPROCESSOR_DEFS[0][i], new File[0] );
+            assertEquals( new File( vcProject.getProjectFile().getParentFile().getParentFile(), 
+                    "Runtime\\" + TEST_PLATFORMS[0] + "\\" + TEST_CONFIGURATIONS[i] ),
+                    vcProject.getOutputDirectory() );
+        }
+    }
     
     @Test
     public void testRelativeOutDir()
