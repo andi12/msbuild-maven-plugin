@@ -89,12 +89,12 @@ public class MavenITHelloWorldLibTest
         verifier.executeGoal( "install" );
         verifier.verifyErrorFreeLog();
 
-        // We don't check all 10 files, just the most important ones
-        assertDirectoryContents( releaseDir, HELLOWORLD_PROJECT_RELEASE_FILE_COUNT, Arrays.asList( 
-                new String[]{"hello-world-lib.lib"} ) );
-        // We don't check all 1 files, just the most important ones
-        assertDirectoryContents( debugDir, HELLOWORLD_PROJECT_DEBUG_FILE_COUNT, Arrays.asList( 
-                new String[]{"hello-world-lib.lib"} ) );
+        // We don't check all the files, just the most important ones
+        // Different versions/installs of Visual Studio generate different file sets anyway!
+        assertDirectoryContents( releaseDir, -1, Arrays.asList( 
+                new String[]{"hello-world.obj", "hello-world-lib.lib"} ) );
+        assertDirectoryContents( debugDir, -1, Arrays.asList( 
+                new String[]{"hello-world.obj", "hello-world-lib.lib"} ) );
         
         File artifactsDir = new File( 
                 verifier.getArtifactMetadataPath( GROUPID, PROJECT_ARTIFACTID, VERSION ) ).getParentFile();
@@ -116,7 +116,4 @@ public class MavenITHelloWorldLibTest
     private static final String SOLUTION_ARTIFACTID = "hello-world-lib-solution-test";
     private static final String PROJECT_ARTIFACTID = "hello-world-lib-project-test";
     private static final String VERSION = "1-SNAPSHOT";
-
-    private static final int HELLOWORLD_PROJECT_RELEASE_FILE_COUNT = 10;
-    private static final int HELLOWORLD_PROJECT_DEBUG_FILE_COUNT = 11;
 }
