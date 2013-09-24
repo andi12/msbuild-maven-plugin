@@ -88,12 +88,16 @@ public class MavenITHelloWorldDllTest
 
         verifier.executeGoal( "install" );
         verifier.verifyErrorFreeLog();
-        // We don't check all 18 files, just the most important ones
-        assertDirectoryContents( releaseDir, HELLOWORLD_PROJECT_RELEASE_FILE_COUNT, Arrays.asList( 
-                new String[]{"hello-world-dll.dll", "hello-world-dll.pdb"} ) );
-        // We don't check all 32 files, just the most important ones
-        assertDirectoryContents( debugDir, HELLOWORLD_PROJECT_DEBUG_FILE_COUNT, Arrays.asList( 
-                new String[]{"hello-world-dll.dll", "hello-world-dll.pdb"} ) );
+        // We don't check all the files, just the most important ones
+        // Different versions/installs of Visual Studio generate different file sets anyway!
+        assertDirectoryContents( releaseDir, -1, Arrays.asList( 
+                new String[]{"hello-world-dll.dll", 
+                        "hello-world-dll.obj", "stdafx.obj", "dllmain.obj",  
+                        "hello-world-dll.pch", "hello-world-dll.pdb"} ) );
+        assertDirectoryContents( debugDir, -1, Arrays.asList( 
+                new String[]{"hello-world-dll.dll",  
+                        "hello-world-dll.obj", "stdafx.obj", "dllmain.obj",  
+                        "hello-world-dll.ilk", "hello-world-dll.pch", "hello-world-dll.pdb"} ) );
 
         File artifactsDir = new File( 
                 verifier.getArtifactMetadataPath( GROUPID, PROJECT_ARTIFACTID, VERSION ) ).getParentFile();
@@ -114,7 +118,4 @@ public class MavenITHelloWorldDllTest
     private static final String SOLUTION_ARTIFACTID = "hello-world-dll-solution-test";
     private static final String PROJECT_ARTIFACTID = "hello-world-dll-project-test";
     private static final String VERSION = "1-SNAPSHOT";
-
-    private static final int HELLOWORLD_PROJECT_RELEASE_FILE_COUNT = 18;
-    private static final int HELLOWORLD_PROJECT_DEBUG_FILE_COUNT = 32;
 }

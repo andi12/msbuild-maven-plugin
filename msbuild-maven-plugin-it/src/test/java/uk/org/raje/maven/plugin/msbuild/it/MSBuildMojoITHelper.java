@@ -86,14 +86,17 @@ class MSBuildMojoITHelper
      * Assert that the given directory contains the expected number of entries and the expected set of files.
      * Note we don't require that you check all files to expectedFiles can contain a subset
      * @param directory the directory to check
-     * @param expectedCount the number of entries expected in the directory
+     * @param expectedCount the number of entries expected in the directory, -1 if this should not be checked
      * @param expectedFiles the expected entry names
      */
     static void assertDirectoryContents( File directory, int expectedCount, List<String> expectedFiles )
     {
         assertTrue ( "Expected output directory missing: " + directory.getAbsolutePath(), directory.exists() );
         List<String> dirContents = Arrays.asList( directory.list() );
-        assertEquals( expectedCount, dirContents.size() );
+        if ( expectedCount != -1 )
+        {
+            assertEquals( expectedCount, dirContents.size() );
+        }
         for ( String fileName: expectedFiles )
         {
             assertTrue( "Expected file missing: " + fileName, dirContents.contains( fileName ) );
