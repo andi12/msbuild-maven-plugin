@@ -216,7 +216,7 @@ class VCProjectParser extends BaseParser
                 
                 if ( ! outputDirectory.isAbsolute() ) 
                 {
-                    outputDirectory = new File( getBaseDirectory(), outputDirectory.getPath() );
+                    outputDirectory = new File( getInputFile().getParentFile(), outputDirectory.getPath() );
                 }
                 
                 break;

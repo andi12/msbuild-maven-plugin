@@ -123,11 +123,42 @@ public class VCProjectParserTest
         }
     }
     
-    private VCProject testProject( String projectPath, String platform, String configuration, 
+    @Test
+    public void testRelativeOutDir()
+    {
+        for ( int i = 0; i < TEST_CONFIGURATIONS.length; i++ )
+        {
+            VCProject vcProject = testProject( TEST_PROJECT_RELATIVE_OUTDIR_SET, 
+                    TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
+                    TEST_PREPROCESSOR_DEFS[0][i], new File[0] );
+            assertEquals( new File( vcProject.getProjectFile().getParentFile(), ".\\" + TEST_CONFIGURATIONS[i] ),
+                    vcProject.getOutputDirectory() );
+        }
+    }
+    
+    @Test
+    public void testRelativeOutDirWithSolution()
+    {
+        for ( int i = 0; i < TEST_CONFIGURATIONS.length; i++ )
+        {
+            VCProject vcProject = testProject( TEST_PROJECT_RELATIVE_OUTDIR_SET, TEST_CONFIG_SOLUTION,
+                    TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
+                    TEST_PREPROCESSOR_DEFS[0][i], new File[0] );
+            assertEquals( new File( vcProject.getProjectFile().getParentFile(), ".\\" + TEST_CONFIGURATIONS[i] ),
+                    vcProject.getOutputDirectory() );
+        }
+    }
+    
+    private VCProject testProject( String projectPath, String solutionPath, String platform, String configuration, 
             String[] preprocessorDefs, File[] includeDirs )
     {
+        File solutionFile = null;
+        if ( solutionPath != null )
+        {
+            solutionFile = new File( this.getClass().getResource( solutionPath ).getPath() );
+        }
         File projectFile = new File( this.getClass().getResource( projectPath ).getPath() );
-        VCProject vcProject = parseProject( projectFile, platform, configuration ); 
+        VCProject vcProject = parseProject( projectFile, solutionFile, platform, configuration ); 
 
         assertEquals( Arrays.asList( preprocessorDefs ), vcProject.getPreprocessorDefs() );
         assertEquals( Arrays.asList( includeDirs ), vcProject.getIncludeDirectories() );
@@ -135,13 +166,19 @@ public class VCProjectParserTest
         return vcProject;
     }
 
-    private VCProject parseProject( File projectFile, String platform, String configuration )
+    private VCProject testProject( String projectPath, String platform, String configuration, 
+            String[] preprocessorDefs, File[] includeDirs )
+    {
+        return testProject( projectPath, null, platform, configuration, preprocessorDefs, includeDirs );
+    }
+
+    private VCProject parseProject( File projectFile, File solutionFile, String platform, String configuration )
     {
         VCProjectParser projectParser = null;
         
         try 
         {
-            projectParser = new VCProjectParser( projectFile, platform, configuration );
+            projectParser = new VCProjectParser( projectFile, solutionFile, platform, configuration );
         } 
         catch ( FileNotFoundException fnfe ) 
         {
@@ -193,7 +230,11 @@ public class VCProjectParserTest
             + "configurations-test.vcxproj";    
 
     private static final String TEST_PROJECT_OUTDIR_SET = CONFIG_TEST_RESOURCE_DIR
-            + "configurations-outdir-test.vcxproj";    
+            + "configurations-project/configurations-outdir-test.vcxproj";    
+    private static final String TEST_PROJECT_RELATIVE_OUTDIR_SET = CONFIG_TEST_RESOURCE_DIR
+            + "configurations-project/configurations-relative-outdir-test.vcxproj";    
+
+    private static final String TEST_CONFIG_SOLUTION = "/unit/configurations/configurations-test.sln";    
     
     private static final String[] TEST_PROJECT_NAMES = { "hello-world", "goodbye-world" };
     private static final String[] TEST_PLATFORMS = { "Win32", "x64" };
