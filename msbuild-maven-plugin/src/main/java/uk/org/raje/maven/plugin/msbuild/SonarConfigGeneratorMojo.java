@@ -172,7 +172,8 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         preprocessorDefs.addAll( sonar.getPreprocessorDefs() );
         
         writer.println( vcProject.getName() + ".sonar.projectBaseDir=" 
-                + getRelativeFile( vcProject.getBaseDirectory(), vcProject.getProjectFile().getParentFile() ) );
+                + getRelativeFile( vcProject.getBaseDirectory(),
+                        vcProject.getProjectFile().getParentFile() ).getPath().replace( "\\", "\\\\" ) );
         
         if ( includeDirectories.size() > 0 )
         {
