@@ -1,9 +1,5 @@
 #pragma once
-#define POM_VERSION_INFO
-
-#define APSTUDIO_READONLY_SYMBOLS
-#include "afxres.h"
-#undef APSTUDIO_READONLY_SYMBOLS
+#define MAVEN_VERSION_INFO
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION ${version-info.majorVersion}, ${version-info.minorVersion}, ${version-info.incrementalVersion}, ${version-info.buildNumber}
