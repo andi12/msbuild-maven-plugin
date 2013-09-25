@@ -19,7 +19,9 @@ import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 
 /**
- * StreamConsumer that writes lines from the stream to the supplied Log at 'info' level.
+ * StreamConsumer that writes lines from the stream to the supplied Log.
+ * The default is to log at 'info' level, we also try to identify error
+ * and warning messages and log these at the appropriate level.
  */
 public class StdoutStreamToLog implements StreamConsumer
 {
@@ -35,7 +37,15 @@ public class StdoutStreamToLog implements StreamConsumer
     @Override
     public void consumeLine( String line )
     {
-        if ( line.toLowerCase().contains( "warning:" ) )
+        // Regex's devised using http://www.regexplanet.com/advanced/java/index.html
+
+        // Look for errors with Regex: .*((?:error\:)|(?:\: error (?:[A-Z]+[0-9]+)?\:)).*
+        if ( line.matches( ".*((?:error\\:)|(?:\\: error (?:[A-Z]+[0-9]+)?\\:)).*" ) )
+        {
+            logger.error( line );
+        }
+        // Look for warnings with Regex: .*((?:warning\:)|(?:\: warning (?:[A-Z]+[0-9]+)?\:)).*
+        else if ( line.matches( ".*((?:warning\\:)|(?:\\: warning (?:[A-Z]+[0-9]+)?\\:)).*" ) ) 
         {
             logger.warn( line );
         }
