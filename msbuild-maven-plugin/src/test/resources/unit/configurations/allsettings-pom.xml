@@ -51,6 +51,7 @@
                     </targets>
                     <!-- Building (MSBuildMojo, MSBuildCleanMojo, CxxtestBuildMojo) -->
                     <msbuildPath>${basedir}/src/test/resources/unit/configurations/test-msbuild.cmd</msbuildPath>
+                    <msbuildMaxCpuCount>2</msbuildMaxCpuCount>
                     <msbuildSystemIncludes>C:\include</msbuildSystemIncludes>
                     <!-- Version resource (VersionInfoMojo) -->
                     <versionInfo>

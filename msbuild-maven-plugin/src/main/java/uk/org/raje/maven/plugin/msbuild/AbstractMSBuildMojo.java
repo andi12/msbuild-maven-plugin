@@ -96,7 +96,7 @@ public abstract class AbstractMSBuildMojo extends AbstractMSBuildPluginMojo
     {
         try
         {
-            MSBuildExecutor msbuild = new MSBuildExecutor( getLog(), msbuildPath, projectFile );
+            MSBuildExecutor msbuild = new MSBuildExecutor( getLog(), msbuildPath, msbuildMaxCpuCount, projectFile );
             msbuild.setPlatforms( platforms );
             msbuild.setTargets( targets );
             msbuild.setEnvironment( environment );

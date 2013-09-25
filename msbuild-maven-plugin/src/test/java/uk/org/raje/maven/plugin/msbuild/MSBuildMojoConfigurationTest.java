@@ -15,6 +15,8 @@
  */
 package uk.org.raje.maven.plugin.msbuild;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -28,6 +30,24 @@ import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
  */
 public class MSBuildMojoConfigurationTest extends AbstractMSBuildMojoTestCase 
 {
+    @Override
+    public final void setUp() throws Exception
+    {
+        super.setUp();
+        outputStream = new ByteArrayOutputStream();
+        stdout = System.out;
+        System.setOut( new PrintStream( outputStream ) );
+    }
+
+    @Override
+    public final void tearDown() throws Exception
+    {
+        super.tearDown();
+        System.setOut( stdout );
+        outputStream.close();
+        outputStream = null;
+    }
+
     @Test
     public final void testAllSettingsConfiguration() throws Exception 
     {
@@ -153,4 +173,31 @@ public class MSBuildMojoConfigurationTest extends AbstractMSBuildMojoTestCase
                 msbuildMojo.platforms.get( 1 ).getConfigurations() );
 
     }
+
+    @Test
+    public final void testDefaultMaxCpuCountConfiguration() throws Exception
+    {
+        MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
+                "/unit/configurations/minimal-solution-pom.xml" );
+        
+        msbuildMojo.execute();
+        
+        assertTrue( "MSBuild command line error /maxcpucount not found",
+                outputStream.toString().contains( "/maxcpucount " ) );
+    }
+
+    @Test
+    public final void testMaxCpuCount4Configuration() throws Exception
+    {
+        MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
+                "/unit/configurations/minimal-solution-with-maxcpucount-pom.xml" );
+        
+        msbuildMojo.execute();
+        
+        assertTrue( "MSBuild command line error /maxcpucount:4 not found",
+                outputStream.toString().contains( "/maxcpucount:4 " ) );
+    }
+
+    private PrintStream stdout;
+    private ByteArrayOutputStream outputStream;
 }

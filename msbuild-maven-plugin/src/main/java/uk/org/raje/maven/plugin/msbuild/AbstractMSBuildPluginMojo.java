@@ -418,6 +418,16 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     protected File msbuildPath;
 
     /**
+     * The value for 'maxcpucount' to pass to MSBuild.
+     * Default value of -1 results in MSBuild being invoked with '/maxcpucount'.
+     */
+    @Parameter(
+            defaultValue = "-1",
+            readonly = false,
+            required = false )
+    protected int msbuildMaxCpuCount = -1;
+
+    /**
      * The system includes to use.
      * A semi-colon separated list of paths.
      * Currently only used to generate Sonar configuration.
