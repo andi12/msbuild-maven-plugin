@@ -8,7 +8,7 @@ In addition to building using msbuild the plugin also supports:
 * Creating a version resource from information in your POM
 * Running CppCheck (1.61) to perform static analysis of your code.
 * Generating, building and executing unit tests using CxxTest (4.2.1, don't use 4.3)
-* Generating a configuration file for the Sonar runner
+* Generating configuration files for the Sonar runner to ingest source, CppCheck and CxxTest results.
 
 Usage
 =====
@@ -24,10 +24,10 @@ use our 'exe' packaging.
     <plugin>
         <groupId>uk.org.raje.maven.plugins</groupId>
         <artifactId>msbuild-maven-plugin</artifactId>
-        <version>0.5</version>
+        <version>1.0</version>
         <extensions>true</extensions>
         <configuration>
-            <projectFile>${basedir}/hello-world.vcxproj</projectFile>
+            <projectFile>hello-world.vcxproj</projectFile>
             <platforms>
                 <platform>
                     <name>Win32</name>
