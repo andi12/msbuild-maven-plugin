@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sonar-config-test", "sonar-config-test\sonar-config-test.vcxproj", "{34C1B6AD-26C0-464A-B88F-A35481CB7610}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sonar-config-lib", "sonar-config-lib\sonar-config-lib.vcxproj", "{6BF21E52-C22C-48EB-8DDD-32191FCF68FE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sonar-config-test-unittests", "sonar-config-test-unittests\sonar-config-test-unittests.vcxproj", "{10ADF9A4-7A91-4ED3-BE29-C8284E2500A5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{34C1B6AD-26C0-464A-B88F-A35481CB7610}.Debug|Win32.ActiveCfg = Debug|Win32
+		{34C1B6AD-26C0-464A-B88F-A35481CB7610}.Debug|Win32.Build.0 = Debug|Win32
+		{34C1B6AD-26C0-464A-B88F-A35481CB7610}.Release|Win32.ActiveCfg = Release|Win32
+		{34C1B6AD-26C0-464A-B88F-A35481CB7610}.Release|Win32.Build.0 = Release|Win32
+		{6BF21E52-C22C-48EB-8DDD-32191FCF68FE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6BF21E52-C22C-48EB-8DDD-32191FCF68FE}.Debug|Win32.Build.0 = Debug|Win32
+		{6BF21E52-C22C-48EB-8DDD-32191FCF68FE}.Release|Win32.ActiveCfg = Release|Win32
+		{6BF21E52-C22C-48EB-8DDD-32191FCF68FE}.Release|Win32.Build.0 = Release|Win32
+		{10ADF9A4-7A91-4ED3-BE29-C8284E2500A5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{10ADF9A4-7A91-4ED3-BE29-C8284E2500A5}.Debug|Win32.Build.0 = Debug|Win32
+		{10ADF9A4-7A91-4ED3-BE29-C8284E2500A5}.Release|Win32.ActiveCfg = Release|Win32
+		{10ADF9A4-7A91-4ED3-BE29-C8284E2500A5}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

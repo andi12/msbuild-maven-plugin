@@ -19,7 +19,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 
-import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.junit.Test;
 
 /**
@@ -49,14 +48,7 @@ public class SonarConfigGeneratorMojoTest extends AbstractMSBuildMojoTestCase
         SonarConfigGeneratorMojo sonarConfigGeneratorMojo = ( SonarConfigGeneratorMojo ) 
                 lookupConfiguredMojo( SonarConfigGeneratorMojo.MOJO_NAME, "/unit/sonar/skip-sonar.pom" ) ;
         
-        try
-        {
-            sonarConfigGeneratorMojo.execute();
-        }
-        catch ( AbstractMojoExecutionException ame )
-        {
-            fail( ame.getCause() != null ? ame.getCause().getMessage() : ame.getMessage() );
-        }
+        sonarConfigGeneratorMojo.execute();
         
         if ( ! outputStream.toString().trim().startsWith( SONAR_SKIP_MESSAGE ) ) 
         {

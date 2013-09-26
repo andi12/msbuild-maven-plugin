@@ -79,6 +79,15 @@ public class SonarConfiguration
     }
 
     /**
+     * Get the configured exclusion regex, may be null.
+     * @return the configured String or null
+     */
+    public final String getExcludeProjectRegex()
+    {
+        return excludeProjectRegex;
+    }
+
+    /**
      * Set to true to skip Sonar functionality.
      */
     @Parameter( 
@@ -133,4 +142,12 @@ public class SonarConfiguration
             "DECLARE_DYNCREATE(x)", 
             "DECLARE_DYNAMIC(x)", 
             "DECLARE_HANDLE(x)" ); 
+
+    /**
+     * A regular expression that matches project names that should be excluded from Sonar analysis.
+     */
+    @Parameter( 
+            readonly = false, 
+            required = false )
+    private String excludeProjectRegex;
 }

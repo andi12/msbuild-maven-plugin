@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -99,7 +100,12 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         String platformConfigPattern = "-*-" + platform.getName() + "-" + configuration.getName();
         File configFile = getSonarConfigFile( platform, configuration );
         PrintWriter configWriter = createSonarConfigWriter( configFile );
-        List<VCProject> vcProjects = getParsedProjects( platform, configuration );
+        Pattern projectExcludePattern = null;
+        if ( sonar.getExcludeProjectRegex() != null )
+        {
+            projectExcludePattern = Pattern.compile( sonar.getExcludeProjectRegex() );
+        }
+        List<VCProject> vcProjects = getParsedProjects( platform, configuration, projectExcludePattern );
         List<String> vcProjectNames = new ArrayList<String>( vcProjects.size() );
         List<File> systemIncludeDirs = getSystemIncludeDirs();
 
