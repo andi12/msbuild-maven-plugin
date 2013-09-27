@@ -19,11 +19,19 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Bean to hold properties parsed from a Visual Studio project file.
+ * Bean to hold properties parsed from a Visual C++ project file.
  */
 public class VCProject 
 {
-    public VCProject( String name, File projectFile ) 
+    public VCProject( String name, File projectFile, String platform, String configuration ) 
+    {
+        this.name = name;
+        this.projectFile = projectFile;
+        this.platform = platform;
+        this.configuration = configuration;
+    }
+
+    protected VCProject( String name, File projectFile ) 
     {
         this.name = name;
         this.projectFile = projectFile;
@@ -93,7 +101,7 @@ public class VCProject
         return configuration;
     }
     
-    public void setConfiguration( String configuration ) 
+    protected void setConfiguration( String configuration ) 
     {
         this.configuration = configuration;
     }
@@ -103,7 +111,7 @@ public class VCProject
         return platform;
     }
     
-    public void setPlatform( String platform ) 
+    protected void setPlatform( String platform ) 
     {
         this.platform = platform;
     }

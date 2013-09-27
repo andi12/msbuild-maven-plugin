@@ -58,9 +58,7 @@ public class VCParser
             name = name.substring( 0, name.lastIndexOf( '.' ) );
         }
         
-        VCProject vcProject = new VCProject( name, projectFile );
-        vcProject.setPlatform( platform );
-        vcProject.setConfiguration( configuration );
+        VCProject vcProject = new VCProject( name, projectFile, platform, configuration );
         parseVCProject( vcProject, null );
         
         vcProjectHandler.parsedProject( vcProject );
