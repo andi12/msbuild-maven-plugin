@@ -239,9 +239,7 @@ public class VCProjectParserTest
             Assert.fail( pe.getMessage() );
         }
         
-        VCProject vcProject = new VCProject( TEST_PROJECT_NAMES[0], projectFile );
-        vcProject.setPlatform( platform );
-        vcProject.setConfiguration( configuration );
+        VCProject vcProject = new VCProject( TEST_PROJECT_NAMES[0], projectFile, platform, configuration );
         projectParser.updateVCProject( vcProject );
         
         return vcProject;
