@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.org.raje.maven.plugin.msbuild.streamconsumers;
 
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 
 /**
- * StreamConsumer that writes lines from the stream to the supplied Log.
- * The default is to log at 'info' level, we also try to identify error
- * and warning messages and log these at the appropriate level.
+ * StreamConsumer that writes lines from a stream to the supplied Log. The default is to log at 'info' level, we also 
+ * try to identify errors and warning messages and log these at the appropriate level.
  */
 public class StdoutStreamToLog implements StreamConsumer
 {
     /**
-     * Construct instance to log to specified Log
+     * Construct an instance to output to specified Log
      * @param logger the Log to write to
      */
     public StdoutStreamToLog( Log logger ) 
@@ -37,7 +37,7 @@ public class StdoutStreamToLog implements StreamConsumer
     @Override
     public void consumeLine( String line )
     {
-        // Regex's devised using http://www.regexplanet.com/advanced/java/index.html
+        // Regexs devised using http://www.regexplanet.com/advanced/java/index.html
 
         // Look for errors with Regex: .*((?:error\:)|(?:\: error (?:[A-Z]+[0-9]+)?\:)).*
         if ( line.matches( ".*((?:error\\:)|(?:\\: error (?:[A-Z]+[0-9]+)?\\:)).*" ) )

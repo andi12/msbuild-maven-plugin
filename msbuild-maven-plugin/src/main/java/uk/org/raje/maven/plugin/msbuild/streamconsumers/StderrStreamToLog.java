@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.org.raje.maven.plugin.msbuild.streamconsumers;
 
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 
 /**
- * StreamConsumer that writes lines from the stream to the supplied Log at 'error' level.
+ * StreamConsumer that writes lines from a stream to the supplied Log at 'error' level.
  */
 public class StderrStreamToLog implements StreamConsumer
 {
     /**
-     * Construct instance to log to specified Log
+     * Construct an instance to output standard error to the specified Log
      * @param logger the Log to write to
      */
     public StderrStreamToLog( Log logger ) 
