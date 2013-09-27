@@ -136,11 +136,11 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         try 
         {
             Files.createParentDirs( reportDest );
-            Files.copy( reportSource, reportDest );
+            Files.move( reportSource, reportDest );
         }
         catch ( IOException ioe )
         { 
-            throw new MojoExecutionException( "Failed to create" + CxxTestConfiguration.CXXTEST_NAME + " report "
+            throw new MojoExecutionException( "Failed to move " + CxxTestConfiguration.CXXTEST_NAME + " report "
                     + reportSource + " to " + reportDest, ioe );
         }
     }    
