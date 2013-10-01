@@ -12,3 +12,4 @@
 /src/test/resources/**/*.suo
 /src/test/resources/**/*.sdf
 /src/test/resources/**/*.user
+/src/test/resources/**/*.tlog

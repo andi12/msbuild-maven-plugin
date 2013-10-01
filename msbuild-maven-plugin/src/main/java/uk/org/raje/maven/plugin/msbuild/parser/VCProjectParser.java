@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.org.raje.maven.plugin.msbuild.parser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -34,71 +33,79 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
+/**
+ * <p>Class that parses a Visual Studio C++ project. This class retrieves the following project properties:
+ * <ul>
+ *      <li>Include Directories (additional header locations)</li> 
+ *      <li>Preprocessor Definitions (<code>#define</code> to be used during compilation 
+ *          (<em>e.g.</em> <code>WIN32</code>, <code>_DEBUG</code>)</li> 
+ *      <li>Output Directory (location of the generated output file)</li>
+ * </ul> 
+ * These properties are necessary for other tools to work (<em>e.g.</em> CppCheck, CxxTest, Sonar).</p>
+ * <p>Once the C++ project has been parsed, the {@link VCProjectParser#updateVCProject} method can be used to update a 
+ * {@link VCProject} bean with the values of the retrieved properties.
+ */
 class VCProjectParser extends BaseParser 
 {
-    private static final String PATH_SEPARATOR = "/";
-    private static final String PATH_ROOT = "ROOT";
-
-    private static final String PATH_PROPERTY_GROUP = PATH_ROOT + PATH_SEPARATOR + "Project" + PATH_SEPARATOR
-            + "PropertyGroup";
-    
-    private static final String PATH_OUTDIR = PATH_PROPERTY_GROUP + PATH_SEPARATOR + "OutDir";
-
-    private static final String PATH_ITEMDEFINITION_GROUP = PATH_ROOT + PATH_SEPARATOR + "Project" + PATH_SEPARATOR
-            + "ItemDefinitionGroup";
-    
-    private static final String PATH_CLCOMPILE = PATH_ITEMDEFINITION_GROUP + PATH_SEPARATOR + "ClCompile";
-    
-    private static final String PATH_ADDITIONAL_INCDIRS = PATH_CLCOMPILE + PATH_SEPARATOR 
-            + "AdditionalIncludeDirectories";
-    
-    private static final String PATH_PREPROCESSOR_DEFS = PATH_CLCOMPILE + PATH_SEPARATOR + "PreprocessorDefinitions";
-    
+    /**
+     * Create an instance of the Visual C++ project parser.
+     * @param projectFile the Visual C++ project file to parse
+     * @param solutionFile the solution file that contains this project if available, <code>null</code> 
+     * otherwise
+     * @param platform the platform for which to retrieve Visual C++ projects (<em>e.g</em>. <code>Win32</code>, 
+     * <code>x64</code>)
+     * @param configuration the configuration for which to retrieve Visual C++ projects (<em>e.g.</em>
+     * <code>Release</code>, <code>Debug</code>)
+     * @throws FileNotFoundException if the given project file is not found
+     * @throws ParserConfigurationException if a parser cannot be created which satisfies the requested configuration
+     * @throws SAXException if a SAX parsing error occurs
+     */
     public VCProjectParser( File projectFile, File solutionFile, String platform, String configuration ) 
-            throws FileNotFoundException, SAXException, ParserConfigurationException 
+            throws FileNotFoundException, ParserConfigurationException, SAXException 
     {
         super( projectFile, platform, configuration );
         SAXParserFactory factory = SAXParserFactory.newInstance();
 
         parser = factory.newSAXParser();
         this.solutionFile = solutionFile;
+        
+        //Assume the output directory is set to the default value. This can change later if the project specifies one.
         outputDirectory = getDefaultOutputDirectory();
     }
 
+    /**
+     * Create an instance of the Visual C++ project parser.
+     * @param projectFile the Visual C++ project file to parse (assume that no solution file is available)
+     * @param platform the platform for which to retrieve Visual C++ projects (<em>e.g</em>. <code>Win32</code>, 
+     * <code>x64</code>)
+     * @param configuration the configuration for which to retrieve Visual C++ projects (<em>e.g.</em>
+     * <code>Release</code>, <code>Debug</code>)
+     * @throws FileNotFoundException if the given project file is not found
+     * @throws ParserConfigurationException if a parser cannot be created which satisfies the requested configuration
+     * @throws SAXException if a SAX parsing error occurs
+     */
     public VCProjectParser( File projectFile, String platform, String configuration ) 
-            throws FileNotFoundException, SAXException, ParserConfigurationException 
+            throws FileNotFoundException, ParserConfigurationException, SAXException 
     {
         this( projectFile, null, platform, configuration );
     }
 
-    public void updateVCProject( VCProject project )
+    /**
+     * Update a {@link VCProject} bean with the Visual C++ project properties retrieved by the parser (Include 
+     * Directories, Preprocessor Definitions and Output Directory).
+     * @param vcProject the {@link VCProject} bean to update
+     */
+    public void updateVCProject( VCProject vcProject )
     {
-        if ( project == null ) 
-        {
-            throw new InvalidParameterException();
-        }
-
-        project.setBaseDirectory( getBaseDirectory() );
-        project.setOutputDirectory( outputDirectory );
-        project.setPreprocessorDefs( preprocessorDefs );
-        project.setIncludeDirectories( includeDirs );
+        vcProject.setBaseDirectory( getBaseDirectory() );
+        vcProject.setOutputDirectory( outputDirectory );
+        vcProject.setPreprocessorDefs( preprocessorDefs );
+        vcProject.setIncludeDirectories( includeDirs );
     }
 
-    public File getOutputDirectory()
-    {
-        return outputDirectory;
-    }
-
-    public List<File> getIncludeDirs() 
-    {
-        return includeDirs;
-    }
-
-    public List<String> getPreprocessorDefs() 
-    {
-        return preprocessorDefs;
-    }
-    
+    /* (non-Javadoc)
+     * @see uk.org.raje.maven.plugin.msbuild.parser.BaseParser#parse()
+     */
     @Override
     public void parse() throws IOException, ParseException 
     {
@@ -116,21 +123,15 @@ class VCProjectParser extends BaseParser
         }
     }
     
-    private enum ElementParserState 
-    {
-        PARSE_IGNORE,
-        PARSE_PROPERTY_GROUP,
-        PARSE_PROPERTY_GROUP_NO_CONDITION,
-        PARSE_CONFIGPLATFORM_GROUP,
-    }
-
-    private enum CharParserState 
-    {
-        PARSE_IGNORE,
-        PARSE_OUTDIR,
-        PARSE_INCLUDE_DIRS,
-        PARSE_PREPROCESSOR_DEFS
-    }
+    private static final List<String> PATH_PROPERTY_GROUP = Arrays.asList( "Project", "PropertyGroup" );
+    private static final List<String> PATH_OUTDIR = Arrays.asList( "Project", "PropertyGroup", "OutDir" );
+    private static final List<String> PATH_ITEM_DEFINITION_GROUP = Arrays.asList( "Project", "ItemDefinitionGroup" );
+    
+    private static final List<String> PATH_ADDITIONAL_INCDIRS = Arrays.asList( "Project", "ItemDefinitionGroup", 
+            "ClCompile", "AdditionalIncludeDirectories" );
+    
+    private static final List<String> PATH_PREPROCESSOR_DEFS = Arrays.asList( "Project", "ItemDefinitionGroup", 
+            "ClCompile", "PreprocessorDefinitions" );
     
     private class VCProjectHandler extends DefaultHandler
     {
@@ -138,62 +139,67 @@ class VCProjectParser extends BaseParser
         public void startElement( String uri, String localName, String qName, Attributes attributes ) 
                 throws SAXException 
         {
-            String condition;
-            String path = paths.peek() + PATH_SEPARATOR + qName;
-            paths.push( path );
+            path.add( qName );
+            String condition = attributes.getValue( "Condition" );
             
             switch ( elementParserState ) 
             {
             case PARSE_PROPERTY_GROUP:
-                if ( path.compareTo( PATH_OUTDIR ) == 0 ) 
+                //If there is no Condition attribute in the current element (which is a child inside a <ProperyGroup>
+                // element), we assume that the Condition attribute was present in the parent <ProperyGroup> and that 
+                // the Condition matched the required platform/configuration; otherwise we need to check whether the  
+                // current element satisfies the required platform/configuration pair through the Condition attribute. 
+                if ( condition == null
+                    || ( condition != null && condition.contains( getRequiredConfigurationPlatform() ) ) )
                 {
-                    charParserState = CharParserState.PARSE_OUTDIR;
-                }
-                break;
-
-            case PARSE_PROPERTY_GROUP_NO_CONDITION:
-                condition = attributes.getValue( "Condition" );
-                if ( condition != null && condition.contains( getRequiredConfigurationPlatform() ) )
-                {
-                    if ( path.compareTo( PATH_OUTDIR ) == 0 ) 
+                    if ( path.equals( PATH_OUTDIR ) ) 
                     {
                         charParserState = CharParserState.PARSE_OUTDIR;
                     }
                 }
+            
                 break;
 
             case PARSE_CONFIGPLATFORM_GROUP: 
-                if ( path.compareTo( PATH_ADDITIONAL_INCDIRS ) == 0 ) 
+                //Here we use the same strategy and make the same assumptions as above.
+                if ( condition == null
+                    || ( condition != null && condition.contains( getRequiredConfigurationPlatform() ) ) )
                 {
-                    charParserState = CharParserState.PARSE_INCLUDE_DIRS;
-                }
-                
-                if ( path.compareTo( PATH_PREPROCESSOR_DEFS ) == 0 ) 
-                {
-                    charParserState = CharParserState.PARSE_PREPROCESSOR_DEFS;
+                    if ( path.equals( PATH_ADDITIONAL_INCDIRS ) ) 
+                    {
+                        charParserState = CharParserState.PARSE_INCLUDE_DIRS;
+                    }
+                    
+                    if ( path.equals( PATH_PREPROCESSOR_DEFS ) ) 
+                    {
+                        charParserState = CharParserState.PARSE_PREPROCESSOR_DEFS;
+                    }
                 }
                 
                 break;
             
             default: 
-                if ( path.compareTo( PATH_PROPERTY_GROUP ) == 0 )
+                /* We are looking for a <PropertyGroup> element that either matches the required platform/configuration 
+                 * pair through a Condition attribute, or that contains child elements that match the required 
+                 * platform/configuration pair (using a similar Condition attribute), for example:
+                 *    <ProperyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'"> ... </ProperyGroup>
+                 * or
+                 *    <ProperyGroup> 
+                 *        <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'"> ... </OutDir>
+                 *        ...
+                 *    </ProperyGroup>
+                 * 
+                 * If there is no Condition attribute in the <ProperyGroup> element, then we assume that the Condition 
+                 * attribute will appear in (all) the child elements contained within <ProperyGroup></ProperyGroup>; we 
+                 * use the same strategy and assumptions for a <ItemDefinitionGroup> element.
+                 */
+                if ( condition == null || condition.contains( getRequiredConfigurationPlatform() ) )
                 {
-                    condition = attributes.getValue( "Condition" );
-
-                    if ( condition == null )
-                    {
-                        elementParserState = ElementParserState.PARSE_PROPERTY_GROUP_NO_CONDITION;
-                    }
-                    else if ( condition.contains( getRequiredConfigurationPlatform() ) )
+                    if ( path.equals( PATH_PROPERTY_GROUP ) )
                     {
                         elementParserState = ElementParserState.PARSE_PROPERTY_GROUP;
                     }
-                }
-                else if ( path.compareTo( PATH_ITEMDEFINITION_GROUP ) == 0 )
-                {
-                    condition = attributes.getValue( "Condition" );
-
-                    if ( condition != null && condition.contains( getRequiredConfigurationPlatform() ) ) 
+                    else if ( path.equals( PATH_ITEM_DEFINITION_GROUP ) )
                     {
                         elementParserState = ElementParserState.PARSE_CONFIGPLATFORM_GROUP;
                     }
@@ -205,31 +211,34 @@ class VCProjectParser extends BaseParser
         public void endElement( String uri, String localName, String qName ) 
                 throws SAXException 
         {
-            String path = paths.pop();
-
-            if ( path.compareTo( PATH_PROPERTY_GROUP ) == 0 ) 
+            if ( path.equals( PATH_PROPERTY_GROUP ) ) 
             {
                 elementParserState = ElementParserState.PARSE_IGNORE;
             }
-            if ( path.compareTo( PATH_ITEMDEFINITION_GROUP ) == 0 ) 
+            if ( path.equals( PATH_ITEM_DEFINITION_GROUP ) ) 
             {
                 elementParserState = ElementParserState.PARSE_IGNORE;
             }
 
             charParserState = CharParserState.PARSE_IGNORE;
+            path.remove( path.lastIndexOf( qName ) );
         }
         
         @Override
         public void characters( char[] chars, int start, int length ) 
                 throws SAXException 
         {
+            //Keep variable replacement here, as later splitEntries gets rid of all variables that were not replaced.
             String entries = replaceVariables( new String( chars, start, length ) );
             
             switch ( charParserState ) 
             {
-            case PARSE_OUTDIR:
+            //The project specifies an output directory, possibly different from the default.
+            case PARSE_OUTDIR: 
                 outputDirectory = new File( entries );
                 
+                //If the output directory is not absolute, then it is relative to the project directory. The solution
+                // directory does not come into play here (otherwise the output directory would be an absolute path).
                 if ( ! outputDirectory.isAbsolute() ) 
                 {
                     outputDirectory = new File( getInputFile().getParentFile(), outputDirectory.getPath() );
@@ -237,6 +246,7 @@ class VCProjectParser extends BaseParser
                 
                 break;
 
+            //The project specifies some additional header locations.
             case PARSE_INCLUDE_DIRS:
                 for ( String directory : splitEntries( entries ) )
                 {
@@ -245,6 +255,7 @@ class VCProjectParser extends BaseParser
                 
                 break;
                 
+            //The project specifies some preprocessor definitions.
             case PARSE_PREPROCESSOR_DEFS:
                 preprocessorDefs = splitEntries( entries );
                 break;
@@ -270,7 +281,9 @@ class VCProjectParser extends BaseParser
         
         private String replaceVariables( String entries )
         {
+            //Note: $(SolutionDir) is an absolute path and terminates with a separator
             entries = entries.replace( "$(SolutionDir)", getBaseDirectory().getPath() + File.separator );
+            
             entries = entries.replace( "$(Configuration)", getRequiredConfiguration() );
             entries = entries.replace( "$(Platform)", getRequiredPlatform() );
 
@@ -278,26 +291,53 @@ class VCProjectParser extends BaseParser
         }
     }
     
+    /**
+     * Retrieve the default output directory for the Visual C++ project.
+     * @return the default output directory for the Visual C++ project
+     */
     private File getDefaultOutputDirectory()
     {
+        //The default output directory is the configuration name.
         String childOutputDirectory = getRequiredConfiguration();
         
+        //However, for platforms others than Win32, the default output directory becomes platform/configuration.
         if ( ! getRequiredPlatform().equals( "Win32" ) )
         {
             childOutputDirectory = new File( getRequiredPlatform(), childOutputDirectory ).getPath();
         }
         
+        //Place the default output directory within the appropriate base directory.
         return new File( getBaseDirectory(), childOutputDirectory );
     }
     
+    /**
+     * Retrieve the base directory for the Visual C++ project. If this project is part of a Visual Studio solution, then
+     * the base directory is the solution directory; for standalone projects, the base directory is the project folder.
+     * @return the base directory for the Visual C++ project
+     */
     private File getBaseDirectory()
     {
-        File referenceFile = ( solutionFile != null ? solutionFile : getInputFile() );
-        return referenceFile.getParentFile(); 
+        File referenceFile = ( solutionFile != null ? solutionFile.getAbsoluteFile() : getInputFile() );
+        return referenceFile.getParentFile();
     };    
     
+    private enum ElementParserState 
+    {
+        PARSE_IGNORE,
+        PARSE_PROPERTY_GROUP,
+        PARSE_CONFIGPLATFORM_GROUP,
+    }
+
+    private enum CharParserState 
+    {
+        PARSE_IGNORE,
+        PARSE_OUTDIR,
+        PARSE_INCLUDE_DIRS,
+        PARSE_PREPROCESSOR_DEFS
+    }    
+    
     private SAXParser parser = null; 
-    private LinkedList<String> paths = new LinkedList<String>( Arrays.asList( PATH_ROOT ) ); 
+    private List<String> path = new ArrayList<String>(); 
     private ElementParserState elementParserState = ElementParserState.PARSE_IGNORE;
     private CharParserState charParserState = CharParserState.PARSE_IGNORE;
     private List<File> includeDirs = new ArrayList<File>();

@@ -30,11 +30,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * <p>Class to parse a Visual Studio solution file containing Visual C++ projects. This class identifies all projects
+ * <p>Class that parses a Visual Studio solution file containing Visual C++ projects. This class identifies all projects
  * entries contained in a given solution according to a specific platform and configuration combination. It then creates
- * corresponding VCProject beans and populate them with properties from the solution file. Further parsing of the 
- * Visual C++ projects through VCProjectParser is still required to fully populate the properties in the generated 
- * beans.<p>
+ * corresponding {@link VCProject} beans and populate them with properties from the solution file. Further parsing of  
+ * the Visual C++ projects through {@link VCProjectParser} is still required to fully populate the properties in the  
+ * generated beans.<p>
  * <p>The solution file contains a list of supported platform/configuration pairs (<em>e.g</em>. 
  * <code>Win32/Release</code>); for each pair, the solution also specify a given platform/configuration pair for each
  * project entry in the solution. Note that Visual Studio allows the platform/configuration pair for a projects to be 
@@ -43,11 +43,11 @@ import java.util.regex.Pattern;
 class VCSolutionParser extends BaseParser 
 {
     /**
-     * Create an instance of the VIsual Studio solution parser
+     * Create an instance of the Visual Studio solution parser.
      * @param solutionFile the solution file (<code>.sln</code>) to analyse
      * @param platform the platform for which to retrieve Visual C++ projects (<em>e.g</em>. <code>Win32</code>, 
      * <code>x64</code>)
-     * @param configuration the platform for which to retrieve Visual C++ projects (<em>e.g.</em> 
+     * @param configuration the configuration for which to retrieve Visual C++ projects (<em>e.g.</em> 
      * <code>Release</code>, <code>Debug</code>)
      * @throws FileNotFoundException if the given solution file is not found
      */
@@ -79,7 +79,7 @@ class VCSolutionParser extends BaseParser
     }
     
     /**
-     * get the list of Visual C++ projects contained in the given solution
+     * get the list of Visual C++ projects contained in the given solution.
      * @return the list of Visual C++ projects contained in the solution
      */
     public List<VCProject> getVCProjects() 
@@ -95,13 +95,13 @@ class VCSolutionParser extends BaseParser
         
         while ( ( line = reader.readLine() ) != null ) 
         {
-            //Remove all whitespace, it makes the lines easier to analyse via regexs
+            //Remove all whitespace, it makes the lines easier to analyse via regexs.
             line = line.replaceAll( "[ \t]", "" );
             
             switch ( solutionParserState ) 
             {
             //Parse the solution global section, which contains the list of supported platform/configuration pairs for 
-            // the solution
+            // the solution.
             case PARSE_SOLUTION_GLOBAL_SECTION:
                 if ( line.startsWith( END_SOLUTION_GLOBAL_SECTION ) ) 
                 {
@@ -129,7 +129,7 @@ class VCSolutionParser extends BaseParser
                 
                 break;
             
-            //Parse the rest of the solution file
+            //Parse the rest of the solution file.
             default:
                 Matcher prjMatcher = projectPropertiesPattern.matcher( line );
                 
@@ -227,7 +227,7 @@ class VCSolutionParser extends BaseParser
         final int slnConfigPlatformId = 1;
 
         //Retrieve one of the supported platform/configuration pairs for the solution; also check whether this pair
-        // matches the one we are looking for
+        // matches the one we are looking for.
         String slnConfigPlatform = line.split( "=" )[slnConfigPlatformId];
         
         if ( slnConfigPlatform.compareTo( getRequiredConfigurationPlatform() ) == 0 ) 
@@ -238,11 +238,11 @@ class VCSolutionParser extends BaseParser
     
     private void parseProjectEntry( Matcher projMatcher ) 
     {
-        //Compute the full project path by joining the solution path with the relative project path
+        //Compute the full project path by joining the solution path with the relative project path.
         String relativeProjectPath = ProjectProperty.relativePath.getValue( projMatcher );
         File fullProjectPath = new File( getInputFile().getParentFile(), relativeProjectPath );
         
-        //Create and populate a new bean for this project
+        //Create and populate a new bean for this project.
         VCProject project = new VCProject( ProjectProperty.name.getValue( projMatcher ), fullProjectPath );
         project.setTargetName( new File( relativeProjectPath ).getParent() );
         project.setGuid( ProjectProperty.guid.getValue( projMatcher ) );
@@ -277,7 +277,7 @@ class VCSolutionParser extends BaseParser
         String projectActiveConfigEntry = solutionProjectEntries[solutionProjectConfigId]; 
 
         //If the project GUID is in the list of projects for this solution, and the solution platform/configuration pair
-        // matches the one we are looking for, it means we found a platform/configuration pair for this project
+        // matches the one we are looking for, it means we found a platform/configuration pair for this project.
         if ( projects.containsKey( projectGUID ) 
                 && projectActiveConfigEntry.startsWith( "ActiveCfg" )  
                 && solutionConfigPlatform.compareTo( getRequiredConfigurationPlatform() ) == 0 ) 
