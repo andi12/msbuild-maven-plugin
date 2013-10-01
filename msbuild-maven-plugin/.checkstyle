@@ -16,7 +16,7 @@
     <filter-data value="src/test/resources/unit/cppcheck/hello-world-project-preprocesor-defs"/>
     <filter-data value="src/test/resources/unit/cppcheck/hello-world-solution"/>
     <filter-data value="src/test/resources/unit/cxxtest/fake-cxxtest-4.2.1-home"/>
-    <filter-data value="src/test/resources/unit/cxxtest/hello-world"/>
+    <filter-data value="src/test/resources/unit/cxxtest/hello-world-solution"/>
     <filter-data value="src/test/resources/unit/sonar/hello-world"/>
   </filter>
 </fileset-config>

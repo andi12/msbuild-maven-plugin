@@ -28,7 +28,7 @@
                 <groupId>uk.org.raje.maven.plugins</groupId>
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
-                    <projectFile>${basedir}/src/test/resources/unit/cxxtest/hello-world/hello-world.sln/</projectFile>
+                    <projectFile>${basedir}/src/test/resources/unit/cxxtest/hello-world-solution/hello-world.sln/</projectFile>
                     <platforms>
                         <platform>
                             <name>Win32</name>
@@ -42,7 +42,7 @@
                     <cxxTest>
                         <cxxTestHome>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtest-4.2.1-home</cxxTestHome>
                         <testTargets>
-                            <testTarget>hello-world-project</testTarget>
+                            <testTarget>hello-world</testTarget>
                         </testTargets>
                     </cxxTest>
                 </configuration>
