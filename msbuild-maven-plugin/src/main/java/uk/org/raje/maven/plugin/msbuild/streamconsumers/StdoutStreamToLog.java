@@ -39,13 +39,13 @@ public class StdoutStreamToLog implements StreamConsumer
     {
         // Regexs devised using http://www.regexplanet.com/advanced/java/index.html
 
-        // Look for errors with Regex: .*((?:error\:)|(?:\: error (?:[A-Z]+[0-9]+)?\:)).*
-        if ( line.matches( ".*((?:error\\:)|(?:\\: error (?:[A-Z]+[0-9]+)?\\:)).*" ) )
+        // Look for errors with Regex: .*((?:(?i)error\:)|(?:\: (?:fatal )?error (?:[A-Z]+[0-9]+)?\:)).*
+        if ( line.matches( ".*((?:(?i)error\\:)|(?:\\: (?:fatal )?error (?:[A-Z]+[0-9]+)?\\:)).*" ) )
         {
             logger.error( line );
         }
-        // Look for warnings with Regex: .*((?:warning\:)|(?:\: warning (?:[A-Z]+[0-9]+)?\:)).*
-        else if ( line.matches( ".*((?:warning\\:)|(?:\\: warning (?:[A-Z]+[0-9]+)?\\:)).*" ) ) 
+        // Look for warnings with Regex: .*((?:(?i)warning\:)|(?:\: warning (?:[A-Z]+[0-9]+)?\:)).*
+        else if ( line.matches( ".*((?:(?i)warning\\:)|(?:\\: warning (?:[A-Z]+[0-9]+)?\\:)).*" ) ) 
         {
             logger.warn( line );
         }
