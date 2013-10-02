@@ -279,7 +279,8 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         {
             if ( ! quiet )
             {
-                getLog().info( CXXTEST_SKIP_MESSAGE + ", path to " + CxxTestConfiguration.CXXTEST_NAME + " not set." );
+                getLog().info( CXXTEST_SKIP_MESSAGE + " " + stepName + ", path to " 
+                        + CxxTestConfiguration.CXXTEST_NAME + " not set." );
             }
             
             return false;
