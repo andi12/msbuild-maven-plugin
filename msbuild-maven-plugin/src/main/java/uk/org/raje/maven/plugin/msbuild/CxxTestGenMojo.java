@@ -43,7 +43,7 @@ public class CxxTestGenMojo extends AbstractMSBuildPluginMojo
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException 
     {
-        if ( !isCxxTestEnabled( "runner generation" ) ) 
+        if ( !isCxxTestEnabled( "runner generation", false ) ) 
         {
             return;
         }

@@ -55,7 +55,7 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException
     {
-        if ( !isCxxTestEnabled( "runner execution" ) )
+        if ( !isCxxTestEnabled( "runner execution", false ) )
         {
             return;
         }

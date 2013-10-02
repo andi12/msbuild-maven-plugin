@@ -39,7 +39,7 @@ public class CxxTestBuildMojo extends AbstractMSBuildMojo
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException
     {
-        if ( !isCxxTestEnabled( "runner build" ) )
+        if ( !isCxxTestEnabled( "runner build", false ) )
         {
             return;
         }

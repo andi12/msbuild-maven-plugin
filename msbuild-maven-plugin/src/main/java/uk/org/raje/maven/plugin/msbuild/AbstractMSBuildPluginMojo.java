@@ -250,10 +250,11 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     /**
      * Determine whether CxxTest is enabled by the configuration
      * @param stepName the string to use in log messages to describe the process being attempted
+     * @param quiet does not output any log messages ({@code stepName} may be {@code null} in this case)
      * @return true if CxxTest is configured, false otherwise
      * @throws MojoExecutionException if CxxTest is configured for a project not a solution
      */
-    protected boolean isCxxTestEnabled( String stepName ) throws MojoExecutionException
+    protected boolean isCxxTestEnabled( String stepName, boolean quiet ) throws MojoExecutionException
     {
         if ( ! MSBuildPackaging.isSolution( mavenProject.getPackaging() )
             && ( cxxTest.getTestTargets() != null ) )
@@ -265,15 +266,22 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
 
         if ( cxxTest.skip() )
         {
-            getLog().info( CXXTEST_SKIP_MESSAGE + " " + stepName + ", 'skip' set to true in the " 
-                    + CxxTestConfiguration.CXXTEST_NAME + " configuration." );
+            if ( ! quiet )
+            {
+                getLog().info( CXXTEST_SKIP_MESSAGE + " " + stepName + ", 'skip' set to true in the " 
+                        + CxxTestConfiguration.CXXTEST_NAME + " configuration." );
+            }
             
             return false;
         }
         
         if ( cxxTest.getCxxTestHome() == null ) 
         {
-            getLog().info( CXXTEST_SKIP_MESSAGE + ", path to " + CxxTestConfiguration.CXXTEST_NAME + " not set." );
+            if ( ! quiet )
+            {
+                getLog().info( CXXTEST_SKIP_MESSAGE + ", path to " + CxxTestConfiguration.CXXTEST_NAME + " not set." );
+            }
+            
             return false;
         }
         
@@ -321,19 +329,27 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         return new File( cxxTest.getCxxTestHome(), "python" );
     }
     
-    protected boolean isCppCheckEnabled() 
+    protected boolean isCppCheckEnabled( boolean quiet ) 
     {
         if ( cppCheck.skip() )
         {
-            getLog().info( CPPCHECK_SKIP_MESSAGE + ", 'skip' set to true in the " + CppCheckConfiguration.CPPCHECK_NAME
-                    + " configuration." );
+            if ( ! quiet )
+            {
+                getLog().info( CPPCHECK_SKIP_MESSAGE + ", 'skip' set to true in the " 
+                        + CppCheckConfiguration.CPPCHECK_NAME + " configuration." );
+            }
             
             return false;
         }
         
         if ( cppCheck.getCppCheckPath() == null ) 
         {
-            getLog().info( CPPCHECK_SKIP_MESSAGE + ", path to " + CppCheckConfiguration.CPPCHECK_NAME + " not set." );
+            if ( ! quiet )
+            {
+                getLog().info( CPPCHECK_SKIP_MESSAGE + ", path to " 
+                        + CppCheckConfiguration.CPPCHECK_NAME + " not set." );
+            }
+            
             return false;
         }        
         
@@ -362,12 +378,15 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         platforms = MojoHelper.validatePlatforms( platforms );
     }
     
-    protected boolean isSonarEnabled() throws MojoExecutionException
+    protected boolean isSonarEnabled( boolean quiet ) throws MojoExecutionException
     {
         if ( sonar.skip() )
         {
-            getLog().info( SONAR_SKIP_MESSAGE + ", 'skip' set to true in the " + SonarConfiguration.SONAR_NAME
-                    + " configuration." );
+            if ( ! quiet )
+            {
+                getLog().info( SONAR_SKIP_MESSAGE + ", 'skip' set to true in the " + SonarConfiguration.SONAR_NAME
+                        + " configuration." );
+            }
             
             return false;
         }

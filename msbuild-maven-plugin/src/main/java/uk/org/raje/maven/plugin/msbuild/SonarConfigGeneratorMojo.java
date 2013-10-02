@@ -52,7 +52,7 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
     @Override
     protected void doExecute() throws MojoExecutionException, MojoFailureException 
     {
-        if ( ! isSonarEnabled() )
+        if ( ! isSonarEnabled( false ) )
         {
             return;
         }
@@ -129,7 +129,7 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
             configWriter.println( "sonar.language=c++" );
             configWriter.println( "sonar.modules=" + joinList( vcProjectNames ) );
 
-            if ( isCppCheckEnabled() )
+            if ( isCppCheckEnabled( true ) )
             {
                 // Note: Due to issues in the Sonar C++ Community Plugin the report files must
                 // be under the module 'projectBaseDir'.
@@ -141,7 +141,7 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
                         .append( ".xml" ).toString().replace( "\\", "\\\\" ) );
             }            
 
-            if ( isCxxTestEnabled( MOJO_NAME ) )
+            if ( isCxxTestEnabled( null, true ) )
             {
                 configWriter.println( new StringBuilder().append( "sonar.cxx.xunit.reportPath=" )
                         .append( targetRelPath )

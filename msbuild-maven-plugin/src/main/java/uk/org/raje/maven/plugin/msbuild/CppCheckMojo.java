@@ -64,7 +64,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException 
     {
-        if ( !isCppCheckEnabled() ) 
+        if ( !isCppCheckEnabled( false ) ) 
         {
             return;
         }
