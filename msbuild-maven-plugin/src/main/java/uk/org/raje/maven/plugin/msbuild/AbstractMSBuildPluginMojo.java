@@ -17,20 +17,23 @@ package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.security.InvalidParameterException;
+import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.xml.sax.SAXException;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
@@ -39,6 +42,7 @@ import uk.org.raje.maven.plugin.msbuild.configuration.CxxTestConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.SonarConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.VersionInfoConfiguration;
 import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
+import uk.org.raje.maven.plugin.msbuild.parser.VCProjectHolder;
 
 /**
  * Abstract base class for the msbuild-maven-plugin which defines all configuration properties exposed.
@@ -48,6 +52,8 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException
     {
+        VCPROJECTHOLDER_LOGGING_HANDLER.setMavenLogger( getLog() );
+
         // Fix up configuration
         // This is done with the following hard coded fixes for parameters that
         // we want to be able to pull from -D's or settings.xml but are stored
@@ -159,37 +165,33 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     protected List<VCProject> getParsedProjects( BuildPlatform platform, BuildConfiguration configuration ) 
             throws MojoExecutionException
     {
-        String key = platform + "|" + configuration;
-        List<VCProject> vcProjects;
-
-        vcProjects = parsedProjects.get( key );
+        VCProjectHolder vcProjectHolder = VCProjectHolder.getVCProjectHolder( projectFile, 
+                MSBuildPackaging.isSolution( mavenProject.getPackaging() ) );
         
-        if ( vcProjects == null )
+        try
         {
-            VCParserHelper vcParserHelper = new VCParserHelper( getLog() );
-            
-            try
-            {
-                if ( MSBuildPackaging.isSolution( mavenProject.getPackaging() ) ) 
-                {
-                    vcParserHelper.loadSolutionFile( projectFile, platform, configuration );
-                }
-                else 
-                {
-                    vcParserHelper.loadProjectFile( projectFile, platform, configuration );
-                }
-                
-                vcProjects = vcParserHelper.getVCProjects();
-                parsedProjects.put( key, vcProjects );
-            }
-            catch ( MojoExecutionException mee )
-            {
-                getLog().error( mee.getMessage() );
-                throw mee;
-            }
+            return vcProjectHolder.getParsedProjects( platform.getName(), configuration.getName() );
         }
-
-        return vcProjects;
+        catch ( FileNotFoundException fnfe ) 
+        {
+            throw new MojoExecutionException( "Could not find file " + projectFile, fnfe );
+        }
+        catch ( IOException ioe ) 
+        {
+            throw new MojoExecutionException( "I/O error while parsing file " + projectFile, ioe );
+        }
+        catch ( SAXException se ) 
+        {
+            throw new MojoExecutionException( "Syntax error while parsing file " + projectFile, se );
+        }
+        catch ( ParserConfigurationException pce )
+        {
+            throw new MojoExecutionException( "XML parser configuration exception ", pce );
+        }
+        catch ( ParseException pe ) 
+        {
+            throw new MojoExecutionException( "Syntax error while parsing solution file " + projectFile, pe );
+        }
     }
 
     /**
@@ -396,7 +398,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         platforms = MojoHelper.validatePlatforms( platforms );
         
         return true;
-    }    
+    }
 
     /**
      * The MavenProject for the current build.
@@ -483,6 +485,22 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     protected SonarConfiguration sonar = new SonarConfiguration();
     
     /**
+     * The file extension for solution files.
+     */
+    private static final String SOLUTION_EXTENSION = "sln";
+
+    private static final String CXXTEST_SKIP_MESSAGE = "Skipping test";
+    private static final String CPPCHECK_SKIP_MESSAGE = "Skipping static code analysis";
+    private static final String SONAR_SKIP_MESSAGE = "Skipping Sonar analysis";
+    
+    /**
+     * This handler capture standard Java logging produced by {@link VCProjectHolder} and relays it to the Maven logger
+     * provided by the Mojo. It needs to be static to prevent duplicate log output. 
+     * @see {@link LoggingHandler#LoggingHandler(Class klass)} 
+     */
+    private static final LoggingHandler VCPROJECTHOLDER_LOGGING_HANDLER = new LoggingHandler( VCProjectHolder.class );
+    
+    /**
      * This parameter only exists to pickup a -D property or property in settings.xml
      * @see CppCheckConfiguration#cppCheckPath
      */
@@ -501,20 +519,4 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             readonly = true, 
             required = false )
     private File cxxTestHome;
-
-    /**
-     * A Map containing data parsed from the project files for each platform-configuration pair.
-     * The Map is populated as needed (lazy load) by the method 
-     * {@link #parsedProjects(BuildPlatform, BuildConfiguration)}.
-     */
-    private Map<String, List<VCProject> > parsedProjects = new HashMap<String, List<VCProject>>();
-
-    /**
-     * The file extension for solution files.
-     */
-    private static final String SOLUTION_EXTENSION = "sln";
-
-    private static final String CXXTEST_SKIP_MESSAGE = "Skipping test";
-    private static final String CPPCHECK_SKIP_MESSAGE = "Skipping static code analysis";
-    private static final String SONAR_SKIP_MESSAGE = "Skipping Sonar analysis";
 }
