@@ -28,9 +28,8 @@ abstract class BaseParser
 {
     /**
      * @param inputFile the file to parse, typically a Visual Studio solution file or a Visual Studio project file
-     * @param platform the platform to target during parsing (<em>e.g</em>. <code>Win32</code>, <code>x64</code>)
-     * @param configuration the configuration to target during parsing (<em>e.g.</em> <code>Release</code>, 
-     * <code>Debug</code>)
+     * @param platform the platform to target during parsing (<em>e.g</em>. {@code Win32}, {@code x64})
+     * @param configuration the configuration to target during parsing (<em>e.g.</em> {@code Release}, {@code Debug})
      * @throws FileNotFoundException if the given solution file is not found
      */
     public BaseParser( File inputFile, String platform, String configuration ) 
@@ -46,11 +45,9 @@ abstract class BaseParser
             throw new FileNotFoundException( inputFile.getAbsolutePath() );
         }
 
-        requiredConfig = configuration;
-        requiredPlatform = platform;
-
-        //Make sure we have an absolute path, so there is no ambiguity if the child classes want to access the path 
-        this.inputFile = inputFile.getAbsoluteFile();
+        this.inputFile = inputFile;
+        this.configuration = configuration;
+        this.platform = platform;
     }
     
     /**
@@ -63,40 +60,40 @@ abstract class BaseParser
     }
     
     /**
-     * Return the platform to target during parsing (<em>e.g</em>. <code>Win32</code>, <code>x64</code>).
+     * Return the platform to target during parsing (<em>e.g</em>. {@code Win32}, {@code x64}).
      * @return the platform to target during parsing
      */
-    public String getRequiredPlatform() 
+    public String getPlatform() 
     {
-        return requiredPlatform;
+        return platform;
     }
 
     /**
-     * Return the configuration to target during parsing (<em>e.g.</em> <code>Release</code>, <code>Debug</code>). 
+     * Return the configuration to target during parsing (<em>e.g.</em> {@code Release}, {@code Debug}). 
      * @return the configuration to target during parsing
      */
-    public String getRequiredConfiguration() 
+    public String getConfiguration() 
     {
-        return requiredConfig;
+        return configuration;
     }
 
     /**
      * Return the platform and configuration to target during parsing in then format <em>configuration|platform</em>.
      * @return the platform and configuration to target during parsing
      */
-    public String getRequiredConfigurationPlatform() 
+    public String getConfigurationPlatform() 
     {
-        return requiredConfig + "|" + requiredPlatform;
+        return configuration + "|" + platform;
     }
     
     /**
      * Parse the input file.
      * @throws IOException if the input file does not exists or cannot be accessed
-     * @throws ParseException if an error occurs durign parsing
+     * @throws ParseException if an error occurs during parsing
      */
     public abstract void parse() throws IOException, ParseException;
     
-    private String requiredPlatform;
-    private String requiredConfig;
+    private String platform;
+    private String configuration;
     private File inputFile;
 }

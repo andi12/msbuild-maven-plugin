@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  * the Visual C++ projects through {@link VCProjectParser} is still required to fully populate the properties in the  
  * generated beans.<p>
  * <p>The solution file contains a list of supported platform/configuration pairs (<em>e.g</em>. 
- * <code>Win32/Release</code>); for each pair, the solution also specify a given platform/configuration pair for each
+ * {@code Win32/Release}); for each pair, the solution also specify a given platform/configuration pair for each
  * project entry in the solution. Note that Visual Studio allows the platform/configuration pair for a projects to be 
  * different from the solution platform/configuration pair.</p>
  */
@@ -44,11 +44,11 @@ class VCSolutionParser extends BaseParser
 {
     /**
      * Create an instance of the Visual Studio solution parser.
-     * @param solutionFile the solution file (<code>.sln</code>) to analyse
-     * @param platform the platform for which to retrieve Visual C++ projects (<em>e.g</em>. <code>Win32</code>, 
-     * <code>x64</code>)
+     * @param solutionFile the solution file ({@code .sln}) to analyse
+     * @param platform the platform for which to retrieve Visual C++ projects (<em>e.g</em>. {@code Win32}, 
+     * {@code x64})
      * @param configuration the configuration for which to retrieve Visual C++ projects (<em>e.g.</em> 
-     * <code>Release</code>, <code>Debug</code>)
+     * {@code Release}, {@code Debug})
      * @throws FileNotFoundException if the given solution file is not found
      */
     public VCSolutionParser( File solutionFile, String platform, String configuration ) 
@@ -230,7 +230,7 @@ class VCSolutionParser extends BaseParser
         // matches the one we are looking for.
         String slnConfigPlatform = line.split( "=" )[slnConfigPlatformId];
         
-        if ( slnConfigPlatform.compareTo( getRequiredConfigurationPlatform() ) == 0 ) 
+        if ( slnConfigPlatform.compareTo( getConfigurationPlatform() ) == 0 ) 
         {
             isSolutionConfigPlatformSupported = true;
         }
@@ -254,10 +254,10 @@ class VCSolutionParser extends BaseParser
     private void parseProjectPlatformConfig( String line ) 
     {
         final int solutionProjectGuidId = 0;
-        final int solutionConfigPlatformId = 1;
-        final int solutionProjectConfigId = 2;
-        final int projectConfigPlatformId = 1;
-        final int projectConfigEntryId = 0;
+        final int solutionConfigurationPlatformId = 1;
+        final int solutionProjectConfigurationId = 2;
+        final int projectConfigurationPlatformId = 1;
+        final int projectConfigurationEntryId = 0;
         final int projectPlatformEntryId = 1;
         
         /*
@@ -273,19 +273,21 @@ class VCSolutionParser extends BaseParser
          */
         String solutionProjectEntries[] = line.split( "\\." );
         String projectGUID = solutionProjectEntries[solutionProjectGuidId];
-        String solutionConfigPlatform = solutionProjectEntries[solutionConfigPlatformId];
-        String projectActiveConfigEntry = solutionProjectEntries[solutionProjectConfigId]; 
+        String solutionConfigurationPlatform = solutionProjectEntries[solutionConfigurationPlatformId];
+        String projectActiveConfigEntry = solutionProjectEntries[solutionProjectConfigurationId]; 
 
         //If the project GUID is in the list of projects for this solution, and the solution platform/configuration pair
         // matches the one we are looking for, it means we found a platform/configuration pair for this project.
         if ( projects.containsKey( projectGUID ) 
                 && projectActiveConfigEntry.startsWith( "ActiveCfg" )  
-                && solutionConfigPlatform.compareTo( getRequiredConfigurationPlatform() ) == 0 ) 
+                && solutionConfigurationPlatform.compareTo( getConfigurationPlatform() ) == 0 ) 
         {
             VCProject project = projects.get( projectGUID );
-            String projConfigPlatform[] = projectActiveConfigEntry.split( "=" )[projectConfigPlatformId].split( "\\|" );
-            project.setConfiguration( projConfigPlatform[projectConfigEntryId] );
-            project.setPlatform( projConfigPlatform[projectPlatformEntryId] );
+            String projConfigurationPlatform[] = 
+                    projectActiveConfigEntry.split( "=" )[projectConfigurationPlatformId].split( "\\|" );
+            
+            project.setConfiguration( projConfigurationPlatform[projectConfigurationEntryId] );
+            project.setPlatform( projConfigurationPlatform[projectPlatformEntryId] );
         }
     }
     
@@ -293,7 +295,7 @@ class VCSolutionParser extends BaseParser
     {
         if ( ! isSolutionConfigPlatformSupported ) 
         {
-            throw new ParseException( "Required configuration|platform " + getRequiredConfigurationPlatform() 
+            throw new ParseException( "Required configuration|platform " + getConfigurationPlatform() 
                     + " was not found in the solution", 0 );
         }
             
@@ -301,7 +303,7 @@ class VCSolutionParser extends BaseParser
         {
             if ( project.getConfiguration() == null ) 
             {
-                throw new ParseException( "Required configuration|platform " + getRequiredConfigurationPlatform() 
+                throw new ParseException( "Required configuration|platform " + getConfigurationPlatform() 
                         + " was not found in project " + project.getName(), 0 );
             }
         }

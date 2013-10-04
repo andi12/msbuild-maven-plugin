@@ -18,6 +18,8 @@ package uk.org.raje.maven.plugin.msbuild;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import org.codehaus.plexus.DefaultPlexusContainer;
+import org.codehaus.plexus.logging.Logger;
 import org.junit.Test;
 
 /**
@@ -54,6 +56,7 @@ public class CppCheckMojoTest extends AbstractMSBuildMojoTestCase
     @Test
     public final void testMinimalSolutionConfiguration() throws Exception 
     {
+        ( (DefaultPlexusContainer) getContainer() ).getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
         CppCheckMojo cppCheckMojo = ( CppCheckMojo ) lookupConfiguredMojo( CppCheckMojo.MOJO_NAME, 
                 "/unit/cppcheck/sln-single-platform-single-config-pom.xml" );
 

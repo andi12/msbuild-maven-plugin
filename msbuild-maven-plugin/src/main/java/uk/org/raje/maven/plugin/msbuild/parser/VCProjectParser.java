@@ -36,9 +36,9 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * <p>Class that parses a Visual Studio C++ project. This class retrieves the following project properties:
  * <ul>
- *      <li>Include Directories (additional header locations)</li> 
- *      <li>Preprocessor Definitions (<code>#define</code> to be used during compilation 
- *          (<em>e.g.</em> <code>WIN32</code>, <code>_DEBUG</code>)</li> 
+ *      <li>Include Directories (<em>i.e.</em> additional header locations)</li> 
+ *      <li>Preprocessor Definitions (<em>i.e.</em> {@code #define}s used during code compilation such as {@code WIN32},
+ *      {@code _DEBUG})</li> 
  *      <li>Output Directory (location of the generated output file)</li>
  * </ul> 
  * These properties are necessary for other tools to work (<em>e.g.</em> CppCheck, CxxTest, Sonar).</p>
@@ -50,12 +50,11 @@ class VCProjectParser extends BaseParser
     /**
      * Create an instance of the Visual C++ project parser.
      * @param projectFile the Visual C++ project file to parse
-     * @param solutionFile the solution file that contains this project if available, <code>null</code> 
+     * @param solutionFile the solution file that contains this project if available, {@code null} 
      * otherwise
-     * @param platform the platform for which to retrieve Visual C++ projects (<em>e.g</em>. <code>Win32</code>, 
-     * <code>x64</code>)
-     * @param configuration the configuration for which to retrieve Visual C++ projects (<em>e.g.</em>
-     * <code>Release</code>, <code>Debug</code>)
+     * @param platform the platform for which to retrieve Visual C++ projects (<em>e.g</em>. {@code Win32}, {@code x64})
+     * @param configuration the configuration for which to retrieve Visual C++ projects (<em>e.g.</em> {@code Release}, 
+     * {@code Debug})
      * @throws FileNotFoundException if the given project file is not found
      * @throws ParserConfigurationException if a parser cannot be created which satisfies the requested configuration
      * @throws SAXException if a SAX parsing error occurs
@@ -76,10 +75,9 @@ class VCProjectParser extends BaseParser
     /**
      * Create an instance of the Visual C++ project parser.
      * @param projectFile the Visual C++ project file to parse (assume that no solution file is available)
-     * @param platform the platform for which to retrieve Visual C++ projects (<em>e.g</em>. <code>Win32</code>, 
-     * <code>x64</code>)
-     * @param configuration the configuration for which to retrieve Visual C++ projects (<em>e.g.</em>
-     * <code>Release</code>, <code>Debug</code>)
+     * @param platform the platform for which to retrieve Visual C++ projects (<em>e.g</em>. {@code Win32}, {@code x64})
+     * @param configuration the configuration for which to retrieve Visual C++ projects (<em>e.g.</em> {@code Release}, 
+     * {@code Debug})
      * @throws FileNotFoundException if the given project file is not found
      * @throws ParserConfigurationException if a parser cannot be created which satisfies the requested configuration
      * @throws SAXException if a SAX parsing error occurs
@@ -150,7 +148,7 @@ class VCProjectParser extends BaseParser
                 // the Condition matched the required platform/configuration; otherwise we need to check whether the  
                 // current element satisfies the required platform/configuration pair through the Condition attribute. 
                 if ( condition == null
-                    || ( condition != null && condition.contains( getRequiredConfigurationPlatform() ) ) )
+                    || ( condition != null && condition.contains( getConfigurationPlatform() ) ) )
                 {
                     if ( path.equals( PATH_OUTDIR ) ) 
                     {
@@ -163,7 +161,7 @@ class VCProjectParser extends BaseParser
             case PARSE_CONFIGPLATFORM_GROUP: 
                 //Here we use the same strategy and make the same assumptions as above.
                 if ( condition == null
-                    || ( condition != null && condition.contains( getRequiredConfigurationPlatform() ) ) )
+                    || ( condition != null && condition.contains( getConfigurationPlatform() ) ) )
                 {
                     if ( path.equals( PATH_ADDITIONAL_INCDIRS ) ) 
                     {
@@ -193,7 +191,7 @@ class VCProjectParser extends BaseParser
                  * attribute will appear in (all) the child elements contained within <ProperyGroup></ProperyGroup>; we 
                  * use the same strategy and assumptions for a <ItemDefinitionGroup> element.
                  */
-                if ( condition == null || condition.contains( getRequiredConfigurationPlatform() ) )
+                if ( condition == null || condition.contains( getConfigurationPlatform() ) )
                 {
                     if ( path.equals( PATH_PROPERTY_GROUP ) )
                     {
@@ -284,8 +282,8 @@ class VCProjectParser extends BaseParser
             //Note: $(SolutionDir) is an absolute path and terminates with a separator
             entries = entries.replace( "$(SolutionDir)", getBaseDirectory().getPath() + File.separator );
             
-            entries = entries.replace( "$(Configuration)", getRequiredConfiguration() );
-            entries = entries.replace( "$(Platform)", getRequiredPlatform() );
+            entries = entries.replace( "$(Configuration)", getConfiguration() );
+            entries = entries.replace( "$(Platform)", getPlatform() );
 
             return entries;
         }
@@ -298,12 +296,12 @@ class VCProjectParser extends BaseParser
     private File getDefaultOutputDirectory()
     {
         //The default output directory is the configuration name.
-        String childOutputDirectory = getRequiredConfiguration();
+        String childOutputDirectory = getConfiguration();
         
         //However, for platforms others than Win32, the default output directory becomes platform/configuration.
-        if ( ! getRequiredPlatform().equals( "Win32" ) )
+        if ( ! getPlatform().equals( "Win32" ) )
         {
-            childOutputDirectory = new File( getRequiredPlatform(), childOutputDirectory ).getPath();
+            childOutputDirectory = new File( getPlatform(), childOutputDirectory ).getPath();
         }
         
         //Place the default output directory within the appropriate base directory.
@@ -311,14 +309,14 @@ class VCProjectParser extends BaseParser
     }
     
     /**
-     * Retrieve the base directory for the Visual C++ project. If this project is part of a Visual Studio solution, then
-     * the base directory is the solution directory; for standalone projects, the base directory is the project folder.
+     * Retrieve the base directory for the Visual C++ project. If this project is part of a Visual Studio solution, the
+     * base directory is the solution directory; for standalone projects, the base directory is the project directory.
      * @return the base directory for the Visual C++ project
      */
     private File getBaseDirectory()
     {
-        File referenceFile = ( solutionFile != null ? solutionFile.getAbsoluteFile() : getInputFile() );
-        return referenceFile.getParentFile();
+        File referenceFile = ( solutionFile != null ? solutionFile : getInputFile() );
+        return referenceFile.getParentFile().getAbsoluteFile();
     };    
     
     private enum ElementParserState 
