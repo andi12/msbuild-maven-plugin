@@ -35,19 +35,19 @@ import java.util.regex.Pattern;
  * corresponding {@link VCProject} beans and populate them with properties from the solution file. Further parsing of  
  * the Visual C++ projects through {@link VCProjectParser} is still required to fully populate the properties in the  
  * generated beans.<p>
- * <p>The solution file contains a list of supported platform/configuration pairs (<em>e.g</em>. 
- * {@code Win32/Release}); for each pair, the solution also specify a given platform/configuration pair for each
- * project entry in the solution. Note that Visual Studio allows the platform/configuration pair for a projects to be 
- * different from the solution platform/configuration pair.</p>
+ * <p>The solution file contains a list of supported platform/configuration pairs (for example, {@code Win32/Release}); 
+ * for each pair, the solution also specify a given platform/configuration pair for each project entry in the solution. 
+ * Note that Visual Studio allows the platform/configuration pair for a projects to be different from the solution 
+ * platform/configuration pair.</p>
  */
 class VCSolutionParser extends BaseParser 
 {
     /**
      * Create an instance of the Visual Studio solution parser.
      * @param solutionFile the solution file ({@code .sln}) to analyse
-     * @param platform the platform for which to retrieve Visual C++ projects (<em>e.g</em>. {@code Win32}, 
+     * @param platform the platform for which to retrieve Visual C++ projects (for example, {@code Win32}, 
      * {@code x64})
-     * @param configuration the configuration for which to retrieve Visual C++ projects (<em>e.g.</em> 
+     * @param configuration the configuration for which to retrieve Visual C++ projects (for example,
      * {@code Release}, {@code Debug})
      * @throws FileNotFoundException if the given solution file is not found
      */
@@ -100,6 +100,7 @@ class VCSolutionParser extends BaseParser
             
             switch ( solutionParserState ) 
             {
+            
             //Parse the solution global section, which contains the list of supported platform/configuration pairs for 
             // the solution.
             case PARSE_SOLUTION_GLOBAL_SECTION:
@@ -115,8 +116,8 @@ class VCSolutionParser extends BaseParser
                 break;
                 
             //Parse the project global section, which contains the list of supported platform/configuration pairs for 
-            // each project, for each platform/configuration pair supported by the solution (e.g. a solution that
-            // supports the Win32/Release pair may specify that a project has to be built against a Win32/Debug pair). 
+            // each project, for each platform/configuration pair supported by the solution (for example, a solution 
+            // supporting the Win32/Release pair may specify that a project has to be built against a Win32/Debug pair)
             case PARSE_PROJECT_GLOBAL_SECTION:
                 if ( line.startsWith( END_PROJECT_GLOBAL_SECTION ) ) 
                 {
@@ -129,7 +130,7 @@ class VCSolutionParser extends BaseParser
                 
                 break;
             
-            //Parse the rest of the solution file.
+            //Parse the rest of the solution file
             default:
                 Matcher prjMatcher = projectPropertiesPattern.matcher( line );
                 

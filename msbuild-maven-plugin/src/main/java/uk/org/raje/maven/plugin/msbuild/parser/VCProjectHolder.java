@@ -71,8 +71,8 @@ public final class VCProjectHolder
     /**
      * Return a {@link List} of {@link VCProject} beans for a given platform/configuration pair. Each {@link VCProject} 
      * bean holds properties for a parsed Visual C++ project.
-     * @param platform the platform to use for parsing (<em>e.g</em>. {@code Win32}, {@code x64})
-     * @param configuration the configuration to use for parsing (<em>e.g.</em> {@code Release}, {@code Debug})
+     * @param platform the platform to use for parsing (for example, {@code Win32}, {@code x64})
+     * @param configuration the configuration to use for parsing (for example,{@code Release}, {@code Debug})
      * @return a {@link List} of {@link VCProject}s that hold properties for parsed Visual C++ projects
      * @throws IOException if the input file does not exists or cannot be accessed, see 
      * {@link VCProjectHolder#VCProjectHolder(inputFile, isSolution)} 
@@ -104,18 +104,27 @@ public final class VCProjectHolder
     }
 
     private static final Map< File, VCProjectHolder > VCPROJECT_HOLDERS = new HashMap<File, VCProjectHolder>();
-    
     private final Logger logger = Logger.getLogger( getClass().getName() );
     
     private List<VCProject> parseVCSolution( File solutionFile, String platform, String configuration ) 
             throws IOException, ParserConfigurationException, ParseException, SAXException
     {
+        String name = getFilename( solutionFile );
+        
+        logger.fine( "Parsing solution " + name + " with platform=" + platform 
+                + ", configuration=" + configuration );
+        
         VCSolutionParser vcSolutionParser = new VCSolutionParser( solutionFile, platform, configuration );
         vcSolutionParser.parse();
         
-        logger.fine( "Parsed solution " + solutionFile.getName() + " with platform=" + platform 
-                + ", configuration=" + configuration );
-        
+        for ( VCProject vcProject : vcSolutionParser.getVCProjects() ) 
+        {
+            logger.fine( "Solution " + name + ": found project " + vcProject.getName() 
+                    + " with platform=" + vcProject.getPlatform() + ", configuration=" + vcProject.getConfiguration() );
+            }
+
+        logger.fine( "Solution parsing complete" );
+
         for ( VCProject vcProject : vcSolutionParser.getVCProjects() ) 
         {
             parseVCProject( vcProject, solutionFile );
@@ -127,34 +136,40 @@ public final class VCProjectHolder
     private VCProject parseStandaloneVCProject( File projectFile, String platform, String configuration )
             throws IOException, ParserConfigurationException, ParseException, SAXException
     {
-        String name = projectFile.getName();
+        
+        VCProject vcProject = new VCProject( getFilename( projectFile ), projectFile, platform, configuration );
+        parseVCProject( vcProject, null );
+        
+        return vcProject;
+    }
+    
+    private String getFilename( File file )
+    {
+        String name = file.getName();
         
         if ( name.indexOf( '.' ) > 0 )
         {
             name = name.substring( 0, name.lastIndexOf( '.' ) );
         }
         
-        VCProject vcProject = new VCProject( name, projectFile, platform, configuration );
-        parseVCProject( vcProject, null );
-        
-        return vcProject;
+        return name;
     }
     
     private void parseVCProject( VCProject vcProject, File solutionFile ) 
         throws IOException, ParserConfigurationException, ParseException, SAXException
     {
         VCProjectParser vcProjectParser;
-        File projectFile = vcProject.getProjectFile();
+        File projectFile = vcProject.getFile();
         String name = vcProject.getName();
+        
+        logger.fine( "Parsing project " + name + " with platform=" + vcProject.getPlatform() 
+                + ", configuration=" + vcProject.getConfiguration() );
         
         vcProjectParser = new VCProjectParser( projectFile, solutionFile, vcProject.getPlatform(), 
                 vcProject.getConfiguration() );
         
         vcProjectParser.parse();
         vcProjectParser.updateVCProject( vcProject );
-        
-        logger.fine( "Parsed project " + name + " with platform=" + vcProject.getPlatform() 
-                + ", configuration=" + vcProject.getConfiguration() );
         
         logger.fine( "Project " + name + ": output directory=" + vcProject.getOutputDirectory() );
 
@@ -167,6 +182,8 @@ public final class VCProjectHolder
         {
             logger.fine( "Project " + name + ": preprocessor definitions=" + vcProject.getPreprocessorDefs() );
         }
+
+        logger.fine( "Project parsing complete" );
     }
     
     private File inputFile;

@@ -41,7 +41,7 @@ import org.xml.sax.helpers.DefaultHandler;
  *      {@code _DEBUG})</li> 
  *      <li>Output Directory (location of the generated output file)</li>
  * </ul> 
- * These properties are necessary for other tools to work (<em>e.g.</em> CppCheck, CxxTest, Sonar).</p>
+ * These properties are necessary for other tools to work (for example, CppCheck, CxxTest, Sonar).</p>
  * <p>Once the C++ project has been parsed, the {@link VCProjectParser#updateVCProject} method can be used to update a 
  * {@link VCProject} bean with the values of the retrieved properties.
  */
@@ -52,8 +52,8 @@ class VCProjectParser extends BaseParser
      * @param projectFile the Visual C++ project file to parse
      * @param solutionFile the solution file that contains this project if available, {@code null} 
      * otherwise
-     * @param platform the platform for which to retrieve Visual C++ projects (<em>e.g</em>. {@code Win32}, {@code x64})
-     * @param configuration the configuration for which to retrieve Visual C++ projects (<em>e.g.</em> {@code Release}, 
+     * @param platform the platform for which to retrieve Visual C++ projects (for example, {@code Win32}, {@code x64})
+     * @param configuration the configuration for which to retrieve Visual C++ projects (for example, {@code Release}, 
      * {@code Debug})
      * @throws FileNotFoundException if the given project file is not found
      * @throws ParserConfigurationException if a parser cannot be created which satisfies the requested configuration
@@ -68,15 +68,15 @@ class VCProjectParser extends BaseParser
         parser = factory.newSAXParser();
         this.solutionFile = solutionFile;
         
-        //Assume the output directory is set to the default value. This can change later if the project specifies one.
+        //Assume the output directory is set to the default value. This can change later if the project specifies one
         outputDirectory = getDefaultOutputDirectory();
     }
 
     /**
      * Create an instance of the Visual C++ project parser.
      * @param projectFile the Visual C++ project file to parse (assume that no solution file is available)
-     * @param platform the platform for which to retrieve Visual C++ projects (<em>e.g</em>. {@code Win32}, {@code x64})
-     * @param configuration the configuration for which to retrieve Visual C++ projects (<em>e.g.</em> {@code Release}, 
+     * @param platform the platform for which to retrieve Visual C++ projects (for example, {@code Win32}, {@code x64})
+     * @param configuration the configuration for which to retrieve Visual C++ projects (for example, {@code Release}, 
      * {@code Debug})
      * @throws FileNotFoundException if the given project file is not found
      * @throws ParserConfigurationException if a parser cannot be created which satisfies the requested configuration
@@ -101,9 +101,6 @@ class VCProjectParser extends BaseParser
         vcProject.setIncludeDirectories( includeDirs );
     }
 
-    /* (non-Javadoc)
-     * @see uk.org.raje.maven.plugin.msbuild.parser.BaseParser#parse()
-     */
     @Override
     public void parse() throws IOException, ParseException 
     {
@@ -143,6 +140,7 @@ class VCProjectParser extends BaseParser
             switch ( elementParserState ) 
             {
             case PARSE_PROPERTY_GROUP:
+                
                 //If there is no Condition attribute in the current element (which is a child inside a <ProperyGroup>
                 // element), we assume that the Condition attribute was present in the parent <ProperyGroup> and that 
                 // the Condition matched the required platform/configuration; otherwise we need to check whether the  
@@ -158,8 +156,9 @@ class VCProjectParser extends BaseParser
             
                 break;
 
-            case PARSE_CONFIGPLATFORM_GROUP: 
-                //Here we use the same strategy and make the same assumptions as above.
+            case PARSE_CONFIGPLATFORM_GROUP:
+                
+                //Here we use the same strategy and make the same assumptions as above
                 if ( condition == null
                     || ( condition != null && condition.contains( getConfigurationPlatform() ) ) )
                 {
@@ -177,6 +176,7 @@ class VCProjectParser extends BaseParser
                 break;
             
             default: 
+                
                 /* We are looking for a <PropertyGroup> element that either matches the required platform/configuration 
                  * pair through a Condition attribute, or that contains child elements that match the required 
                  * platform/configuration pair (using a similar Condition attribute), for example:
@@ -226,12 +226,13 @@ class VCProjectParser extends BaseParser
         public void characters( char[] chars, int start, int length ) 
                 throws SAXException 
         {
-            //Keep variable replacement here, as later splitEntries gets rid of all variables that were not replaced.
+            //Keep variable replacement here, as later splitEntries gets rid of all variables that were not replaced
             String entries = replaceVariables( new String( chars, start, length ) );
             
             switch ( charParserState ) 
             {
-            //The project specifies an output directory, possibly different from the default.
+            
+            //The project specifies an output directory, possibly different from the default
             case PARSE_OUTDIR: 
                 outputDirectory = new File( entries );
                 
@@ -244,7 +245,7 @@ class VCProjectParser extends BaseParser
                 
                 break;
 
-            //The project specifies some additional header locations.
+            //The project specifies some additional header locations
             case PARSE_INCLUDE_DIRS:
                 for ( String directory : splitEntries( entries ) )
                 {
@@ -253,7 +254,7 @@ class VCProjectParser extends BaseParser
                 
                 break;
                 
-            //The project specifies some preprocessor definitions.
+            //The project specifies some preprocessor definitions
             case PARSE_PREPROCESSOR_DEFS:
                 preprocessorDefs = splitEntries( entries );
                 break;
@@ -295,16 +296,16 @@ class VCProjectParser extends BaseParser
      */
     private File getDefaultOutputDirectory()
     {
-        //The default output directory is the configuration name.
+        //The default output directory is the configuration name
         String childOutputDirectory = getConfiguration();
         
-        //However, for platforms others than Win32, the default output directory becomes platform/configuration.
+        //However, for platforms others than Win32, the default output directory becomes platform/configuration
         if ( ! getPlatform().equals( "Win32" ) )
         {
             childOutputDirectory = new File( getPlatform(), childOutputDirectory ).getPath();
         }
         
-        //Place the default output directory within the appropriate base directory.
+        //Place the default output directory within the appropriate base directory
         return new File( getBaseDirectory(), childOutputDirectory );
     }
     

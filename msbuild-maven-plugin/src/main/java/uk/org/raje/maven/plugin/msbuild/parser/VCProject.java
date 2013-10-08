@@ -33,8 +33,8 @@ public class VCProject
      * Create a bean that holds properties parsed from a Visual C++ project file.
      * @param name the name of the Visual C++ project
      * @param projectFile the project file
-     * @param platform the platform used to parse the project properties (<em>e.g</em>. {@code Win32}, {@code x64})
-     * @param configuration the configuration identifier used to parse the project properties (<em>e.g.</em> 
+     * @param platform the platform used to parse the project properties (for example, {@code Win32}, {@code x64})
+     * @param configuration the configuration identifier used to parse the project properties (for example,
      * {@code Release}, {@code Debug})
      */
     public VCProject( String name, File projectFile, String platform, String configuration ) 
@@ -114,7 +114,7 @@ public class VCProject
      * Return the project file.
      * @return the project file.
      */
-    public File getProjectFile() 
+    public File getFile() 
     {
         return projectFile;
     }
@@ -135,7 +135,7 @@ public class VCProject
     }
     
     /**
-     * Return the configuration identifier used to parse the project properties (<em>e.g.</em> {@code Release}, 
+     * Return the configuration identifier used to parse the project properties (for example, {@code Release}, 
      * {@code Debug})
      * @return the configuration identifier used to parse the project properties
      */
@@ -150,7 +150,7 @@ public class VCProject
     }
     
     /**
-     * Return the platform used to parse the project properties (<em>e.g</em>. {@code Win32}, {@code x64})
+     * Return the platform used to parse the project properties (for example, {@code Win32}, {@code x64})
      * @return the platform used to parse the project properties 
      */
     public String getPlatform() 

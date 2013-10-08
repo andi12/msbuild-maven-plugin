@@ -28,8 +28,8 @@ abstract class BaseParser
 {
     /**
      * @param inputFile the file to parse, typically a Visual Studio solution file or a Visual Studio project file
-     * @param platform the platform to target during parsing (<em>e.g</em>. {@code Win32}, {@code x64})
-     * @param configuration the configuration to target during parsing (<em>e.g.</em> {@code Release}, {@code Debug})
+     * @param platform the platform to target during parsing (for example, {@code Win32}, {@code x64})
+     * @param configuration the configuration to target during parsing (for example, {@code Release}, {@code Debug})
      * @throws FileNotFoundException if the given solution file is not found
      */
     public BaseParser( File inputFile, String platform, String configuration ) 
@@ -60,7 +60,7 @@ abstract class BaseParser
     }
     
     /**
-     * Return the platform to target during parsing (<em>e.g</em>. {@code Win32}, {@code x64}).
+     * Return the platform to target during parsing (for example, {@code Win32}, {@code x64}).
      * @return the platform to target during parsing
      */
     public String getPlatform() 
@@ -69,7 +69,7 @@ abstract class BaseParser
     }
 
     /**
-     * Return the configuration to target during parsing (<em>e.g.</em> {@code Release}, {@code Debug}). 
+     * Return the configuration to target during parsing (for example, {@code Release}, {@code Debug}). 
      * @return the configuration to target during parsing
      */
     public String getConfiguration() 
