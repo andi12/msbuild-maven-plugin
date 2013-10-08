@@ -18,14 +18,16 @@ package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import org.codehaus.plexus.util.cli.StreamConsumer;
 import org.codehaus.plexus.util.cli.StreamPumper;
 
 
 /**
- * @author dmasato
  *
  */
 public abstract class CommandLineRunner 
@@ -40,27 +42,51 @@ public abstract class CommandLineRunner
     {
         Process commandLineProc;
         List<String> commandLineArguments = getCommandLineArguments();
-        ProcessBuilder pb = new ProcessBuilder( commandLineArguments );
+        ProcessBuilder processBuilder = new ProcessBuilder( commandLineArguments );
+        processBuilder.directory( workingDirectory );
+        processBuilder.environment().putAll( environmentVars );
         
-        if ( workingDirectory != null )
-        {
-            pb.directory( workingDirectory );
-        }
+        logger.fine( "Executing command line: " + getCommandLine() );
+        logger.fine( "Working directory: " + workingDirectory );
+        logger.fine( "Environemnt variables: " + environmentVars );
+        commandLineProc = processBuilder.start();
         
-        commandLineProc = pb.start();
         final StreamPumper stdoutPumper = new StreamPumper( commandLineProc.getInputStream(), outputConsumer );
         final StreamPumper stderrPumper = new StreamPumper( commandLineProc.getErrorStream(), errorConsumer );
-        stdoutPumper.start();        
+        stdoutPumper.start();
         stderrPumper.start();
 
         int exitCode = commandLineProc.waitFor();
         stdoutPumper.waitUntilDone();
         stderrPumper.waitUntilDone();
+        logger.fine( "Command line returned exit code " + exitCode );
         
         return exitCode; 
     }    
     
-    public String getCommandLine() 
+    public void setWorkingDirectory( File workingDirectory ) 
+    {
+        this.workingDirectory = workingDirectory;
+    }
+
+    public void setEnvironmentVars( Map<String, String> environmentVars ) 
+    {
+        this.environmentVars = environmentVars;
+    }
+
+    protected abstract List<String> getCommandLineArguments();
+
+    protected File getWorkingDirectory() 
+    {
+        return workingDirectory;
+    }
+
+    protected Map<String, String> getEnvironmentVars() 
+    {
+        return environmentVars;
+    }
+
+    protected String getCommandLine() 
     {
         StringBuilder commandLine = new StringBuilder();
         
@@ -72,19 +98,10 @@ public abstract class CommandLineRunner
         return commandLine.toString();
     }
     
-    public File getWorkingDirectory() 
-    {
-        return workingDirectory;
-    }
-
-    public void setWorkingDirectory( File workingDirectory ) 
-    {
-        this.workingDirectory = workingDirectory;
-    }
-
-    protected abstract List<String> getCommandLineArguments();
+    private final Logger logger = Logger.getLogger( getClass().getName() );
     
     private StreamConsumer outputConsumer;
     private StreamConsumer errorConsumer;
-    private File workingDirectory;
+    private File workingDirectory = new File( "." );
+    private Map<String, String> environmentVars = new HashMap<String, String>();
 }
