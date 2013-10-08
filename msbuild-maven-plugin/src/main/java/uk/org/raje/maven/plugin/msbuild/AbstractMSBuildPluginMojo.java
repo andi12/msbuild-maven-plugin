@@ -52,8 +52,8 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException
     {
-        VCPROJECTHOLDER_LOGGING_HANDLER.setMavenLogger( getLog() );
-
+        VCPROJECT_HOLDER_LOG_HANDLER.setLog( getLog() );
+        
         // Fix up configuration
         // This is done with the following hard coded fixes for parameters that
         // we want to be able to pull from -D's or settings.xml but are stored
@@ -496,9 +496,10 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     /**
      * This handler capture standard Java logging produced by {@link VCProjectHolder} and relays it to the Maven logger
      * provided by the Mojo. It needs to be static to prevent duplicate log output. 
-     * @see {@link LoggingHandler#LoggingHandler(Class klass)} 
+     * @see {@link LoggingHandler#LoggingHandler(String name)} 
      */
-    private static final LoggingHandler VCPROJECTHOLDER_LOGGING_HANDLER = new LoggingHandler( VCProjectHolder.class );
+    private static final LoggingHandler VCPROJECT_HOLDER_LOG_HANDLER = 
+            new LoggingHandler( VCProjectHolder.class.getName() );
     
     /**
      * This parameter only exists to pickup a -D property or property in settings.xml
