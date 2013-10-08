@@ -104,5 +104,27 @@ public class MavenITSonarConfigurationTest
                 new File( testDir, "target\\sonar-configuration-Win32-Release.properties" ) );
     }
 
+    /**
+     * Test that configured links are written out
+     * @throws Exception if there is a problem setting up and running Maven
+     */
+    @Test
+    public void links() throws Exception
+    {
+        File testDir = ResourceExtractor.simpleExtractResources( getClass(),
+                "/sonar-config-test" );
+
+        Verifier verifier = new Verifier( testDir.getAbsolutePath() );
+        addPropertiesToVerifier( verifier );
+        verifier.addCliOption( "-f links-pom.xml" );
+        
+        verifier.executeGoal( SONAR_GOAL );
+        verifier.verifyErrorFreeLog();
+
+        FileAssert.assertEquals( 
+                new File( testDir, "expected\\sonar-links-Win32-Release.properties" ), 
+                new File( testDir, "target\\sonar-configuration-Win32-Release.properties" ) );
+    }
+
     private static final String SONAR_GOAL = "msbuild:sonar";
 }

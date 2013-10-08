@@ -119,11 +119,8 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         
         try 
         {
-            configWriter.println( "sonar.projectKey=" + mavenProject.getModel().getGroupId() + ":" 
-                    + mavenProject.getModel().getArtifactId() );
-
-            configWriter.println( "sonar.projectName=" + mavenProject.getModel().getArtifactId() );
-            configWriter.println( "sonar.projectVersion=" + mavenProject.getModel().getVersion() );
+            generateSonarProjectInformation( configWriter );
+            
             configWriter.println( "sonar.sources=." );
             configWriter.println( "sonar.language=c++" );
             configWriter.println( "sonar.modules=" + joinList( vcProjectNames ) );
@@ -166,7 +163,42 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         finaliseConfigWriter( configWriter, configFile );
         getLog().info( "Written sonar configuration file " + configFile.getAbsolutePath() );
     }
-    
+
+    private void generateSonarProjectInformation( PrintWriter writer )
+    {
+        writer.println( "sonar.projectKey=" + mavenProject.getModel().getGroupId() + ":" 
+                + mavenProject.getModel().getArtifactId() );
+
+        writer.println( "sonar.projectName=" + mavenProject.getModel().getArtifactId() );
+        writer.println( "sonar.projectVersion=" + mavenProject.getModel().getVersion() );
+
+        if ( mavenProject.getUrl() != null )
+        {
+            writer.println( "sonar.links.homepage=" + mavenProject.getUrl() );
+        }
+        if ( mavenProject.getCiManagement() != null
+                && mavenProject.getCiManagement().getUrl() != null )
+        {
+            writer.println( "sonar.links.ci=" + mavenProject.getCiManagement().getUrl() );
+        }
+        if ( mavenProject.getIssueManagement() != null
+                && mavenProject.getIssueManagement().getUrl() != null )
+        {
+            writer.println( "sonar.links.issue=" +  mavenProject.getIssueManagement().getUrl() );
+        }
+        if ( mavenProject.getScm() != null )
+        {
+            if ( mavenProject.getScm().getUrl() != null )
+            {
+                writer.println( "sonar.links.scm=" + mavenProject.getScm().getUrl() );
+            }
+            if ( mavenProject.getScm().getDeveloperConnection() != null )
+            {
+                writer.println( "sonar.links.scm_dev=" + mavenProject.getScm().getDeveloperConnection() );
+            }
+        }
+    }
+
     private void generateProjectSonarConfiguration( VCProject vcProject, List<File> systemIncludeDirs, 
             PrintWriter writer ) throws IOException, MojoExecutionException
     {
