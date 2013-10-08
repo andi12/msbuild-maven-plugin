@@ -106,7 +106,7 @@ public class VCProjectParserTest
         {
             VCProject vcProject = testProject( TEST_PROJECT_OUTDIR_DEFAULT, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
                     TEST_PREPROCESSOR_DEFS[0][i], new File[0] );
-            assertEquals( new File( vcProject.getProjectFile().getParent(), TEST_CONFIGURATIONS[i] ),
+            assertEquals( new File( vcProject.getFile().getParent(), TEST_CONFIGURATIONS[i] ),
                     vcProject.getOutputDirectory() );
         }
     }
@@ -118,7 +118,7 @@ public class VCProjectParserTest
         {
             VCProject vcProject = testProject( TEST_PROJECT_OUTDIR_SET, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
                     TEST_PREPROCESSOR_DEFS[0][i], new File[0] );
-            assertEquals( new File( vcProject.getProjectFile().getParentFile(), "Runtime\\" + TEST_CONFIGURATIONS[i] ),
+            assertEquals( new File( vcProject.getFile().getParentFile(), "Runtime\\" + TEST_CONFIGURATIONS[i] ),
                     vcProject.getOutputDirectory() );
         }
     }
@@ -133,7 +133,7 @@ public class VCProjectParserTest
         {
             VCProject vcProject = testProject( TEST_PROJECT_OUTDIR2_SET, TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
                     TEST_PREPROCESSOR_DEFS[0][i], new File[0] );
-            assertEquals( new File( vcProject.getProjectFile().getParentFile(), 
+            assertEquals( new File( vcProject.getFile().getParentFile(), 
                     "Runtime\\" + TEST_PLATFORMS[0] + "\\" + TEST_CONFIGURATIONS[i] ),
                     vcProject.getOutputDirectory() );
         }
@@ -150,7 +150,7 @@ public class VCProjectParserTest
             VCProject vcProject = testProject( TEST_PROJECT_OUTDIR2_SET, TEST_CONFIG_SOLUTION, 
                     TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
                     TEST_PREPROCESSOR_DEFS[0][i], new File[0] );
-            assertEquals( new File( vcProject.getProjectFile().getParentFile().getParentFile(), 
+            assertEquals( new File( vcProject.getFile().getParentFile().getParentFile(), 
                     "Runtime\\" + TEST_PLATFORMS[0] + "\\" + TEST_CONFIGURATIONS[i] ),
                     vcProject.getOutputDirectory() );
         }
@@ -164,7 +164,7 @@ public class VCProjectParserTest
             VCProject vcProject = testProject( TEST_PROJECT_RELATIVE_OUTDIR_SET, 
                     TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
                     TEST_PREPROCESSOR_DEFS[0][i], new File[0] );
-            assertEquals( new File( vcProject.getProjectFile().getParentFile(), ".\\" + TEST_CONFIGURATIONS[i] ),
+            assertEquals( new File( vcProject.getFile().getParentFile(), ".\\" + TEST_CONFIGURATIONS[i] ),
                     vcProject.getOutputDirectory() );
         }
     }
@@ -177,7 +177,7 @@ public class VCProjectParserTest
             VCProject vcProject = testProject( TEST_PROJECT_RELATIVE_OUTDIR_SET, TEST_CONFIG_SOLUTION,
                     TEST_PLATFORMS[0], TEST_CONFIGURATIONS[i], 
                     TEST_PREPROCESSOR_DEFS[0][i], new File[0] );
-            assertEquals( new File( vcProject.getProjectFile().getParentFile(), ".\\" + TEST_CONFIGURATIONS[i] ),
+            assertEquals( new File( vcProject.getFile().getParentFile(), ".\\" + TEST_CONFIGURATIONS[i] ),
                     vcProject.getOutputDirectory() );
         }
     }

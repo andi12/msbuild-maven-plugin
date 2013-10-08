@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -34,8 +35,6 @@ import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 import uk.org.raje.maven.plugin.msbuild.configuration.SonarConfiguration;
 import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
-
-import com.google.common.io.Files;
 
 /**
  * Generates a Sonar configuration file for each platform/configuration pair. The configuration file tells Sonar
@@ -71,7 +70,7 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
     {
         try 
         {
-            Files.createParentDirs( configFile );
+            FileUtils.forceMkdir( configFile.getParentFile() );
             return new PrintWriter( new FileWriter( configFile ) );
         }
         catch ( IOException ioe )
@@ -179,7 +178,7 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         
         writer.println( vcProject.getName() + ".sonar.projectBaseDir=" 
                 + getRelativeFile( vcProject.getBaseDirectory(),
-                        vcProject.getProjectFile().getParentFile() ).getPath().replace( "\\", "\\\\" ) );
+                        vcProject.getFile().getParentFile() ).getPath().replace( "\\", "\\\\" ) );
         
         if ( includeDirectories.size() > 0 )
         {

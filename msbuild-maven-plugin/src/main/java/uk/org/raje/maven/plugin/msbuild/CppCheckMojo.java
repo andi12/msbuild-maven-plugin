@@ -36,8 +36,6 @@ import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 import org.codehaus.plexus.util.cli.WriterStreamConsumer;
 
-import com.google.common.io.Files;
-
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckConfiguration;
@@ -68,8 +66,10 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         {
             return;
         }
-        
+     
+        CPPCHECK_RUNNER_LOG_HANDLER.setLog( getLog() );
         validateCppCheckConfiguration();
+        
         List<Boolean> allChecksPassed = new LinkedList<Boolean>();
         
         Pattern projectExcludePattern = null;
@@ -99,38 +99,53 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         
         if ( allChecksPassed.contains( false ) )
         {
-            throw new MojoFailureException( "Static code analysis failed." );
+            throw new MojoFailureException( "Static code analysis failed" );
         }
         
-        getLog().info( "Static code analysis complete." );
+        getLog().info( "Static code analysis complete" );
     }
 
     /**
      * Finds 'cppcheck-reports' directories and removes them.
      * @throws MojoFailureException
      */
-    static void clean( File projectFile, Log log ) throws MojoFailureException
+    protected static void clean( File projectFile, Log log ) throws MojoFailureException
     {
         final DirectoryScanner directoryScanner = new DirectoryScanner();
         directoryScanner.setIncludes( new String[]{ "**\\" + REPORT_DIRECTORY } );
         directoryScanner.setBasedir( projectFile.getParentFile() );
         directoryScanner.scan();
 
-        for ( String dirName : directoryScanner.getIncludedDirectories() )
+        log.info( "Cleaning up " + CppCheckConfiguration.CPPCHECK_NAME + " reports" );
+        
+        for ( String directoryName : directoryScanner.getIncludedDirectories() )
         {
-            final File dir = new File( projectFile.getParentFile(), dirName );
-            log.debug( "Deleting " + dir );
+            final File directory = new File( projectFile.getParentFile(), directoryName );
+            log.debug( "Deleting directory " + directory );
+            
             try
             {
-                FileUtils.deleteDirectory( dir );
+                FileUtils.deleteDirectory( directory );
             }
             catch ( IOException ioe )
             {
-                log.error( "Failed to delete " + dir );
+                log.error( "Failed to delete directory " + directory );
                 throw new MojoFailureException( ioe.getMessage(), ioe );
             }
-        }       
+        }
+
+        log.info( CppCheckConfiguration.CPPCHECK_NAME + " report clean-up complete" );
     }
+
+    private static final String CPPCHECK_XML_VERSION = "1";
+        
+    /**
+     * This handler capture standard Java logging produced by {@link CppCheckRunner} and relays it to the Maven logger
+     * provided by the Mojo. It needs to be static to prevent duplicate log output. 
+     * @see {@link LoggingHandler#LoggingHandler(String name)} 
+     */
+    private static final LoggingHandler CPPCHECK_RUNNER_LOG_HANDLER = 
+            new LoggingHandler( CppCheckRunner.class.getName() );    
 
     /**
      * Runs CppCheck against a given Visual C++ project and produces a static code analysis report
@@ -141,7 +156,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         
         try 
         {
-            Files.createParentDirs( reportFile );
+            FileUtils.forceMkdir( reportFile.getParentFile() );
             cppCheckReportWriter = new BufferedWriter( new FileWriter( reportFile ) );
         } 
         catch ( IOException ioe ) 
@@ -157,7 +172,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
             throws MojoExecutionException
     {
         CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.getCppCheckPath(), 
-                getRelativeFile( vcProject.getBaseDirectory(), vcProject.getProjectFile().getParentFile() ), 
+                getRelativeFile( vcProject.getBaseDirectory(), vcProject.getFile().getParentFile() ), 
                 new StdoutStreamToLog( getLog() ), new WriterStreamConsumer( reportWriter ) );
         
         cppCheckRunner.setWorkingDirectory( projectFile.getParentFile() );
@@ -186,7 +201,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
             {
                 try
                 {
-                    File absF = new File ( vcProject.getProjectFile().getParentFile(), f.getPath() ).getCanonicalFile();
+                    File absF = new File ( vcProject.getFile().getParentFile(), f.getPath() ).getCanonicalFile();
                     result.add( getRelativeFile( projectFile.getParentFile(), absF ) );
                 }
                 catch ( IOException ioe )
@@ -225,7 +240,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         } 
         catch ( IOException ioe ) 
         { 
-            throw new MojoExecutionException( "Could not finalise " + CppCheckConfiguration.CPPCHECK_NAME + " report" 
+            throw new MojoExecutionException( "Failed to finalise " + CppCheckConfiguration.CPPCHECK_NAME + " report" 
                     + reportFile, ioe );
         }
     }
@@ -239,7 +254,6 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         File reportFile = getReportFile( vcProject );
         Writer reportWriter = createCppCheckReportWriter( reportFile );
         CommandLineRunner cppCheckRunner = createCppCheckRunner( vcProject, reportWriter );
-        getLog().debug( cppCheckRunner.getCommandLine() );
         
         Boolean checksPassed = executeCppCheckRunner( cppCheckRunner );
         finaliseReportWriter ( reportWriter, reportFile );
@@ -249,7 +263,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
     
     private File getReportFile( VCProject vcProject ) 
     {
-        File reportDirectory = new File( vcProject.getProjectFile().getParentFile(), REPORT_DIRECTORY );
+        File reportDirectory = new File( vcProject.getFile().getParentFile(), REPORT_DIRECTORY );
         return new File( reportDirectory, cppCheck.getReportName() + "-" + vcProject + ".xml" );
     }
     
@@ -303,9 +317,8 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
             
             for ( File includeDirectory : includeDirectories ) 
             {
-                // WARNING: Remove any trailing slashes from the include paths
-                // CppCheck can fail if these are present
-                
+                //WARNING: remove any trailing slashes from include paths, as CppCheck can fail if these are present;
+                // using {@link File}s to wrap include paths is safe, whereas using {@link String}s may cause problems.
                 commandLineArguments.add( "-I" );
                 commandLineArguments.add( "\"" + includeDirectory + "\"" );
             }
@@ -326,8 +339,6 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
             return commandLineArguments;
         }
         
-        private static final String CPPCHECK_XML_VERSION = "1";
-        
         private File cppCheckPath;
         private File sourcePath;
         private CppCheckType cppCheckType = CppCheckType.all;
@@ -335,4 +346,5 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         private List<File> excludeDirectories = new LinkedList<File>();
         private List<String> preprocessorDefs = new LinkedList<String>();
     }
+    
 }

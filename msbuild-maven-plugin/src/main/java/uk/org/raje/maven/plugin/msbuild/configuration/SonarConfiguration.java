@@ -123,8 +123,8 @@ public class SonarConfiguration
     private List<String> excludes = new LinkedList<String>(); 
     
     /** 
-     * The code parser in Sonar cannot cope with some macros (e.g. MFC macros, va_start, va_arg, va_end), so they can be
-     * redefined using this property (e.g. ["va_start(x) 0", "va_arg(x) 0", "va_end(x) 0"])     
+     * The code parser in Sonar cannot cope with some macros (for example, MFC macros, va_start, va_arg, va_end), so 
+     * they can be redefined using this property (for example, ["va_start(x) 0", "va_arg(x) 0", "va_end(x) 0"])     
      */
     @Parameter( 
             defaultValue = "va_start(x) 0, va_arg(x) 0, va_end(x) 0, _declspec(x), __pragma(x), __stdcall, " 

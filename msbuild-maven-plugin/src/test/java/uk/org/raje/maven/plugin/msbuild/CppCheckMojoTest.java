@@ -22,6 +22,8 @@ import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.logging.Logger;
 import org.junit.Test;
 
+import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckConfiguration;
+
 /**
  * Test CppCheckMojo configuration options.
  */
@@ -71,7 +73,8 @@ public class CppCheckMojoTest extends AbstractMSBuildMojoTestCase
 
         cppCheckMojo.execute();
         
-        assertTrue( "[INFO] Static code analysis complete.".equals( outputStream.toString().trim() ) );
+        assertTrue( CppCheckConfiguration.CPPCHECK_NAME + " execution was not skipped", 
+                outputStream.toString().trim().equals( "[INFO] Static code analysis complete" ) );
     }    
 
     private ByteArrayOutputStream outputStream;

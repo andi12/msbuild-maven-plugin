@@ -62,11 +62,12 @@ public class CxxTestGenMojo extends AbstractMSBuildPluginMojo
     {
         List<String> arguments = new LinkedList<String>();
         File targetPath = new File( projectFile.getParentFile(), testTarget );
+        String testTargetName = new File ( testTarget ).getName();
         
         arguments.add( "--have-eh" );
         arguments.add( "--abort-on-fail" );
         arguments.add( "--xunit-printer" );
-        arguments.add( "--xunit-file=" + cxxTest.getReportName() );
+        arguments.add( "--xunit-file=" + cxxTest.getReportName() + "-" + testTargetName + ".xml" );
         arguments.add( "--output=" + new File( targetPath, cxxTest.getTestRunnerName() ).getAbsolutePath() );
         arguments.add( new File( targetPath, cxxTest.getTestHeaderPattern() ).getAbsolutePath() );
         

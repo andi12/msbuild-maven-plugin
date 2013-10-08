@@ -4,7 +4,7 @@
 int main(int argc, char* argv[])
 {
     printf("HELLO WORLD!\n");
-    fclose(fopen("cxxtest-report", "w"));
+    fclose(fopen("cxxtest-report-hello-world.xml", "w"));
 
 #ifdef NDEBUG
     return 0;

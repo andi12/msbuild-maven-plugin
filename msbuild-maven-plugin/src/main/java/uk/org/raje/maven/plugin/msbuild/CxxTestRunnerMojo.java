@@ -20,13 +20,12 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.util.cli.StreamConsumer;
-
-import com.google.common.io.Files;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
@@ -60,6 +59,8 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
             return;
         }
         
+        CXXTEST_RUNNER_LOG_HANDLER.setLog( getLog() );
+        
         validateCxxTestConfiguration();
         List<Boolean> allTestPassed = new LinkedList<Boolean>();
 
@@ -91,11 +92,19 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         
         if ( allTestPassed.contains( false ) )
         {
-            throw new MojoFailureException( "Some tests failed to pass." );
+            throw new MojoFailureException( "Some tests failed to pass" );
         }
 
-        getLog().info( "All tests passed." );
+        getLog().info( "All tests passed" );
     }
+    
+    /**
+     * This handler capture standard Java logging produced by {@link CxxTestRunner} and relays it to the Maven logger
+     * provided by the Mojo. It needs to be static to prevent duplicate log output. 
+     * @see {@link LoggingHandler#LoggingHandler(String name)} 
+     */
+    private static final LoggingHandler CXXTEST_RUNNER_LOG_HANDLER =
+            new LoggingHandler( CxxTestRunner.class.getName() );    
     
     private CommandLineRunner createCxxTestRunner( File directory, String testTargetName )
             throws MojoExecutionException
@@ -129,14 +138,15 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
     private void moveCxxTestReport( String testTargetName, BuildPlatform platform, BuildConfiguration configuration, 
             File sourceDirectory, File destinationDirectory ) throws MojoExecutionException
     {
-        File reportSource = new File ( sourceDirectory, cxxTest.getReportName() );
-        File reportDest = new File ( destinationDirectory, cxxTest.getReportName() + "-" + testTargetName 
-                + "-" + platform.getName() + "-" + configuration.getName() + ".xml" );
+        String reportSuffix = cxxTest.getReportName() + "-" + testTargetName;
+        File reportSource = new File ( sourceDirectory, reportSuffix + ".xml" );
+        File reportDest = new File ( destinationDirectory, reportSuffix + "-" + platform.getName() + "-" 
+                + configuration.getName() + ".xml" );
         
         try 
         {
-            Files.createParentDirs( reportDest );
-            Files.move( reportSource, reportDest );
+            FileUtils.forceMkdir( reportDest.getParentFile() );
+            FileUtils.moveFile( reportSource, reportDest );
         }
         catch ( IOException ioe )
         { 
@@ -156,7 +166,6 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         
         String testTargetName = new File ( testTarget ).getName();
         CommandLineRunner cxxTestRunner = createCxxTestRunner( directory, testTargetName );
-        getLog().debug( cxxTestRunner.getCommandLine() );
 
         Boolean testPassed = executeCxxTestRunner( cxxTestRunner );
         moveCxxTestReport( testTargetName, platform, configuration, cxxTestRunner.getWorkingDirectory(), 
