@@ -145,8 +145,8 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         
         try 
         {
-            FileUtils.forceMkdir( reportDest.getParentFile() );
-            FileUtils.moveFile( reportSource, reportDest );
+            FileUtils.copyFile( reportSource, reportDest );
+            FileUtils.forceDelete( reportSource );
         }
         catch ( IOException ioe )
         { 
