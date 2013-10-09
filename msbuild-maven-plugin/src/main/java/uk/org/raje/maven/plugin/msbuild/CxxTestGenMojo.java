@@ -17,6 +17,7 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -53,12 +54,20 @@ public class CxxTestGenMojo extends AbstractMSBuildPluginMojo
 
         for ( String testTarget : cxxTest.getTestTargets() ) 
         {
-            List<String> arguments = getCxxTestGenArguments( testTarget );
-            runCxxTestGen( testTarget, arguments );
+            try 
+            {
+                List<String> arguments = getCxxTestGenArguments( testTarget );
+                runCxxTestGen( testTarget, arguments );
+            }
+            catch ( MojoExecutionException mee )
+            {
+                getLog().error( mee.getMessage() );
+                throw mee;
+            }           
         }
     }
     
-    private List<String> getCxxTestGenArguments( String testTarget )
+    private List<String> getCxxTestGenArguments( String testTarget ) throws MojoExecutionException
     {
         List<String> arguments = new LinkedList<String>();
         File targetPath = new File( projectFile.getParentFile(), testTarget );
@@ -66,12 +75,47 @@ public class CxxTestGenMojo extends AbstractMSBuildPluginMojo
         
         arguments.add( "--have-eh" );
         arguments.add( "--abort-on-fail" );
-        arguments.add( "--xunit-printer" );
-        arguments.add( "--xunit-file=" + cxxTest.getReportName() + "-" + testTargetName + ".xml" );
         arguments.add( "--output=" + new File( targetPath, cxxTest.getTestRunnerName() ).getAbsolutePath() );
-        arguments.add( new File( targetPath, cxxTest.getTestHeaderPattern() ).getAbsolutePath() );
+        arguments.add( "--xunit-printer" );
         
+        File templateFile = getTemplateFileForTarget( targetPath );
+        if ( templateFile != null )
+        {
+            arguments.add( "--template=" + templateFile.getAbsolutePath() );
+        }
+        else
+        {
+            
+            arguments.add( "--xunit-file=" + cxxTest.getReportName() + "-" + testTargetName + ".xml" );
+            getLog().debug( "Template file not set, reverting to internal template" );
+        }
+        
+        arguments.add( new File( targetPath, cxxTest.getTestHeaderPattern() ).getAbsolutePath() );
+                
         return arguments;
+    }
+    
+    private File getTemplateFileForTarget( File targetPath ) throws MojoExecutionException
+    {
+        File templateFile = cxxTest.getTemplateFile();
+        if ( cxxTest.getTemplateFile() != null )
+        {
+            if ( templateFile.exists() )
+            {                
+                return templateFile;                
+            }
+            else if ( new File( targetPath, templateFile.getName() ).exists() )
+            {
+                return new File( targetPath, templateFile.getName() );
+            }
+            else
+            {
+                throw new MojoExecutionException( "Template file " + templateFile + " not found", 
+                        new FileNotFoundException( templateFile.getAbsolutePath() ) );
+            }
+            
+        }        
+        return null;
     }
     
     private void runCxxTestGen( String testTarget, List<String> arguments ) throws MojoExecutionException

@@ -41,7 +41,25 @@ public class CxxTestGenMojoTest extends AbstractMSBuildMojoTestCase
                 "/unit/configurations/allsettings-pom.xml" );
 
         assertAllSettingsConfiguration( cppCheckMojo );
-    }    
+    }
+    
+    @Test
+    public final void testTemplateFileConfiguration() throws Exception 
+    {
+        CxxTestGenMojo cxxTestGenMojo = ( CxxTestGenMojo ) lookupConfiguredMojo( CxxTestGenMojo.MOJO_NAME, 
+                "/unit/cxxtest/template-cxxtestgen-config.pom" );
+
+        assertEquals( "cxxtest-runner.tpl", cxxTestGenMojo.cxxTest.getTemplateFile().getName() );
+    }
+    
+    @Test
+    public final void testTemplateFileNotSetConfiguration() throws Exception 
+    {
+        CxxTestGenMojo cxxTestGenMojo = ( CxxTestGenMojo ) lookupConfiguredMojo( CxxTestGenMojo.MOJO_NAME, 
+                "/unit/cxxtest/minimal-cxxtestgen-config.pom" );
+
+        assertNull( cxxTestGenMojo.cxxTest.getTemplateFile() );
+    }
     
     @Test
     public final void testMissingCxxTestHomePath() throws Exception 

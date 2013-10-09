@@ -72,6 +72,16 @@ public class CxxTestConfiguration
         return reportName;
     }    
     
+
+    /**
+     * Get the configured filename of the template file to use to create the test runner
+     * @return the template filename
+     */
+    public final File getTemplateFile()
+    {
+        return templateFile;
+    }
+    
     /**
      * Get the file name for the generated test runner
      * @return the test runner file name
@@ -127,6 +137,15 @@ public class CxxTestConfiguration
             readonly = false,
             required = false )
     protected String reportName = "cxxtest-report";
+    
+    /**
+     * The filename of the template to use to generate the test runner 
+     * (default is "" which means cxxtestgen will use its internal template)
+     */
+    @Parameter(
+            readonly = false,
+            required = false )
+    protected File templateFile;
     
     /**
      * The file name for the generated test runner (one for each target) 

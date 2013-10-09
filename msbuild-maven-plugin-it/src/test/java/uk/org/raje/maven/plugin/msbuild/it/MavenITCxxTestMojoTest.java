@@ -49,6 +49,35 @@ public class MavenITCxxTestMojoTest
         verifier.verifyErrorFreeLog();
         assertTrue( "Test runner not generated", outputFile.exists() );
         verifier.resetStreams();
+        // TODO: Add more tests to check the contents of our runner matches
+        // what we expect
+
+        verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestBuildMojo.MOJO_NAME );
+        verifier.verifyErrorFreeLog();
+        verifier.resetStreams();
+        
+        verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestRunnerMojo.MOJO_NAME );
+        verifier.verifyErrorFreeLog();
+        verifier.resetStreams();        
+    }
+    
+    @Test
+    public void testCxxTestTemplateGenerateAndBuild() throws Exception
+    {
+        final File testDir = ResourceExtractor.simpleExtractResources( getClass(), 
+                "/compute-pi-cxxtest-template-test" );
+        final File outputFile = getTestRunnerCpp( "/compute-pi-cxxtest-template-test/compute-pi-test/" );
+
+        Verifier verifier = new Verifier( testDir.getAbsolutePath() );
+        addPropertiesToVerifier( verifier );
+        verifier.getSystemProperties().setProperty( MSBuildMojoITHelper.MSBUILD_PLUGIN_TOOLS_ENABLE, "true" );
+        
+        verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestGenMojo.MOJO_NAME );
+        verifier.verifyErrorFreeLog();
+        assertTrue( "Test runner not generated", outputFile.exists() );
+        verifier.resetStreams();
+        // TODO: Add more tests to check the contents of our runner matches
+        // the template we provided to cxxtestgen
 
         verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestBuildMojo.MOJO_NAME );
         verifier.verifyErrorFreeLog();

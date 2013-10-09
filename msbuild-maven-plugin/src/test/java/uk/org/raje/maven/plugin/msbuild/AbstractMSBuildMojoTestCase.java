@@ -44,6 +44,7 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
         assertEquals( Arrays.asList( new BuildPlatform( "Win32" ) ), m.platforms );
         assertEquals( Arrays.asList( new BuildConfiguration( "Release" ), new BuildConfiguration( "Debug" ) ), 
                 m.platforms.get( 0 ).getConfigurations() );
+        assertEquals( "cxxtest-runner.tpl", m.cxxTest.getTemplateFile().getName() );
     }
 
     /**
