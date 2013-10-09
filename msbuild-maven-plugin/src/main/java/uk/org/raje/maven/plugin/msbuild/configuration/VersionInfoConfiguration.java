@@ -15,6 +15,7 @@
  */
 package uk.org.raje.maven.plugin.msbuild.configuration;
 
+import java.io.File;
 import java.util.Calendar;
 
 import org.apache.maven.plugins.annotations.Parameter;
@@ -61,7 +62,29 @@ public class VersionInfoConfiguration
         return copyright;
     }
 
+    /**
+     * Get the configured template file path
+     * @return an abstract path to the template file
+     */
+    public final File getTemplate()
+    {
+        return template;
+    }
+
+    /**
+     * Get the configured output file
+     * @return the configured value, if not configured the default is returned
+     */
+    public final File getOutputFile()
+    {
+        return outputFile;
+    }
+
     private static final String COPYRIGHT_PREAMBLE = "Copyright (c)";
+    /**
+     * The filename for the generated file.
+     */
+    private static final String DEFAULT_VERSION_INFO_FILENAME = "maven-version-info.rc";
     
     /**
      * Set to true to skip creating a version-info.rc from POM properties.
@@ -86,4 +109,34 @@ public class VersionInfoConfiguration
             readonly = false,
             required = false )
     private String copyright;
+
+    /**
+     * Override the default template to use your own.
+     * <p>
+     * The file will be processed to replace any Maven style property placeholders (${property.Name}) with
+     * their values. In addition to any properties available to the build the plugin will supply the following:
+     * <ul>
+     *   <li>version-info.companyname</li>
+     *   <li>version-info.copyright</li>
+     *   <li>version-info.majorVersion (an integer)</li>
+     *   <li>version-info.minorVersion (an integer)</li>
+     *   <li>version-info.incrementalVersion (an integer)</li>
+     *   <li>version-info.buildNumber (an integer)</li>
+     * </ul>
+     */
+    @Parameter(
+            readonly = false,
+            required = false )
+    private File template;
+
+    /**
+     * The path and filename to output the version resource to.
+     * <p>
+     * If you specify a relative path the file will be output to that path relative to the project or solution file.
+     */
+    @Parameter(
+            defaultValue = DEFAULT_VERSION_INFO_FILENAME,
+            readonly = false,
+            required = false )
+    private File outputFile = new File( DEFAULT_VERSION_INFO_FILENAME );
 }

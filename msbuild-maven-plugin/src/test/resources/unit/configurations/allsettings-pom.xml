@@ -58,6 +58,8 @@
                         <skip>false</skip>
                         <companyName>MyOrg</companyName>
                         <copyright>(c) 2013 MyOrg</copyright>
+                        <template>src/main/resources/my-version-info.rc</template>
+                        <outputFile>my-version-info.rc</outputFile>
                     </versionInfo>
                     <!-- Cppcheck -->
                     <cppCheck>

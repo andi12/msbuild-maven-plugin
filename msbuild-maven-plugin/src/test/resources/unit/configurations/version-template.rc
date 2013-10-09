@@ -1,0 +1,9 @@
+#pragma once
+
+#define VER_PART1 ${version-info.majorVersion}
+#define VER_PART2 ${version-info.minorVersion}
+#define VER_PART3 ${version-info.incrementalVersion}
+#define VER_PART4 ${version-info.buildNumber}
+
+#define VER_COMPANY_NAME "${version-info.companyname}"
+#define VER_COPYRIGHT    "${version-info.copyright}"

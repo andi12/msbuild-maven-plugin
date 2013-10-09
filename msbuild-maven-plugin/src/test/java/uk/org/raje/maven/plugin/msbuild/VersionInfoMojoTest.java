@@ -36,6 +36,10 @@ public class VersionInfoMojoTest extends AbstractMSBuildMojoTestCase
         assertAllSettingsConfiguration( viMojo );
     }
 
+    /**
+     * Test the simplest configuration with version info generation disabled
+     * @throws Exception if there is an unexpected error
+     */
     @Test
     public final void testMinimalSolutionConfiguration() throws Exception
     {
@@ -49,6 +53,10 @@ public class VersionInfoMojoTest extends AbstractMSBuildMojoTestCase
         assertTrue( "maven-version-info.rc should not be created", ! rcFile.exists() );
     }
 
+    /**
+     * Test the simplest configuration with version info generation
+     * @throws Exception if there is an unexpected error
+     */
     @Test
     public final void testMinimalSolutionWithVersionConfiguration() throws Exception
     {
@@ -61,12 +69,84 @@ public class VersionInfoMojoTest extends AbstractMSBuildMojoTestCase
         checkVersionFile( rcFile );
     }
 
+    /**
+     * Test that an absolute path to the output file works
+     * @throws Exception if there is an unexpected error
+     */
+    @Test
+    public final void testVersionWithOutputFile() throws Exception
+    {
+        VersionInfoMojo viMojo = ( VersionInfoMojo ) lookupConfiguredMojo( VersionInfoMojo.MOJO_NAME, 
+                "/unit/configurations/minimal-solution-with-version-outputfile-pom.xml" );
+        final File rcFile = calculateAndDleteVersionInfoFile( viMojo.mavenProject.getFile().getParentFile(),
+                "absolute.rc" );
+        
+        viMojo.execute();
+        
+        checkVersionFile( rcFile );
+    }
+    
+    /**
+     * Test that just specifying a filename for the output file works
+     * @throws Exception if there is an unexpected error
+     */
+    @Test
+    public final void testVersionWithRelativeOutputFile() throws Exception
+    {
+        VersionInfoMojo viMojo = ( VersionInfoMojo ) lookupConfiguredMojo( VersionInfoMojo.MOJO_NAME, 
+                "/unit/configurations/minimal-solution-with-version-outputfile-rel-pom.xml" );
+        final File rcFile = calculateAndDleteVersionInfoFile( viMojo.mavenProject.getFile().getParentFile(),
+                "different.rc" );
+        
+        viMojo.execute();
+        
+        checkVersionFile( rcFile );
+    }
+
+    /**
+     * Test that a relative path to the output file works
+     * @throws Exception if there is an unexpected error
+     */
+    @Test
+    public final void testVersionWithRelativePathOutputFile() throws Exception
+    {
+        VersionInfoMojo viMojo = ( VersionInfoMojo ) lookupConfiguredMojo( VersionInfoMojo.MOJO_NAME, 
+                "/unit/configurations/minimal-solution-with-version-outputfile-relpath-pom.xml" );
+        final File rcFile = calculateAndDleteVersionInfoFile( viMojo.mavenProject.getFile().getParentFile(),
+                "configurations-project/version.rc" );
+        
+        viMojo.execute();
+        
+        checkVersionFile( rcFile );
+    }
+
+    /**
+     * Test simple template scenario
+     * @throws Exception if there is an unexpected error
+     */
+    @Test
+    public final void testVersionWithTemplate() throws Exception
+    {
+        VersionInfoMojo viMojo = ( VersionInfoMojo ) lookupConfiguredMojo( VersionInfoMojo.MOJO_NAME, 
+                "/unit/configurations/minimal-solution-with-version-template-pom.xml" );
+        final File rcFile = calculateAndDleteVersionInfoFile( viMojo.mavenProject.getFile().getParentFile() );
+        
+        viMojo.execute();
+        
+        checkVersionFile( rcFile );
+    }
+    
+
+    private File calculateAndDleteVersionInfoFile( File directory, String filename )
+    {
+        final File rcFile = new File( directory, filename );
+        rcFile.delete();
+        return rcFile;
+    }
 
     private File calculateAndDleteVersionInfoFile( File directory )
     {
-        final File rcFile = new File( directory, "maven-version-info.rc" );
-        rcFile.delete();
-        return rcFile;
+        return calculateAndDleteVersionInfoFile( directory, "maven-version-info.rc" );
     }
 
     private void checkVersionFile( File rcFile ) throws IOException

@@ -18,6 +18,7 @@ package uk.org.raje.maven.plugin.msbuild.configuration;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Calendar;
 
@@ -81,5 +82,58 @@ public class VersionInfoConfigurationTest
         assertEquals( false, v.skip() );
         assertEquals( "Test Org",  v.getCompanyName() );
         assertEquals( "Custom copyright", v.getCopyright() );
+    }
+
+    /**
+     * Test setting the template file 
+     * @throws NoSuchFieldException if reflection to access private members fails
+     * @throws IllegalAccessException if reflection to access private members fails
+     */
+    @Test
+    public void testTemplate() throws NoSuchFieldException, IllegalAccessException
+    {
+        VersionInfoConfiguration v = new VersionInfoConfiguration();
+
+        // Use reflection to set the private member
+        Field companyNameField = VersionInfoConfiguration.class.getDeclaredField( "template" );
+        companyNameField.setAccessible( true );
+        companyNameField.set( v, new File( "test-template.rc" ) );
+
+        assertEquals( false, v.skip() );
+        assertNull( v.getCompanyName() );
+        assertEquals( new File( "test-template.rc" ), v.getTemplate() );
+    }
+
+    /**
+     * Test default output file
+     */
+    @Test
+    public void testDefaultOutputFile()
+    {
+        VersionInfoConfiguration v = new VersionInfoConfiguration();
+
+        assertEquals( false, v.skip() );
+        assertNull( v.getCompanyName() );
+        assertEquals( new File( "maven-version-info.rc" ), v.getOutputFile() );
+    }
+
+    /**
+     * Test setting the output file 
+     * @throws NoSuchFieldException if reflection to access private members fails
+     * @throws IllegalAccessException if reflection to access private members fails
+     */
+    @Test
+    public void testOutputFile() throws NoSuchFieldException, IllegalAccessException
+    {
+        VersionInfoConfiguration v = new VersionInfoConfiguration();
+
+        // Use reflection to set the private member
+        Field companyNameField = VersionInfoConfiguration.class.getDeclaredField( "outputFile" );
+        companyNameField.setAccessible( true );
+        companyNameField.set( v, new File( "my-version-info.rc" ) );
+
+        assertEquals( false, v.skip() );
+        assertNull( v.getCompanyName() );
+        assertEquals( new File( "my-version-info.rc" ), v.getOutputFile() );
     }
 }

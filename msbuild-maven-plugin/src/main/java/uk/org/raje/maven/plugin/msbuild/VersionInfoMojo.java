@@ -46,11 +46,6 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
      */
     public static final String MOJO_NAME = "version-info";
 
-    /**
-     * The filename for the generated file.
-     */
-    public static final String VERSION_INFO_FILENAME = "maven-version-info.rc";
-
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException
     {
@@ -76,10 +71,25 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
         
         try
         {
-            File versionInfoSrc = writeVersionInfoTemplateToTempFile();
-            final File versionInfoDest = new File( projectFile.getParentFile(), VERSION_INFO_FILENAME ); 
-    
-            fileFiltering.copyFile( versionInfoSrc, versionInfoDest, true, mavenProject, 
+            File versionInfoSrc = versionInfo.getTemplate();
+            if ( versionInfoSrc != null )
+            {
+                getLog().info( "Version info source is " + versionInfoSrc.getAbsolutePath() );
+            }
+            else
+            {
+                getLog().info( "Version info source is the built in template" );
+                versionInfoSrc = writeVersionInfoTemplateToTempFile();
+            }
+            File outputFile = versionInfo.getOutputFile();
+            if ( ! outputFile.isAbsolute() )
+            {
+                getLog().debug( "Relative output file being placed next to <projectFile>" );
+                outputFile = new File( projectFile.getParentFile(), outputFile.getPath() );
+            }
+            getLog().info( "Version info destination is " + outputFile );
+            
+            fileFiltering.copyFile( versionInfoSrc, outputFile, true, mavenProject, 
                     Collections.<String> emptyList(), true, "UTF-8", null );
             
             versionInfoSrc.delete();
@@ -92,14 +102,18 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
         }
     }
 
-    static void clean( File projectFile ) throws MojoFailureException
+    static void clean( File projectFile, File versionInfoOutputFile ) throws MojoFailureException
     {
-        final File versionInfoDest = new File( projectFile.getParentFile(), VERSION_INFO_FILENAME );
-        if ( versionInfoDest.exists() )
+        File toDelete = versionInfoOutputFile;
+        if ( ! toDelete.isAbsolute() )
         {
-            if ( ! versionInfoDest.delete() )
+            toDelete = new File( projectFile.getParentFile(), versionInfoOutputFile.getPath() );
+        }
+        if ( toDelete.exists() )
+        {
+            if ( ! toDelete.delete() )
             {
-                throw new MojoFailureException( "Failed to delete " + versionInfoDest.getAbsolutePath() );
+                throw new MojoFailureException( "Failed to delete " + toDelete.getAbsolutePath() );
             }
         }
     }

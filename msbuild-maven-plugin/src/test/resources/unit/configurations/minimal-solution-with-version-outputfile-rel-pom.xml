@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
-    <artifactId>minimal-configuration-with-version</artifactId>
+    <artifactId>minimal-configuration-with-version-outputfile-rel</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>msbuild-solution</packaging>
     <description>msbuild-maven-plugin test - Minimal working configuration with VersionInfo</description>
@@ -33,6 +33,7 @@
                     <projectFile>${basedir}/target/test-classes/unit/configurations/configurations-test.sln</projectFile>
                     <versionInfo>
                         <companyName>MyOrg</companyName>
+                        <outputFile>different.rc</outputFile>
                     </versionInfo>
                 </configuration>
             </plugin>
