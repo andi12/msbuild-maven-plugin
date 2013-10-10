@@ -16,6 +16,7 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
@@ -28,6 +29,7 @@ import org.apache.maven.project.ProjectBuildingRequest;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
+import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckType;
 
 /**
  * Abstract unit test base class to extend AbstractMojoTestCase and add 
@@ -37,14 +39,54 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
 {
 
     /**
-     * Test that all Mojo's should run to check they can ingest a complete configuration 
+     * Verifies that all configuration parameters from allsettings-pom.xml have been ingested correctly.
+     * @param m the configured Mojo
+     * @throws IOException if we can't calculate the basedir 
      */
-    public final void assertAllSettingsConfiguration( AbstractMSBuildPluginMojo m ) throws Exception 
+    public final void assertAllSettingsConfiguration( AbstractMSBuildPluginMojo m ) throws IOException 
     {
+        File basedir = new File( "." ).getCanonicalFile();
+
         assertEquals( Arrays.asList( new BuildPlatform( "Win32" ) ), m.platforms );
         assertEquals( Arrays.asList( new BuildConfiguration( "Release" ), new BuildConfiguration( "Debug" ) ), 
                 m.platforms.get( 0 ).getConfigurations() );
+
+        assertEquals( Arrays.asList( new String( "Target1" ) ), m.targets );
+        assertEquals( new File( basedir, "/src/test/resources/unit/configurations/test-msbuild.cmd" ), m.msbuildPath );
+        assertEquals( 2, m.msbuildMaxCpuCount );
+        assertEquals( "C:\\include", m.msbuildSystemIncludes );
+
+        // Version Info settings
+        assertEquals( false, m.versionInfo.skip() ) ;
+        assertEquals( "MyOrg", m.versionInfo.getCompanyName() );
+        assertEquals( "(c) 2013 MyOrg", m.versionInfo.getCopyright() );
+        assertEquals( new File( "src/main/resources/my-version-info.rc" ), m.versionInfo.getTemplate() );
+        assertEquals( new File( "my-version-info.rc" ), m.versionInfo.getOutputFile() );
+        
+        // CppCheck
+        assertEquals( false, m.cppCheck.skip() );
+        assertEquals( new File( basedir, "/src/test/resources/unit/cppcheck/fake-cppcheck.cmd" ),
+                m.cppCheck.getCppCheckPath() );
+        assertEquals( "cppcheck-report", m.cppCheck.getReportName() );
+        assertEquals( CppCheckType.all, m.cppCheck.getCppCheckType() );
+        assertEquals( "*Test", m.cppCheck.getExcludeProjectRegex() );
+        
+        // CxxTest settings
+        assertEquals( false, m.cxxTest.skip() );
+        assertEquals( new File( basedir, "/src/test/resources/unit/cxxtest/fake-cxxtest-home" ),
+                m.cxxTest.getCxxTestHome() );
+        assertEquals( Arrays.asList( new String( "TestTarget1" ) ), m.cxxTest.getTestTargets() );
+        assertEquals( "cxxtest-report", m.cxxTest.getReportName() );
+        assertEquals( "cxxtest-runner.cpp", m.cxxTest.getTestRunnerName() );
         assertEquals( "cxxtest-runner.tpl", m.cxxTest.getTemplateFile().getName() );
+        assertEquals( "*Test.h", m.cxxTest.getTestHeaderPattern() );
+        
+        // Sonar settings
+        assertEquals( false, m.sonar.skip() );
+        assertEquals( Arrays.asList( new String( "*.cpp" ) ), m.sonar.getSourceSuffixes() );
+        assertEquals( Arrays.asList( new String( "*.h" ) ), m.sonar.getHeaderSuffixes() );
+        assertEquals( Arrays.asList( new String( "**/test" ) ), m.sonar.getExcludes() );
+        assertEquals( Arrays.asList( new String( "TEST_MACRO(x) 0" ) ), m.sonar.getPreprocessorDefs() );
     }
 
     /**
