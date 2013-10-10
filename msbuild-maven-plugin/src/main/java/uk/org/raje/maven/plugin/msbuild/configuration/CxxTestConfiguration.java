@@ -139,8 +139,11 @@ public class CxxTestConfiguration
     protected String reportName = "cxxtest-report";
     
     /**
-     * The filename of the template to use to generate the test runner 
-     * (default is "" which means cxxtestgen will use its internal template)
+     * The filename of the template to use to generate the test runner.
+     * <p>
+     * To specify a template for each test project provide just the filename which will be found in each project 
+     * directory.<br/>
+     * To use a single template specify a filename relative to the pom or the full path to the file to use. 
      */
     @Parameter(
             readonly = false,
