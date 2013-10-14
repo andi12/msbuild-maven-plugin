@@ -250,6 +250,81 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     }
 
     /**
+     * Determine the directories that msbuild will write output files to for a given platform and configuration.
+     * If an outputDirectory is configured in the POM this will take precedence and be the only result.
+     * @param p the BuildPlatform
+     * @param c the BuildConfiguration
+     * @return a List of File objects
+     * @throws MojoExecutionException if an output directory cannot be determined or does not exist
+     */
+    protected List<File> getOutputDirectories( BuildPlatform p, BuildConfiguration c )
+            throws MojoExecutionException
+    {
+        List<File> result = new ArrayList<File>();
+        
+        // If there is a configured value use it
+        File configured = c.getOutputDirectory();
+        if ( configured != null )
+        {
+            result.add( configured );
+        }
+        else
+        {
+            List<VCProject> projects = getParsedProjects( p, c );
+            if ( projects.size() == 1 )
+            {
+                // probably a standalone project
+                result.add( projects.get( 0 ).getOutputDirectory() );
+            }
+            else
+            {
+                // a solution
+                for ( VCProject project : projects )
+                {
+                    boolean addResult = false;
+                    if ( targets == null )
+                    {
+                        // building all targets, add all outputs
+                        addResult = true;
+                    }
+                    else
+                    {
+                        // building select targets, only add ones we were asked for
+                        if ( targets.contains( project.getTargetName() ) )
+                        {
+                            addResult = true;
+                        }
+                    }
+    
+                    if ( addResult && ! result.contains( project.getOutputDirectory() ) )
+                    {
+                        result.add( project.getOutputDirectory() );
+                    }
+                }
+            }            
+        }
+
+        if ( result.size() < 1 )
+        {
+            String exceptionMessage = "Could not identify any output directories, configuration error?"; 
+            getLog().error( exceptionMessage );
+            throw new MojoExecutionException( exceptionMessage );
+        }
+        for ( File toTest: result )
+        {
+            // result will be populated, now check if it was created
+            if ( ! toTest.exists() && ! toTest.isDirectory() )
+            {
+                String exceptionMessage = "Expected output directory was not created, configuration error?"; 
+                getLog().error( exceptionMessage );
+                getLog().error( "Looking for build output at " + toTest.getAbsolutePath() );
+                throw new MojoExecutionException( exceptionMessage );
+            }
+        }
+        return result;
+    }
+
+    /**
      * Determine whether CxxTest is enabled by the configuration
      * @param stepName the string to use in log messages to describe the process being attempted
      * @param quiet does not output any log messages ({@code stepName} may be {@code null} in this case)

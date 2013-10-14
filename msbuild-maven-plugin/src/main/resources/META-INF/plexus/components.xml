@@ -49,6 +49,9 @@
                     <verify>
                         uk.org.raje.maven.plugins:msbuild-maven-plugin:cppcheck,uk.org.raje.maven.plugins:msbuild-maven-plugin:sonar
                     </verify>
+                    <package>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:solution-package
+                    </package>
                     <install>
                         org.apache.maven.plugins:maven-install-plugin:install
                     </install>

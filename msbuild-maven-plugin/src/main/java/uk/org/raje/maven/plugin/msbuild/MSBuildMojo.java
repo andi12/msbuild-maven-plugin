@@ -16,9 +16,6 @@
 package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -27,11 +24,9 @@ import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
-import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
 
 /**
  * Mojo to execute MSBuild to build the required platform/configuration pairs.
@@ -82,63 +77,20 @@ public class MSBuildMojo extends AbstractMSBuildMojo
 
     private void findAndAttachArtifacts() throws MojoExecutionException
     {
-        getLog().info( "Attaching built artifacts" );
         if ( MSBuildPackaging.isSolution( mavenProject.getPackaging() ) )
         {
-            attachSolutionArtifacts();
+            getLog().debug( "Not attaching any artifacts yet. "
+                    + "Solution artifact bundle will be created in package phase." );
         }
         else
         {
+            getLog().info( "Attaching built artifacts" );
             attachProjectArtifacts();
-        }        
-    }
-
-    private void attachSolutionArtifacts() throws MojoExecutionException
-    {
-        // TODO: Header archives
-
-        for ( BuildPlatform platform : platforms )
-        {
-            for ( BuildConfiguration configuration : platform.getConfigurations() )
-            {
-                final List<File> archiveSources = getOutputDirectories( platform, configuration );
-                StringBuilder artifactName = new StringBuilder();
-                artifactName.append( mavenProject.getArtifactId() ).append( "-" )
-                            .append( mavenProject.getVersion() ).append( "-" )
-                            .append( platform ).append( "-" )
-                            .append( configuration )
-                            .append( "." ).append( ZIP_EXTENSION );
-                final File artifactFile = new File( 
-                        mavenProject.getBuild().getDirectory(), 
-                        artifactName.toString() );
-    
-                try
-                {
-                    zipArchiver.reset();
-                    zipArchiver.setDestFile( artifactFile );
-                    getLog().debug( "Adding outputs to archive..." );
-                    for ( File archiveSource : archiveSources )
-                    {
-                        getLog().debug( "    " + archiveSource );
-                        zipArchiver.addDirectory( archiveSource );
-                    }
-                    getLog().debug( "Done adding outputs to archive." );
-                    zipArchiver.createArchive();
-                }
-                catch ( IOException ioe )
-                {
-                    throw new MojoExecutionException( "Error creating archive", ioe );
-                }
-                String classifier = platform.getName() + "-" + configuration.getName();
-                projectHelper.attachArtifact( mavenProject, ZIP_EXTENSION, classifier, artifactFile );
-            }
-        }        
+        }
     }
 
     private void attachProjectArtifacts() throws MojoExecutionException
     {
-        // TODO: Header archives
-        
         for ( BuildPlatform platform : platforms )
         {
             for ( BuildConfiguration configuration : platform.getConfigurations() )
@@ -171,91 +123,10 @@ public class MSBuildMojo extends AbstractMSBuildMojo
         }
     }
 
-    /**
-     * Determine the directories that msbuild will write output files to for a given platform and configuration.
-     * If an outputDirectory is configured in the POM this will take precedence and be the only result.
-     * @param p the BuildPlatform
-     * @param c the BuildConfiguration
-     * @return a List of File objects
-     * @throws MojoExecutionException if an output directory cannot be determined or does not exist
-     */
-    private List<File> getOutputDirectories( BuildPlatform p, BuildConfiguration c )
-            throws MojoExecutionException
-    {
-        List<File> result = new ArrayList<File>();
-        
-        // If there is a configured value use it
-        File configured = c.getOutputDirectory();
-        if ( configured != null )
-        {
-            result.add( configured );
-        }
-        else
-        {
-            List<VCProject> projects = getParsedProjects( p, c );
-            if ( projects.size() == 1 )
-            {
-                // probably a standalone project
-                result.add( projects.get( 0 ).getOutputDirectory() );
-            }
-            else
-            {
-                // a solution
-                for ( VCProject project : projects )
-                {
-                    boolean addResult = false;
-                    if ( targets == null )
-                    {
-                        // building all targets, add all outputs
-                        addResult = true;
-                    }
-                    else
-                    {
-                        // building select targets, only add ones we were asked for
-                        if ( targets.contains( project.getTargetName() ) )
-                        {
-                            addResult = true;
-                        }
-                    }
-    
-                    if ( addResult && ! result.contains( project.getOutputDirectory() ) )
-                    {
-                        result.add( project.getOutputDirectory() );
-                    }
-                }
-            }            
-        }
-
-        if ( result.size() < 1 )
-        {
-            String exceptionMessage = "Could not identify any output directories, configuration error?"; 
-            getLog().error( exceptionMessage );
-            throw new MojoExecutionException( exceptionMessage );
-        }
-        for ( File toTest: result )
-        {
-            // result will be populated, now check if it was created
-            if ( ! toTest.exists() && ! toTest.isDirectory() )
-            {
-                String exceptionMessage = "Expected output directory was not created, configuration error?"; 
-                getLog().error( exceptionMessage );
-                getLog().error( "Looking for build output at " + toTest.getAbsolutePath() );
-                throw new MojoExecutionException( exceptionMessage );
-            }
-        }
-        return result;
-    }
-
 
     /**
      * Helper for attaching artifacts provided by the container. 
      */
     @Component
     protected MavenProjectHelper projectHelper;
-
-    /**
-     * The ZIP archiver.
-     */
-    @Component( role = org.codehaus.plexus.archiver.Archiver.class, hint = "zip" )
-    private ZipArchiver zipArchiver;
 }

@@ -29,11 +29,6 @@ import org.apache.maven.plugin.MojoFailureException;
 public abstract class AbstractMSBuildMojo extends AbstractMSBuildPluginMojo
 {
     /**
-     * The file extension for zip archives.
-     */
-    public static final String ZIP_EXTENSION = "zip";
-
-    /**
      * Log out configuration values at DEBUG.
      */
     protected void dumpConfiguration()
@@ -91,6 +86,13 @@ public abstract class AbstractMSBuildMojo extends AbstractMSBuildPluginMojo
                 + "the environment variable " + ENV_MSBUILD_PATH );
     }
 
+    /**
+     * Run MSBuild for each platform and configuration pair.
+     * @param targets the build targets to pass to MSBuild
+     * @param environment optional environment variable Map (my be null)
+     * @throws MojoExecutionException if there is a problem running MSBuild
+     * @throws MojoFailureException if MSBuild returns a non-zero exit code
+     */
     protected void runMSBuild( List<String> targets, Map<String, String> environment ) 
             throws MojoExecutionException, MojoFailureException
     {
