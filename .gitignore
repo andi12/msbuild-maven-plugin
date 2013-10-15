@@ -5,3 +5,5 @@
 /.project
 
 /.settings
+*.suo
+*.sdf
