@@ -26,12 +26,26 @@ import java.util.logging.Logger;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 import org.codehaus.plexus.util.cli.StreamPumper;
 
-
 /**
- *
+ * This class runs a native process on the command-line and catches the process' standard output and standard error 
+ * streams. It offers support for:
+ * <ul>
+ *      <li>Setting the process path and arguments on the command-line.</li>
+ *      <li>Setting the working directory from which the process will run.</li>
+ *      <li>Injecting variables into the process environment.</li>
+ * </ul>
+ * Derived classes must override {@link CommandLineRunner#getCommandLineArguments()} to provide the process path and 
+ * arguments for the command-line. 
  */
 public abstract class CommandLineRunner 
 {
+    /**
+     * Create a new command-line process runner.
+     * @param outputConsumer a consumer for the process' standard output 
+     * @param errorConsumer a consumer for the process' standard error 
+     * @see uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamToLog
+     * @see uk.org.raje.maven.plugin.msbuild.streamconsumers.StderrStreamToLog
+     */
     public CommandLineRunner( StreamConsumer outputConsumer, StreamConsumer errorConsumer )
     {
         this.outputConsumer = outputConsumer;
