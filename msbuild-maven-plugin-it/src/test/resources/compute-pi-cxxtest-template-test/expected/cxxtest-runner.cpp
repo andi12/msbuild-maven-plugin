@@ -14,14 +14,17 @@
 #include <cxxtest/TestMain.h>
 #include <cxxtest/XUnitPrinter.h>
 
-int main( int argc, char *argv[] ) {
- int status;
+
+int main( int argc, char *argv[] )
+{
+    int status;
     std::ofstream ofstr("cxxtest-report-compute-pi-test.xml");
     CxxTest::XUnitPrinter tmp(ofstr);
-    CxxTest::RealWorldDescription::_worldName = "cxxtest";
     status = CxxTest::Main< CxxTest::XUnitPrinter >( tmp, argc, argv );
     return status;
 }
+
+// The CxxTest "world"
 bool suite_ComputePiTest_init = false;
 #include "${testDir}\compute-pi-test\compute-pi-test.h"
 

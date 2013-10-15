@@ -57,12 +57,10 @@ public class MavenITCxxTestMojoTest
         verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestGenMojo.MOJO_NAME );
         verifier.verifyErrorFreeLog();
         assertTrue( "Test runner not generated", outputFile.exists() );
-        verifier.resetStreams();
-
         FileAssert.assertEquals( 
-                createExpected( new File( testDir, "compute-pi-test" ), 
-                        new File( testDir, "expected\\cxxtest-runner.cpp" ) ), 
+                createExpected( testDir, new File( testDir, "expected\\cxxtest-runner.cpp" ) ), 
                 new File( testDir, "compute-pi-test\\cxxtest-runner.cpp" ) );
+        verifier.resetStreams();
 
         verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestBuildMojo.MOJO_NAME );
         verifier.verifyErrorFreeLog();
@@ -116,9 +114,10 @@ public class MavenITCxxTestMojoTest
         verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestGenMojo.MOJO_NAME );
         verifier.verifyErrorFreeLog();
         assertTrue( "Test runner not generated", outputFile.exists() );
+        FileAssert.assertEquals( 
+                createExpected( testDir, new File( testDir, "expected\\cxxtest-runner.cpp" ) ), 
+                new File( testDir, "compute-pi-test\\cxxtest-runner.cpp" ) );
         verifier.resetStreams();
-        // TODO: Add more tests to check the contents of our runner matches
-        // the template we provided to cxxtestgen
 
         verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestBuildMojo.MOJO_NAME );
         verifier.verifyErrorFreeLog();
@@ -127,6 +126,12 @@ public class MavenITCxxTestMojoTest
         verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestRunnerMojo.MOJO_NAME );
         verifier.verifyErrorFreeLog();
         verifier.resetStreams();        
+        FileAssert.assertEquals( 
+                new File( testDir, "expected\\cxxtest-report-compute-pi-test-Win32-Debug.xml" ),
+                new File( testDir, "target\\surefire-reports\\cxxtest-report-compute-pi-test-Win32-Debug.xml" ) );
+        FileAssert.assertEquals( 
+                new File( testDir, "expected\\cxxtest-report-compute-pi-test-Win32-Release.xml" ),
+                new File( testDir, "target\\surefire-reports\\cxxtest-report-compute-pi-test-Win32-Release.xml" ) );
     }
 
     private File calculateAndDeleteTestRunnerCpp( String directory ) throws IOException
