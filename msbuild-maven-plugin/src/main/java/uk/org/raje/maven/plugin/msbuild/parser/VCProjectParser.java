@@ -36,10 +36,10 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * <p>Class that parses a Visual Studio C++ project. This class retrieves the following project properties:
  * <ul>
- *      <li>Include Directories (<em>i.e.</em> additional header locations)</li> 
+ *      <li>Include Directories (<em>i.e.</em> additional header locations).</li> 
  *      <li>Preprocessor Definitions (<em>i.e.</em> {@code #define}s used during code compilation such as {@code WIN32},
- *      {@code _DEBUG})</li> 
- *      <li>Output Directory (location of the generated output file)</li>
+ *      {@code _DEBUG}).</li> 
+ *      <li>Output Directory (location of the generated output file).</li>
  * </ul> 
  * These properties are necessary for other tools to work (for example, CppCheck, CxxTest, Sonar).</p>
  * <p>Once the C++ project has been parsed, the {@link VCProjectParser#updateVCProject} method can be used to update a 
