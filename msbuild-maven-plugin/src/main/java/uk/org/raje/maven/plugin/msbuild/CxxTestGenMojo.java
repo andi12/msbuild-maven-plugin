@@ -18,14 +18,18 @@ package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.codehaus.plexus.util.DirectoryScanner;
 import org.python.core.PyList;
 import org.python.util.PythonInterpreter;
 
@@ -54,28 +58,63 @@ public class CxxTestGenMojo extends AbstractMSBuildPluginMojo
 
         for ( String testTarget : cxxTest.getTestTargets() ) 
         {
-            try 
+            final File targetPath = new File( projectFile.getParentFile(), testTarget );
+            File testRunnerFile = new File( targetPath, cxxTest.getTestRunnerName() );
+            if ( upToDate( targetPath, testRunnerFile ) )
             {
-                List<String> arguments = getCxxTestGenArguments( testTarget );
-                runCxxTestGen( testTarget, arguments );
+                getLog().info( "Skipping test generate as " + testTarget + " is up to date." );
             }
-            catch ( MojoExecutionException mee )
+            else
             {
-                getLog().error( mee.getMessage() );
-                throw mee;
-            }           
+                try 
+                {
+                    List<String> arguments = getCxxTestGenArguments( testTarget, targetPath, testRunnerFile );
+                    runCxxTestGen( testTarget, arguments );
+                }
+                catch ( MojoExecutionException mee )
+                {
+                    getLog().error( mee.getMessage() );
+                    throw mee;
+                }
+            }
         }
     }
-    
-    private List<String> getCxxTestGenArguments( String testTarget ) throws MojoExecutionException
+
+    private boolean upToDate( File targetPath, File testRunnerFile )
+    {
+        if ( ! testRunnerFile.exists() )
+        {
+            return false;
+        }
+
+        final DateFormat dateFormat = SimpleDateFormat.getDateTimeInstance();
+        final DirectoryScanner directoryScanner = new DirectoryScanner();
+        directoryScanner.setIncludes( new String[]{ cxxTest.getTestHeaderPattern() } );
+        directoryScanner.setBasedir( targetPath );
+        directoryScanner.scan();
+
+        getLog().debug( "Test runner last modified " + dateFormat.format( testRunnerFile.lastModified() ) );
+        for ( String fileName : directoryScanner.getIncludedFiles() )
+        {
+            final File file = new File( targetPath, fileName );
+            getLog().debug( fileName + " last modified " + dateFormat.format( file.lastModified() ) );
+            if ( FileUtils.isFileNewer( file, testRunnerFile ) )
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private List<String> getCxxTestGenArguments( String testTarget, File targetPath, File outputFile )
+            throws MojoExecutionException
     {
         List<String> arguments = new LinkedList<String>();
-        File targetPath = new File( projectFile.getParentFile(), testTarget );
         String testTargetName = new File ( testTarget ).getName();
         
         arguments.add( "--have-eh" );
         arguments.add( "--abort-on-fail" );
-        arguments.add( "--output=" + new File( targetPath, cxxTest.getTestRunnerName() ).getAbsolutePath() );
+        arguments.add( "--output=" + outputFile.getAbsolutePath() );
         arguments.add( "--xunit-printer" );
         
         File templateFile = getTemplateFileForTarget( targetPath );
