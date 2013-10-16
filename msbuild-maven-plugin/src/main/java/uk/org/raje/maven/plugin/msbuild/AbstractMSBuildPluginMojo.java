@@ -60,20 +60,8 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         // in configuration sub-classes.
         try
         {
-            if ( cppCheckPath != null )
-            {
-                Field cppCheckPathField = CppCheckConfiguration.class.getDeclaredField( "cppCheckPath" );
-                cppCheckPathField.setAccessible( true );
-                cppCheckPathField.set( cppCheck, cppCheckPath );
-                getLog().debug( "Found property for cppcheck.path, using this value" );
-            }
-            if ( cxxTestHome != null )
-            {
-                Field cxxTestPathField = CxxTestConfiguration.class.getDeclaredField( "cxxTestHome" );
-                cxxTestPathField.setAccessible( true );
-                cxxTestPathField.set( cxxTest, cxxTestHome );
-                getLog().debug( "Found property for cxxtest.home, using this value" );
-           }
+            fixUpCppCheckPath();
+            fixUpCxxTestPath();
         }
         catch ( NoSuchFieldException nsfe )
         {
@@ -88,7 +76,63 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         doExecute();
     }
 
-    
+    private void fixUpCppCheckPath() throws NoSuchFieldException, IllegalAccessException
+    {
+        // If cppCheckPath is specified in the cppCheck configuration we use that
+        if ( cppCheck.getCppCheckPath() == null )
+        {
+            // Do we have a value in the local cppCheckPath property? (this may have come from -D or settings.xml)
+            if ( cppCheckPath != null )
+            {
+                getLog().debug( "CppCheck path found in top level configuration or cppcheck.path property" );
+            }
+            else
+            {
+                // Still looking, try environment variables
+                String cppCheckEnv = System.getenv( CppCheckConfiguration.CPPCHECK_PATH_ENVVAR );
+                if ( cppCheckEnv != null )
+                {
+                    getLog().debug( "CppCheck path from environment variable ("
+                            + CppCheckConfiguration.CPPCHECK_PATH_ENVVAR + ")" );
+                    cppCheckPath = new File( cppCheckEnv );
+                }
+            }
+            if ( cppCheckPath != null )
+            {
+                Field cppCheckPathField = CppCheckConfiguration.class.getDeclaredField( "cppCheckPath" );
+                cppCheckPathField.setAccessible( true );
+                cppCheckPathField.set( cppCheck, cppCheckPath );
+            }
+        }
+    }
+
+    private void fixUpCxxTestPath() throws NoSuchFieldException, IllegalAccessException
+    {
+        if ( cxxTest.getCxxTestHome() == null )
+        {
+            if ( cxxTestHome != null )
+            {
+                getLog().debug( "CxxTest home found in top level configuration or cxxtest.home property" );
+            }
+            else
+            {
+                String cxxTestEnv = System.getenv( CxxTestConfiguration.CXXTEST_HOME );
+                if ( cxxTestEnv != null )
+                {
+                    getLog().debug( "CxxTest home from environment variable ("
+                            + CxxTestConfiguration.CXXTEST_HOME + ")" );
+                    cxxTestHome = new File( cxxTestEnv );
+                }
+            }
+            if ( cxxTestHome != null )
+            {
+                Field cxxTestPathField = CxxTestConfiguration.class.getDeclaredField( "cxxTestHome" );
+                cxxTestPathField.setAccessible( true );
+                cxxTestPathField.set( cxxTest, cxxTestHome );
+           }
+        }        
+    }
+
     /**
      * Actually perform the work of this Mojo now the configuration has been fixed.
      * @see AbstractMojo#execute
@@ -378,7 +422,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         try 
         {
             MojoHelper.validateToolPath( new File( getCxxTestPython2Home(), "cxxtest/cxxtestgen.py" ), 
-                    CxxTestConfiguration.CXXTEST_HOME, CxxTestConfiguration.CXXTEST_NAME, getLog() );
+                    CxxTestConfiguration.CXXTEST_NAME, getLog() );
         }
         catch ( FileNotFoundException fnfe )
         {
@@ -438,7 +482,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     {
         try 
         {
-            MojoHelper.validateToolPath( cppCheck.getCppCheckPath(), CppCheckConfiguration.CPPCHECK_PATH_ENVVAR, 
+            MojoHelper.validateToolPath( cppCheck.getCppCheckPath(), 
                     CppCheckConfiguration.CPPCHECK_NAME, getLog() );
         }
         catch ( FileNotFoundException fnfe )

@@ -51,8 +51,13 @@ public class CppCheckMojoTest extends AbstractMSBuildMojoTestCase
     {
         CppCheckMojo cppCheckMojo = ( CppCheckMojo ) lookupConfiguredMojo( CppCheckMojo.MOJO_NAME, 
                 "/unit/cppcheck/missing-cppcheck-path-pom.xml" ) ;
-        
+
+        assertNull( cppCheckMojo.cppCheck.getCppCheckPath() );
+
         cppCheckMojo.execute();
+        
+        assertEquals( "[INFO] Skipping static code analysis, path to CppCheck not set.",
+                outputStream.toString().trim() );
     }
     
     @Test

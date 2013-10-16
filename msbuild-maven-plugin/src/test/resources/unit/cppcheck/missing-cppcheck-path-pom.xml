@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
-    <artifactId>missing-cppcheck-path-pom.xml</artifactId>
+    <artifactId>missing-cppcheck-path</artifactId>
     <version>1</version>
     <packaging>exe</packaging>
 

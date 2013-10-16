@@ -41,26 +41,14 @@ public class MojoHelper
     /**
      * Validates the path to a command-line tool.
      * @param toolPath the configured tool path from the POM
-     * @param toolPathEnvVar the name of an environment variable to look up the path in if toolPath is null
      * @param toolName the name of the tool, used for logging messages
      * @param logger a Log to write messages to
      * @throws FileNotFoundException if the tool cannot be found
      */
-    public static void validateToolPath( File toolPath, String toolPathEnvVar, String toolName, Log logger ) 
+    public static void validateToolPath( File toolPath, String toolName, Log logger ) 
             throws FileNotFoundException
     {
         logger.debug( "Validating path for " + toolName + "." );
-        
-        if ( toolPath == null )
-        {
-            // not set in configuration try system environment
-            String toolEnvPath = System.getenv( toolPathEnvVar );
-            
-            if ( toolEnvPath != null )
-            {
-                toolPath = new File( toolEnvPath );
-            }
-        }
         
         if ( toolPath == null )
         {

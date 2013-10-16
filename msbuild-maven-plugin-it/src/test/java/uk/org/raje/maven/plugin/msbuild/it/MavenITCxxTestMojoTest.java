@@ -17,6 +17,7 @@ package uk.org.raje.maven.plugin.msbuild.it;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.addPropertiesToVerifier;
 
 import java.io.BufferedReader;
@@ -30,6 +31,7 @@ import java.io.OutputStreamWriter;
 
 import junitx.framework.FileAssert;
 
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.ResourceExtractor;
 import org.junit.Test;
@@ -44,6 +46,27 @@ import uk.org.raje.maven.plugin.msbuild.CxxTestRunnerMojo;
  */
 public class MavenITCxxTestMojoTest 
 {
+    @Test
+    public void envVarPathConfiguration() throws Exception
+    {
+        final File testDir = ResourceExtractor.simpleExtractResources( getClass(), "/compute-pi-cxxtest-test" );
+
+        Verifier verifier = new Verifier( testDir.getAbsolutePath() );
+        addPropertiesToVerifier( verifier );
+        // As we can't know a real location put a fake one and check the error message
+        verifier.setEnvironmentVariable( "CXXTEST_HOME", "my_fake_path" );
+
+        try
+        {
+            verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestGenMojo.MOJO_NAME );
+            fail();
+        }
+        catch ( VerificationException ve )
+        {
+            verifier.verifyTextInLog( "my_fake_path" );
+        }
+    }
+
     @Test
     public void testCxxTestGenerateAndBuild() throws Exception
     {
