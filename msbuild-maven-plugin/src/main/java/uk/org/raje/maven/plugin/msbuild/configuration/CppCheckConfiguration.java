@@ -30,7 +30,11 @@ public class CppCheckConfiguration
      * The name of the environment variable that can store the PATH TO CppCheck.
      */
     public static final String CPPCHECK_PATH_ENVVAR = "CPPCHECK_PATH";
-    
+    /**
+     * The name of the property that can store the PATH TO CppCheck.
+     */
+    public static final String CPPCHECK_PATH_PROPERTY = "cppcheck.path";
+
     /**
      * The CppCheck name to output on debug/information messages
      */    

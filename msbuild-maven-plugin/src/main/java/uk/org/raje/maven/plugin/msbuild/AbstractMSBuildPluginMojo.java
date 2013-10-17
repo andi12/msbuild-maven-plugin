@@ -69,10 +69,15 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         // If cppCheckPath is specified in the cppCheck configuration we use that
         if ( cppCheck.getCppCheckPath() == null )
         {
+            File cppCheckPath = null;
             // Do we have a value in the local cppCheckPath property? (this may have come from -D or settings.xml)
-            if ( cppCheckPath != null )
+            String cppCheckProperty = mavenProject.getProperties()
+                    .getProperty( CppCheckConfiguration.CPPCHECK_PATH_PROPERTY );
+            if ( cppCheckProperty != null )
             {
-                getLog().debug( "CppCheck path found in top level configuration or cppcheck.path property" );
+                getLog().debug( "CppCheck path found in " 
+                        + CppCheckConfiguration.CPPCHECK_PATH_PROPERTY + " property" );
+                cppCheckPath = new File( cppCheckProperty );
             }
             else
             {
@@ -96,17 +101,22 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     {
         if ( cxxTest.getCxxTestHome() == null )
         {
-            if ( cxxTestHome != null )
-            {
-                getLog().debug( "CxxTest home found in top level configuration or cxxtest.home property" );
+            File cxxTestHome = null;
+            String cxxTestProperty = mavenProject.getProperties()
+                    .getProperty( CxxTestConfiguration.CXXTEST_HOME_PROPERTY );
+            if ( cxxTestProperty != null )
+            {            
+                getLog().debug( "CxxTest home found in "
+                        + CxxTestConfiguration.CXXTEST_HOME_PROPERTY + " property" );
+                cxxTestHome = new File( cxxTestProperty );
             }
             else
             {
-                String cxxTestEnv = System.getenv( CxxTestConfiguration.CXXTEST_HOME );
+                String cxxTestEnv = System.getenv( CxxTestConfiguration.CXXTEST_HOME_ENVVAR );
                 if ( cxxTestEnv != null && !cxxTestEnv.isEmpty() )
                 {
                     getLog().debug( "CxxTest home from environment variable ("
-                            + CxxTestConfiguration.CXXTEST_HOME + ")" );
+                            + CxxTestConfiguration.CXXTEST_HOME_ENVVAR + ")" );
                     cxxTestHome = new File( cxxTestEnv );
                 }
             }
@@ -416,7 +426,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
                     + "POM file using <cxxTestHome>...</cxxTestHome> "
                     + "or <properties><cxxtest.home>...</cxxtest.home></properties>; "
                     + "alternatively, you can use the command-line parameter -Dcxxtest.home=... "
-                    + "or set the environment variable " + CxxTestConfiguration.CXXTEST_HOME, fnfe );
+                    + "or set the environment variable " + CxxTestConfiguration.CXXTEST_HOME_ENVVAR, fnfe );
         }
         
         if ( cxxTest.getTestTargets() == null || cxxTest.getTestTargets().size() == 0 )
@@ -604,23 +614,4 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     private static final LoggingHandler VCPROJECT_HOLDER_LOG_HANDLER = 
             new LoggingHandler( VCProjectHolder.class.getName() );
     
-    /**
-     * This parameter only exists to pickup a -D property or property in settings.xml
-     * @see CppCheckConfiguration#cppCheckPath
-     */
-    @Parameter(
-            property = "cppcheck.path",
-            readonly = true,
-            required = false )
-    private File cppCheckPath;
-
-    /**
-     * This parameter only exists to pickup a -D property or property in settings.xml
-     * @see CxxTestConfiguration#cxxTestHome
-     */
-    @Parameter( 
-            property = "cxxtest.home", 
-            readonly = true, 
-            required = false )
-    private File cxxTestHome;
 }
