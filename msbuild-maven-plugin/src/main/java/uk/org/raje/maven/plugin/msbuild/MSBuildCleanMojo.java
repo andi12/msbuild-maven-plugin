@@ -55,7 +55,7 @@ public class MSBuildCleanMojo extends AbstractMSBuildMojo
         {
             VersionInfoMojo.clean( projectFile, versionInfo.getOutputFile() );
         }
-        if ( isCppCheckEnabled( false ) )
+        if ( isCppCheckEnabled( true ) )
         {
             CppCheckMojo.clean( projectFile, getLog() );
         }
