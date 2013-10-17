@@ -55,6 +55,15 @@ public class CxxTestConfiguration
     }
 
     /**
+     * Set CxxTest home directory
+     * @param newCxxTestHome the new path to store, replaces any existing value
+     */
+    public final void setCxxTestHome( File newCxxTestHome )
+    {
+        cxxTestHome = newCxxTestHome;
+    }
+
+    /**
      * Get the configured List of test targets
      * @return the List of test targets
      */

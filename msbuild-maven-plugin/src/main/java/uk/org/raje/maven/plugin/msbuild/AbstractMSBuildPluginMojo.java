@@ -18,7 +18,6 @@ package uk.org.raje.maven.plugin.msbuild;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -58,25 +57,14 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         // This is done with the following hard coded fixes for parameters that
         // we want to be able to pull from -D's or settings.xml but are stored
         // in configuration sub-classes.
-        try
-        {
-            fixUpCppCheckPath();
-            fixUpCxxTestPath();
-        }
-        catch ( NoSuchFieldException nsfe )
-        {
-            throw new MojoFailureException( "Internal error, please contact the Mojo developer", nsfe );
-        }
-        catch ( IllegalAccessException iae )
-        {
-            throw new MojoFailureException( "Internal error, please contact the Mojo developer", iae );
-        }
+        fixUpCppCheckPath();
+        fixUpCxxTestPath();
 
         // Configuration fixed, call child to do real work
         doExecute();
     }
 
-    private void fixUpCppCheckPath() throws NoSuchFieldException, IllegalAccessException
+    private void fixUpCppCheckPath()
     {
         // If cppCheckPath is specified in the cppCheck configuration we use that
         if ( cppCheck.getCppCheckPath() == null )
@@ -90,7 +78,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             {
                 // Still looking, try environment variables
                 String cppCheckEnv = System.getenv( CppCheckConfiguration.CPPCHECK_PATH_ENVVAR );
-                if ( cppCheckEnv != null )
+                if ( cppCheckEnv != null && !cppCheckEnv.isEmpty() )
                 {
                     getLog().debug( "CppCheck path from environment variable ("
                             + CppCheckConfiguration.CPPCHECK_PATH_ENVVAR + ")" );
@@ -99,14 +87,12 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             }
             if ( cppCheckPath != null )
             {
-                Field cppCheckPathField = CppCheckConfiguration.class.getDeclaredField( "cppCheckPath" );
-                cppCheckPathField.setAccessible( true );
-                cppCheckPathField.set( cppCheck, cppCheckPath );
+                cppCheck.setCppCheckPath( cppCheckPath );
             }
         }
     }
 
-    private void fixUpCxxTestPath() throws NoSuchFieldException, IllegalAccessException
+    private void fixUpCxxTestPath()
     {
         if ( cxxTest.getCxxTestHome() == null )
         {
@@ -117,7 +103,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             else
             {
                 String cxxTestEnv = System.getenv( CxxTestConfiguration.CXXTEST_HOME );
-                if ( cxxTestEnv != null )
+                if ( cxxTestEnv != null && !cxxTestEnv.isEmpty() )
                 {
                     getLog().debug( "CxxTest home from environment variable ("
                             + CxxTestConfiguration.CXXTEST_HOME + ")" );
@@ -126,9 +112,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             }
             if ( cxxTestHome != null )
             {
-                Field cxxTestPathField = CxxTestConfiguration.class.getDeclaredField( "cxxTestHome" );
-                cxxTestPathField.setAccessible( true );
-                cxxTestPathField.set( cxxTest, cxxTestHome );
+                cxxTest.setCxxTestHome( cxxTestHome );
            }
         }        
     }

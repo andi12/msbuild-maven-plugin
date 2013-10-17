@@ -55,6 +55,15 @@ public class CppCheckConfiguration
     }
 
     /**
+     * Set the path to CppCheck
+     * @param newCppCheckPath the new path to store, replaces any existing value
+     */
+    public final void setCppCheckPath( File newCppCheckPath )
+    {
+        cppCheckPath = newCppCheckPath;
+    }
+
+    /**
      * Get the configured report name prefix
      * @return the prefix for report file names
      */
