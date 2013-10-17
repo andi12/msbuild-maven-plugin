@@ -50,14 +50,7 @@ public class CxxTestRunnerMojoTest extends AbstractMSBuildMojoTestCase
         CxxTestRunnerMojo cxxTestRunnerMojo = ( CxxTestRunnerMojo ) lookupConfiguredMojo( CxxTestRunnerMojo.MOJO_NAME, 
                 "/unit/cxxtest/missing-cxxtest-home-path.pom" ) ;
         
-        try
-        {
-            cxxTestRunnerMojo.execute();
-        }
-        catch ( AbstractMojoExecutionException ame )
-        {
-            fail( ame.getCause() != null ? ame.getCause().getMessage() : ame.getMessage() );
-        }
+        cxxTestRunnerMojo.execute();
         
         if ( !outputStream.toString().contains( CXXTEST_SKIP_MESSAGE ) )
         {

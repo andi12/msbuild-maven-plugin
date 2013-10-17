@@ -67,14 +67,7 @@ public class CxxTestGenMojoTest extends AbstractMSBuildMojoTestCase
         CxxTestGenMojo cxxTestGenMojo = ( CxxTestGenMojo ) lookupConfiguredMojo( CxxTestGenMojo.MOJO_NAME, 
                 "/unit/cxxtest/missing-cxxtest-home-path.pom" ) ;
         
-        try
-        {
-            cxxTestGenMojo.execute();
-        }
-        catch ( AbstractMojoExecutionException ame )
-        {
-            fail( ame.getCause() != null ? ame.getCause().getMessage() : ame.getMessage() );
-        }
+        cxxTestGenMojo.execute();
         
         if ( !outputStream.toString().contains( CXXTEST_SKIP_MESSAGE ) )
         {
@@ -82,19 +75,13 @@ public class CxxTestGenMojoTest extends AbstractMSBuildMojoTestCase
         }
     }    
 
+    @Test
     public final void testSkipCxxTest() throws Exception 
     {
         CxxTestGenMojo cxxTestGenMojo = ( CxxTestGenMojo ) lookupConfiguredMojo( CxxTestGenMojo.MOJO_NAME, 
                 "/unit/cxxtest/skip-cxxtest.pom" ) ;
         
-        try
-        {
-            cxxTestGenMojo.execute();
-        }
-        catch ( AbstractMojoExecutionException ame )
-        {
-            fail( ame.getCause() != null ? ame.getCause().getMessage() : ame.getMessage() );
-        }
+        cxxTestGenMojo.execute();
         
         if ( !outputStream.toString().contains( CXXTEST_SKIP_MESSAGE ) ) 
         {
