@@ -58,7 +58,13 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         {
             return;
         }
-        
+
+        if ( cxxTest.getSkipTests() )
+        {
+            getLog().info( "Tests are skipped." );
+            return;
+        }
+
         CXXTEST_RUNNER_LOG_HANDLER.setLog( getLog() );
         
         validateCxxTestConfiguration();
@@ -92,10 +98,19 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         
         if ( allTestPassed.contains( false ) )
         {
-            throw new MojoFailureException( "Some tests failed to pass" );
+            if ( cxxTest.getTestFailureIgnore() )
+            {
+                getLog().warn( "Some tests failed to pass" );
+            }
+            else
+            {
+                throw new MojoFailureException( "Some tests failed to pass" );
+            }
         }
-
-        getLog().info( "All tests passed" );
+        else
+        {
+            getLog().info( "All tests passed" );
+        }
     }
     
     /**

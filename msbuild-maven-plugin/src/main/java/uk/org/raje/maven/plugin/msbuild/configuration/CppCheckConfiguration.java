@@ -104,10 +104,11 @@ public class CppCheckConfiguration
 
     /**
      * The path to CppCheck.
-     * Note: The property is not specified here as it doesn't work.
-     * @see uk.org.raje.maven.plugin.msbuild.AbstractMSBuildPluginMojo#cppCheckPath 
+     * Note: The property name specified here is only for documentation, this doesn't work and needs to be manually
+     * fixed in {@link AbstractMSBuildPluginMojo}
      */
     @Parameter( 
+            property = CPPCHECK_PATH_PROPERTY,
             readonly = false, 
             required = false )
     private File cppCheckPath;

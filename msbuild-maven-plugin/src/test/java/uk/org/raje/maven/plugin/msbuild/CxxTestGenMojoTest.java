@@ -18,7 +18,6 @@ package uk.org.raje.maven.plugin.msbuild;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import org.apache.maven.plugin.AbstractMojoExecutionException;
 import org.junit.Test;
 
 /**
@@ -90,19 +89,34 @@ public class CxxTestGenMojoTest extends AbstractMSBuildMojoTestCase
     }    
     
     @Test
+    public final void testCxxTestHomePathFromSystemProperty() throws Exception 
+    {
+        System.setProperty( "cxxtest.home", "src/test/resources/unit/cxxtest/fake-cxxtest-4.2.1-home" );
+        CxxTestGenMojo cxxTestGenMojo = ( CxxTestGenMojo ) lookupConfiguredMojo( CxxTestGenMojo.MOJO_NAME, 
+                "/unit/cxxtest/missing-cxxtest-home-path.pom" ) ;
+
+        try
+        {
+            cxxTestGenMojo.execute();
+        }
+        finally
+        {
+            System.getProperties().remove( "cxxtest.home" );
+        }
+        
+        if ( outputStream.toString().contains( CXXTEST_SKIP_MESSAGE ) )
+        {
+            fail( "cxxtest.home should have be found from system property" );
+        }
+    }    
+
+    @Test
     public final void testExecuteCxxTestGen() throws Exception 
     {
         CxxTestGenMojo cxxTestGenMojo = ( CxxTestGenMojo ) lookupConfiguredMojo( CxxTestGenMojo.MOJO_NAME, 
                 "/unit/cxxtest/minimal-cxxtestgen-config.pom" );
         
-        try
-        {
-            cxxTestGenMojo.execute();
-        }
-        catch ( AbstractMojoExecutionException ame )
-        {
-            fail( ame.getCause() != null ? ame.getCause().getMessage() : ame.getMessage() );
-        }
+        cxxTestGenMojo.execute();
     }
     
     private static final String CXXTEST_SKIP_MESSAGE = "Skipping test";

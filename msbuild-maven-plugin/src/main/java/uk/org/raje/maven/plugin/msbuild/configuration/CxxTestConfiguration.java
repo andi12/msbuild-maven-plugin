@@ -25,7 +25,6 @@ import org.apache.maven.plugins.annotations.Parameter;
  */
 public class CxxTestConfiguration
 {
-    
     /**
      * The name of the environment variable that can store the path to the CxxTest home directory
      */
@@ -34,6 +33,15 @@ public class CxxTestConfiguration
      * The name of the property that can store the path to the CxxTest home directory
      */
     public static final String CXXTEST_HOME_PROPERTY = "cxxtest.home";
+
+    /**
+     * The name of the boolean property that instructs us to skip test execution.
+     */
+    public static final String SKIP_TESTS_PROPERTY = "skipTests";
+    /**
+     * The name of the boolean property that instructs us to ignore test failures.
+     */
+    public static final String TEST_FAILURE_IGNORE_PROPERTY = "maven.test.failure.ignore";
 
     /**
      * The CxxTest name to output on debug/information messages
@@ -47,6 +55,42 @@ public class CxxTestConfiguration
     public final boolean skip()
     {
         return skip;
+    }
+
+    /**
+     * Get the configured value for skipTests
+     * @return true if test execution should be skipped
+     */
+    public final boolean getSkipTests()
+    {
+        return skipTests;
+    }
+
+    /**
+     * Set the configured value for skipTests
+     * @param b the new value
+     */
+    public final void setSkipTests( boolean b )
+    {
+        skipTests = b;
+    }
+
+    /**
+     * Get the configured value for testFailureIgnore
+     * @return true if failing tests should be ignored
+     */
+    public final boolean getTestFailureIgnore()
+    {
+        return testFailureIgnore;
+    }
+
+    /**
+     * Set the configured value for testFailureIgnore
+     * @param b the new value
+     */
+    public final void setTestFailureIgnore( boolean b )
+    {
+        testFailureIgnore = b;
     }
 
     /**
@@ -123,11 +167,32 @@ public class CxxTestConfiguration
     protected boolean skip = false; 
 
     /**
-     * The home directory for CxxTest
-     * Note: The property is not specified here as it doesn't work.
-     * @see uk.org.raje.maven.plugin.msbuild.AbstractMSBuildPluginMojo#cxxTestHome 
+     * Set this to "true" to skip running tests, but still compile them. Its use is NOT RECOMMENDED, 
+     * but quite convenient on occasion.
      */
     @Parameter( 
+            property = SKIP_TESTS_PROPERTY,
+            defaultValue = "false", 
+            readonly = false )
+    protected boolean skipTests = false; 
+
+    /**
+     * Set this to "true" to ignore a failure during testing. Its use is NOT RECOMMENDED, 
+     * but quite convenient on occasion.
+     */
+    @Parameter( 
+            property = TEST_FAILURE_IGNORE_PROPERTY,
+            defaultValue = "false", 
+            readonly = false )
+    protected boolean testFailureIgnore = false; 
+
+    /**
+     * The home directory for CxxTest
+     * Note: The property name specified here is only for documentation, this doesn't work and needs to be manually
+     * fixed in {@link AbstractMSBuildPluginMojo}
+     */
+    @Parameter( 
+            property = CXXTEST_HOME_PROPERTY,
             readonly = false, 
             required = false )
     protected File cxxTestHome;

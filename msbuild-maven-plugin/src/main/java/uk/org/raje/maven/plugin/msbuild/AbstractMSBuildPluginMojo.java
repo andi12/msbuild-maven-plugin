@@ -54,77 +54,90 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         VCPROJECT_HOLDER_LOG_HANDLER.setLog( getLog() );
         
         // Fix up configuration
-        // This is done with the following hard coded fixes for parameters that
-        // we want to be able to pull from -D's or settings.xml but are stored
-        // in configuration sub-classes.
-        fixUpCppCheckPath();
-        fixUpCxxTestPath();
+        // This is done with the following fixes for parameters that we want to be able to pull 
+        // from -D's, settings.xml or environment variables but are stored in configuration sub-classes.
+        // Unfortunately the @Parameter 'property' attribute doesn't work for configuration sub-classes.
+        cppCheck.setCppCheckPath(
+                findConfiguredToolPath( "CppCheck path", 
+                        cppCheck.getCppCheckPath(), 
+                        CppCheckConfiguration.CPPCHECK_PATH_PROPERTY,  
+                        CppCheckConfiguration.CPPCHECK_PATH_ENVVAR ) );
+        cxxTest.setCxxTestHome(
+                findConfiguredToolPath( "CxxTest home", 
+                        cxxTest.getCxxTestHome(), 
+                        CxxTestConfiguration.CXXTEST_HOME_PROPERTY,  
+                        CxxTestConfiguration.CXXTEST_HOME_ENVVAR ) );
+        if ( "true".equalsIgnoreCase( findProperty( CxxTestConfiguration.SKIP_TESTS_PROPERTY ) ) )
+        {
+            cxxTest.setSkipTests( true );
+        }
+        if ( "true".equalsIgnoreCase( findProperty( CxxTestConfiguration.TEST_FAILURE_IGNORE_PROPERTY ) ) )
+        {
+            cxxTest.setTestFailureIgnore( true );
+        }
 
         // Configuration fixed, call child to do real work
         doExecute();
     }
 
-    private void fixUpCppCheckPath()
+    /**
+     * Find a configuration for the specified tool path.
+     * The following precedence is observed: System property, POM value, Project property, Environment variable
+     * @param toolName the name of the tool being sought, used for logging
+     * @param pomValue the value found in the POM
+     * @param prop the property name
+     * @param envvar the environment variable name
+     * @return the value determined or null if not found
+     */
+    private File findConfiguredToolPath( String toolName, File pomValue, String prop, String envvar )
     {
-        // If cppCheckPath is specified in the cppCheck configuration we use that
-        if ( cppCheck.getCppCheckPath() == null )
+        String systemPropertyValue = System.getProperty( prop );
+        if ( systemPropertyValue != null && !systemPropertyValue.isEmpty() )
         {
-            File cppCheckPath = null;
-            // Do we have a value in the local cppCheckPath property? (this may have come from -D or settings.xml)
-            String cppCheckProperty = mavenProject.getProperties()
-                    .getProperty( CppCheckConfiguration.CPPCHECK_PATH_PROPERTY );
-            if ( cppCheckProperty != null )
-            {
-                getLog().debug( "CppCheck path found in " 
-                        + CppCheckConfiguration.CPPCHECK_PATH_PROPERTY + " property" );
-                cppCheckPath = new File( cppCheckProperty );
+            getLog().debug( toolName + " found in " + prop + " system property" );
+            return new File( systemPropertyValue );
+        }
+
+        // No system property, we'll use the pom configured value if provided
+        File result = pomValue;
+        
+        if ( result == null )
+        {
+            // Try project property ...
+            String projectPropertyValue = mavenProject.getProperties().getProperty( prop );
+            if ( projectPropertyValue != null && !projectPropertyValue.isEmpty() )
+            {            
+                getLog().debug( toolName + " found in " + prop + " property" );
+                result = new File( projectPropertyValue );
             }
             else
             {
-                // Still looking, try environment variables
-                String cppCheckEnv = System.getenv( CppCheckConfiguration.CPPCHECK_PATH_ENVVAR );
-                if ( cppCheckEnv != null && !cppCheckEnv.isEmpty() )
+                // Try environment variable ...
+                String envValue = System.getenv( envvar );
+                if ( envValue != null && !envValue.isEmpty() )
                 {
-                    getLog().debug( "CppCheck path from environment variable ("
-                            + CppCheckConfiguration.CPPCHECK_PATH_ENVVAR + ")" );
-                    cppCheckPath = new File( cppCheckEnv );
+                    getLog().debug( toolName + " from environment variable " + envvar );
+                    result = new File( envValue );
                 }
             }
-            if ( cppCheckPath != null )
-            {
-                cppCheck.setCppCheckPath( cppCheckPath );
-            }
-        }
+        }        
+        
+        return result;
     }
 
-    private void fixUpCxxTestPath()
+    /**
+     * Look for a value for the specified property in System properties then project properties. 
+     * @param prop the property name
+     * @return the value or null if not found
+     */
+    private String findProperty( String prop )
     {
-        if ( cxxTest.getCxxTestHome() == null )
+        String result = System.getProperty( prop );
+        if ( result == null )
         {
-            File cxxTestHome = null;
-            String cxxTestProperty = mavenProject.getProperties()
-                    .getProperty( CxxTestConfiguration.CXXTEST_HOME_PROPERTY );
-            if ( cxxTestProperty != null )
-            {            
-                getLog().debug( "CxxTest home found in "
-                        + CxxTestConfiguration.CXXTEST_HOME_PROPERTY + " property" );
-                cxxTestHome = new File( cxxTestProperty );
-            }
-            else
-            {
-                String cxxTestEnv = System.getenv( CxxTestConfiguration.CXXTEST_HOME_ENVVAR );
-                if ( cxxTestEnv != null && !cxxTestEnv.isEmpty() )
-                {
-                    getLog().debug( "CxxTest home from environment variable ("
-                            + CxxTestConfiguration.CXXTEST_HOME_ENVVAR + ")" );
-                    cxxTestHome = new File( cxxTestEnv );
-                }
-            }
-            if ( cxxTestHome != null )
-            {
-                cxxTest.setCxxTestHome( cxxTestHome );
-           }
-        }        
+            result = mavenProject.getProperties().getProperty( prop );
+        }
+        return result;
     }
 
     /**
