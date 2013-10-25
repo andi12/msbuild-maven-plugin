@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="5.0">
+    <file name="compute-pi\compute-pi-app.cpp">
+        <error source="T013" severity="warning" line="1" message="no copyright notice found" />
+        <error source="T014" severity="warning" line="1" message="no reference to the Boost Software License found" />
+        <error source="L001" severity="warning" line="8" message="no newline at end of file" />
+        <error source="T011" severity="warning" line="8" message="closing curly bracket not in the same line or column" />
+    </file>
+    <file name="compute-pi\compute-pi.cpp">
+        <error source="T013" severity="warning" line="1" message="no copyright notice found" />
+        <error source="T014" severity="warning" line="1" message="no reference to the Boost Software License found" />
+        <error source="T011" severity="warning" line="12" message="closing curly bracket not in the same line or column" />
+        <error source="L001" severity="warning" line="15" message="no newline at end of file" />
+        <error source="T011" severity="warning" line="15" message="closing curly bracket not in the same line or column" />
+    </file>
+    <file name="compute-pi\compute-pi.h">
+        <error source="T013" severity="warning" line="1" message="no copyright notice found" />
+        <error source="T014" severity="warning" line="1" message="no reference to the Boost Software License found" />
+        <error source="L001" severity="warning" line="5" message="no newline at end of file" />
+    </file>
+</checkstyle>

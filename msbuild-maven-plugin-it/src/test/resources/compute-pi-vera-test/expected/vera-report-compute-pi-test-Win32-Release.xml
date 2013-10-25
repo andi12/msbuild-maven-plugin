@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="5.0">
+    <file name="compute-pi-test\compute-pi-test.h">
+        <error source="T013" severity="warning" line="1" message="no copyright notice found" />
+        <error source="T014" severity="warning" line="1" message="no reference to the Boost Software License found" />
+    </file>
+</checkstyle>
