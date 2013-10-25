@@ -32,6 +32,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.DirectoryScanner;
 import org.xml.sax.SAXException;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
@@ -39,6 +40,7 @@ import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.CxxTestConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.SonarConfiguration;
+import uk.org.raje.maven.plugin.msbuild.configuration.VeraConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.VersionInfoConfiguration;
 import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
 import uk.org.raje.maven.plugin.msbuild.parser.VCProjectHolder;
@@ -58,20 +60,29 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         // from -D's, settings.xml or environment variables but are stored in configuration sub-classes.
         // Unfortunately the @Parameter 'property' attribute doesn't work for configuration sub-classes.
         cppCheck.setCppCheckPath(
-                findConfiguredToolPath( "CppCheck path", 
+                findConfiguredToolPath( "CppCheck executable path", 
                         cppCheck.getCppCheckPath(), 
-                        CppCheckConfiguration.CPPCHECK_PATH_PROPERTY,  
-                        CppCheckConfiguration.CPPCHECK_PATH_ENVVAR ) );
+                        CppCheckConfiguration.PATH_PROPERTY,  
+                        CppCheckConfiguration.PATH_ENVVAR ) );
+        
+        vera.setVeraHome(
+                findConfiguredToolPath( "Vera++ home directory", 
+                        vera.getVeraHome(),
+                        VeraConfiguration.HOME_PROPERTY,  
+                        VeraConfiguration.HOME_ENVVAR ) );
+        
         cxxTest.setCxxTestHome(
-                findConfiguredToolPath( "CxxTest home", 
+                findConfiguredToolPath( "CxxTest home directory", 
                         cxxTest.getCxxTestHome(), 
-                        CxxTestConfiguration.CXXTEST_HOME_PROPERTY,  
-                        CxxTestConfiguration.CXXTEST_HOME_ENVVAR ) );
+                        CxxTestConfiguration.HOME_PROPERTY,  
+                        CxxTestConfiguration.HOME_ENVVAR ) );
+        
         if ( "true".equalsIgnoreCase( findProperty( CxxTestConfiguration.SKIP_TESTS_PROPERTY ) ) )
         {
             cxxTest.setSkipTests( true );
         }
-        if ( "true".equalsIgnoreCase( findProperty( CxxTestConfiguration.TEST_FAILURE_IGNORE_PROPERTY ) ) )
+        
+        if ( "true".equalsIgnoreCase( findProperty( CxxTestConfiguration.IGNORE_FAILURE_PROPERTY ) ) )
         {
             cxxTest.setTestFailureIgnore( true );
         }
@@ -116,7 +127,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
                 String envValue = System.getenv( envvar );
                 if ( envValue != null && !envValue.isEmpty() )
                 {
-                    getLog().debug( toolName + " from environment variable " + envvar );
+                    getLog().debug( toolName + " found in environment variable " + envvar );
                     result = new File( envValue );
                 }
             }
@@ -185,27 +196,55 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
      * Compute the relative path portion from a path and a base directory.
      * If basedir and target are the same "." is returned.
      * For example: Given C:\foo\bar and C:\foo\bar\baz this method will return baz
-     * @param basedir the base directory
-     * @param target the path to express as relative to basedir
+     * @param baseDir the base directory
+     * @param targetFile the path to express as relative to basedir
      * @return the relative portion of the path between basedir and target
-     * @throws MojoExecutionException if the target is not basedir or a subpath of basedir
+     * @throws IOException if the target is not basedir or a subpath of basedir
      */
-    protected File getRelativeFile( File basedir, File target ) throws MojoExecutionException
+    protected File getRelativeFile( File baseDir, File targetFile ) throws IOException
     {
-        String basedirStr = basedir.getPath();
-        String targetDirStr = target.getPath();
+        String baseDirStr = baseDir.getPath();
+        String targetDirStr = targetFile.getPath();
         
-        if ( targetDirStr.equals( basedirStr ) )
+        if ( targetDirStr.equals( baseDirStr ) )
         {
             return new File( "." );
         }
-        else if ( targetDirStr.startsWith( basedirStr + File.separator ) ) // add slash to ensure directory
+        else if ( targetDirStr.startsWith( baseDirStr + File.separator ) ) // add slash to ensure directory
         {
-            return new File( targetDirStr.substring( basedirStr.length() + 1 ) ); // + slash char
+            return new File( targetDirStr.substring( baseDirStr.length() + 1 ) ); // + slash char
         }
-        throw new MojoExecutionException( "Unable to relativize " + targetDirStr + " to " + basedir );
+        
+        throw new IOException( "Unable to relativize " + targetDirStr + " to " + baseDir );
     }
-
+    
+    protected List<File> getProjectSources( VCProject vcProject, boolean includeHeaders ) 
+    {
+        final DirectoryScanner directoryScanner = new DirectoryScanner();
+        List<String> sourceFilePatterns = new ArrayList<String>();
+        List<File> sourceFiles = new ArrayList<File>();
+        
+        sourceFilePatterns.add( "**\\*.c" );
+        sourceFilePatterns.add( "**\\*.cpp" );
+        
+        if ( includeHeaders )
+        {
+            sourceFilePatterns.add( "**\\*.h" );
+            sourceFilePatterns.add( "**\\*.hpp" );
+        }
+        
+        directoryScanner.setIncludes( sourceFilePatterns.toArray( new String[0] ) );
+        directoryScanner.setBasedir( vcProject.getFile().getParentFile() );
+        directoryScanner.scan();
+        
+        for ( String fileName : directoryScanner.getIncludedFiles() )
+        {
+            sourceFiles.add( new File( vcProject.getFile().getParentFile(), fileName ) );
+        }
+        
+        return sourceFiles;
+    }
+    
     /**
      * Return project configurations for the specified platform and configuration.
      * @param platform the platform to parse for
@@ -255,25 +294,33 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
      * @throws MojoExecutionException if parsing fails
      */
     protected List<VCProject> getParsedProjects( BuildPlatform platform, BuildConfiguration configuration, 
-            Pattern filterRegex ) throws MojoExecutionException
+            String filterRegex ) throws MojoExecutionException
     {
-        List<VCProject> unfiltered = getParsedProjects( platform, configuration );
-        List<VCProject> filteredList = new ArrayList<VCProject>( unfiltered.size() );
-        for ( VCProject p : unfiltered )
+        Pattern filterPattern = null;
+        List<VCProject> filteredList = new ArrayList<VCProject>();
+        
+        if ( filterRegex != null )
         {
-            if ( filterRegex == null )
+            filterPattern = Pattern.compile( filterRegex );
+        }
+        
+        for ( VCProject vcProject : getParsedProjects( platform, configuration ) )
+        {
+            if ( filterPattern == null )
             {
-                filteredList.add( p );
+                filteredList.add( vcProject );
             }
             else
             {
-                Matcher prjExcludeMatcher = filterRegex.matcher( p.getName() );
+                Matcher prjExcludeMatcher = filterPattern.matcher( vcProject.getName() );
+                
                 if ( ! prjExcludeMatcher.matches() )
                 {
-                    filteredList.add( p );
+                    filteredList.add( vcProject );
                 }
             }
         }
+        
         return filteredList;
     }    
 
@@ -375,6 +422,107 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         return result;
     }
 
+    protected boolean isCppCheckEnabled( boolean quiet ) 
+    {
+        if ( cppCheck.skip() )
+        {
+            if ( ! quiet )
+            {
+                getLog().info( CppCheckConfiguration.SKIP_MESSAGE 
+                        + ", 'skip' set to true in the " + CppCheckConfiguration.TOOL_NAME + " configuration." );
+            }
+            
+            return false;
+        }
+        
+        if ( cppCheck.getCppCheckPath() == null ) 
+        {
+            if ( ! quiet )
+            {
+                getLog().info( CppCheckConfiguration.SKIP_MESSAGE 
+                        + ", path to " + CppCheckConfiguration.TOOL_NAME + " not set." );
+            }
+            
+            return false;
+        }        
+        
+        return true;
+    }
+
+    protected void validateCppCheckConfiguration() throws MojoExecutionException, MojoFailureException 
+    {
+        try 
+        {
+            MojoHelper.validateToolPath( cppCheck.getCppCheckPath(), 
+                    CppCheckConfiguration.TOOL_NAME, getLog() );
+        }
+        catch ( FileNotFoundException fnfe )
+        {
+            throw new MojoExecutionException( CppCheckConfiguration.TOOL_NAME 
+                    + "could not be found at " + fnfe.getMessage() + ". "
+                    + "You need to configure it in the plugin configuration section of the "
+                    + "POM file using <cppCheckPath>...</cppCheckPath> or "
+                    + "or <properties><" + CppCheckConfiguration.PATH_PROPERTY 
+                    + ">...</" + CppCheckConfiguration.PATH_PROPERTY + "></properties>; "
+                    + "alternatively, you can use the command-line parameter -Dcppcheck.path=... "
+                    + "or set the environment variable " + CppCheckConfiguration.PATH_ENVVAR, fnfe );
+        }
+        
+        validateProjectFile();
+        platforms = MojoHelper.validatePlatforms( platforms );
+    }
+    
+    protected boolean isVeraEnabled( boolean quiet ) 
+    {
+        if ( vera.skip() )
+        {
+            if ( ! quiet )
+            {
+                getLog().info( VeraConfiguration.SKIP_MESSAGE 
+                        + ", 'skip' set to true in the " + VeraConfiguration.TOOL_NAME + " configuration." );
+            }
+            
+            return false;
+        }
+        
+        if ( vera.getVeraHome() == null ) 
+        {
+            if ( ! quiet )
+            {
+                getLog().info( VeraConfiguration.SKIP_MESSAGE 
+                        + ", path to " + VeraConfiguration.TOOL_NAME + " home directory not set." );
+            }
+            
+            return false;
+        }        
+        
+        return true;
+    }
+
+    protected void validateVeraConfiguration() throws MojoExecutionException, MojoFailureException 
+    {
+        try 
+        {
+            MojoHelper.validateToolPath( VeraMojo.getVeraExecutablePath( vera.getVeraHome() ), 
+                    VeraConfiguration.TOOL_NAME, getLog() );
+        }
+        catch ( FileNotFoundException fnfe )
+        {
+            throw new MojoExecutionException( "The " + VeraConfiguration.TOOL_NAME + " home directory "
+                    + "could not be found at " + fnfe.getMessage() + ". "
+                    + "You need to configure it in the plugin configuration section of the "
+                    + "POM file using <veraHome>...</veraHome> or "
+                    + "or <properties><" + VeraConfiguration.HOME_PROPERTY + ">...</"
+                    + VeraConfiguration.HOME_PROPERTY + "></properties>; "
+                    + "alternatively, you can use the command-line parameter -D" 
+                    + VeraConfiguration.HOME_PROPERTY + "=... "
+                    + "or set the environment variable " + VeraConfiguration.HOME_ENVVAR, fnfe );
+        }
+        
+        validateProjectFile();
+        platforms = MojoHelper.validatePlatforms( platforms );
+    }
+        
     /**
      * Determine whether CxxTest is enabled by the configuration
      * @param stepName the string to use in log messages to describe the process being attempted
@@ -396,8 +544,8 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         {
             if ( ! quiet )
             {
-                getLog().info( CXXTEST_SKIP_MESSAGE + " " + stepName + ", 'skip' set to true in the " 
-                        + CxxTestConfiguration.CXXTEST_NAME + " configuration." );
+                getLog().info( CxxTestConfiguration.SKIP_MESSAGE + " " + stepName 
+                        + ", 'skip' set to true in the " + CxxTestConfiguration.TOOL_NAME + " configuration." );
             }
             
             return false;
@@ -407,8 +555,8 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         {
             if ( ! quiet )
             {
-                getLog().info( CXXTEST_SKIP_MESSAGE + " " + stepName + ", path to " 
-                        + CxxTestConfiguration.CXXTEST_NAME + " not set." );
+                getLog().info( CxxTestConfiguration.SKIP_MESSAGE + " " + stepName 
+                        + ", path to " + CxxTestConfiguration.TOOL_NAME + " not set." );
             }
             
             return false;
@@ -419,88 +567,37 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
 
     protected void validateCxxTestConfiguration() throws MojoExecutionException, MojoFailureException 
     {
-        if ( !getCxxTestPython2Home().isDirectory() )
+        final File cxxTestPythonHome = CxxTestGenMojo.getCxxTestPythonHome( cxxTest.getCxxTestHome() );
+        
+        if ( ! cxxTestPythonHome.isDirectory() )
         {
-            throw new MojoExecutionException( "Could not find the Python 2 scripts for " 
-                    + CxxTestConfiguration.CXXTEST_NAME + " at " + getCxxTestPython2Home(), 
-                    new FileNotFoundException( getCxxTestPython2Home().getAbsolutePath() ) );
+            throw new MojoExecutionException( "Could not find " + CxxTestConfiguration.TOOL_NAME 
+                    + " Python scripts at " + cxxTestPythonHome, 
+                    new FileNotFoundException( cxxTestPythonHome.getAbsolutePath() ) );
         }
         
         try 
         {
-            MojoHelper.validateToolPath( new File( getCxxTestPython2Home(), "cxxtest/cxxtestgen.py" ), 
-                    CxxTestConfiguration.CXXTEST_NAME, getLog() );
+            MojoHelper.validateToolPath( new File( cxxTestPythonHome, "cxxtest/cxxtestgen.py" ), 
+                    CxxTestConfiguration.TOOL_NAME, getLog() );
         }
         catch ( FileNotFoundException fnfe )
         {
-            throw new MojoExecutionException( CxxTestConfiguration.CXXTEST_NAME 
-                    + " could not be found at " + fnfe.getMessage() + ". "
-                    + "You need to configure it in the plugin configuration section in the "
-                    + "POM file using <cxxTestHome>...</cxxTestHome> "
-                    + "or <properties><cxxtest.home>...</cxxtest.home></properties>; "
+            throw new MojoExecutionException( CxxTestConfiguration.TOOL_NAME + " home directory" 
+                    + "could not be found at " + fnfe.getMessage() + ". "
+                    + "You need to configure it in the plugin configuration section of the "
+                    + "POM file using <cxxTestHome>...</cxxTestHome> or "
+                    + "<properties><" + CxxTestConfiguration.HOME_PROPERTY 
+                    + ">...</" + CxxTestConfiguration.HOME_PROPERTY + "></properties>; "
                     + "alternatively, you can use the command-line parameter -Dcxxtest.home=... "
-                    + "or set the environment variable " + CxxTestConfiguration.CXXTEST_HOME_ENVVAR, fnfe );
+                    + "or set the environment variable " + CxxTestConfiguration.HOME_ENVVAR, fnfe );
         }
         
         if ( cxxTest.getTestTargets() == null || cxxTest.getTestTargets().size() == 0 )
         {
             throw new MojoExecutionException( "You must specify at least one test target. If you want to skip "
-                    + "running the tests, please set 'skip' to true in the " + CxxTestConfiguration.CXXTEST_NAME 
-                    + " configuration.", new InvalidParameterException( "testTargets" ) );
-        }
-        
-        validateProjectFile();
-        platforms = MojoHelper.validatePlatforms( platforms );
-    }
-
-    protected File getCxxTestPython2Home() 
-    {
-        return new File( cxxTest.getCxxTestHome(), "python" );
-    }
-    
-    protected boolean isCppCheckEnabled( boolean quiet ) 
-    {
-        if ( cppCheck.skip() )
-        {
-            if ( ! quiet )
-            {
-                getLog().info( CPPCHECK_SKIP_MESSAGE + ", 'skip' set to true in the " 
-                        + CppCheckConfiguration.CPPCHECK_NAME + " configuration." );
-            }
-            
-            return false;
-        }
-        
-        if ( cppCheck.getCppCheckPath() == null ) 
-        {
-            if ( ! quiet )
-            {
-                getLog().info( CPPCHECK_SKIP_MESSAGE + ", path to " 
-                        + CppCheckConfiguration.CPPCHECK_NAME + " not set." );
-            }
-            
-            return false;
-        }        
-        
-        return true;
-    }
-
-    protected void validateCppCheckConfiguration() throws MojoExecutionException, MojoFailureException 
-    {
-        try 
-        {
-            MojoHelper.validateToolPath( cppCheck.getCppCheckPath(), 
-                    CppCheckConfiguration.CPPCHECK_NAME, getLog() );
-        }
-        catch ( FileNotFoundException fnfe )
-        {
-            throw new MojoExecutionException( CppCheckConfiguration.CPPCHECK_NAME 
-                    + "could not be found at " + fnfe.getMessage() + ". "
-                    + "You need to configure it in the plugin configuration section in the "
-                    + "POM file using <cppCheckPath>...</cppCheckPath> "
-                    + "or <properties><cppcheck.path>...</cppcheck.path></properties>; "
-                    + "alternatively, you can use the command-line parameter -Dcppcheck.path=... "
-                    + "or set the environment variable " + CppCheckConfiguration.CPPCHECK_PATH_ENVVAR, fnfe );
+                    + "running the tests, please set 'skip' to true in the " + CxxTestConfiguration.TOOL_NAME + " " 
+                    + "configuration.", new InvalidParameterException( "testTargets" ) );
         }
         
         validateProjectFile();
@@ -513,8 +610,8 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         {
             if ( ! quiet )
             {
-                getLog().info( SONAR_SKIP_MESSAGE + ", 'skip' set to true in the " + SonarConfiguration.SONAR_NAME
-                        + " configuration." );
+                getLog().info( SonarConfiguration.SONAR_SKIP_MESSAGE 
+                        + ", 'skip' set to true in the " + SonarConfiguration.SONAR_NAME + " configuration." );
             }
             
             return false;
@@ -605,6 +702,12 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     protected CxxTestConfiguration cxxTest = new CxxTestConfiguration();
 
     /**
+     * Configure the Vera++ Mojo.
+     */
+    @Parameter
+    protected VeraConfiguration vera = new VeraConfiguration();
+    
+    /**
      * Configure the Sonar Mojo.
      */
     @Parameter
@@ -615,10 +718,6 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
      */
     private static final String SOLUTION_EXTENSION = "sln";
 
-    private static final String CXXTEST_SKIP_MESSAGE = "Skipping test";
-    private static final String CPPCHECK_SKIP_MESSAGE = "Skipping static code analysis";
-    private static final String SONAR_SKIP_MESSAGE = "Skipping Sonar analysis";
-    
     /**
      * This handler capture standard Java logging produced by {@link VCProjectHolder} and relays it to the Maven logger
      * provided by the Mojo. It needs to be static to prevent duplicate log output. 

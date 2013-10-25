@@ -18,6 +18,7 @@ package uk.org.raje.maven.plugin.msbuild;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -35,7 +36,7 @@ public class AbstractMSBuildPluginMojoTest
                 instance.getRelativeFile( new File( "C:\\foo\\bar\\" ), new File( "C:\\foo\\bar\\baz\\" ) ) );
     }
 
-    @Test( expected = MojoExecutionException.class )
+    @Test( expected = IOException.class )
     public void getRelativeFileErrorTest() throws Exception
     {
         instance.getRelativeFile( new File( "C:\\foo\\bar\\baz\\" ), new File( "C:\\foo\\bar\\" ) );

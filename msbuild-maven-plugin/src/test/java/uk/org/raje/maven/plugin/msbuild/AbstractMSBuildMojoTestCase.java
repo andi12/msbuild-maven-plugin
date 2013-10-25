@@ -17,7 +17,9 @@ package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
@@ -29,7 +31,7 @@ import org.apache.maven.project.ProjectBuildingRequest;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
-import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckType;
+import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckConfiguration;
 
 /**
  * Abstract unit test base class to extend AbstractMojoTestCase and add 
@@ -40,53 +42,88 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
 
     /**
      * Verifies that all configuration parameters from allsettings-pom.xml have been ingested correctly.
-     * @param m the configured Mojo
+     * @param mojo the configured Mojo
      * @throws IOException if we can't calculate the basedir 
      */
-    public final void assertAllSettingsConfiguration( AbstractMSBuildPluginMojo m ) throws IOException 
+    public final void assertAllSettingsConfiguration( AbstractMSBuildPluginMojo mojo ) throws IOException 
     {
         File basedir = new File( "." ).getCanonicalFile();
 
-        assertEquals( Arrays.asList( new BuildPlatform( "Win32" ) ), m.platforms );
+        assertEquals( Arrays.asList( new BuildPlatform( "Win32" ) ), mojo.platforms );
         assertEquals( Arrays.asList( new BuildConfiguration( "Release" ), new BuildConfiguration( "Debug" ) ), 
-                m.platforms.get( 0 ).getConfigurations() );
+                mojo.platforms.get( 0 ).getConfigurations() );
 
-        assertEquals( Arrays.asList( new String( "Target1" ) ), m.targets );
-        assertEquals( new File( basedir, "/src/test/resources/unit/configurations/test-msbuild.cmd" ), m.msbuildPath );
-        assertEquals( 2, m.msbuildMaxCpuCount );
-        assertEquals( "C:\\include", m.msbuildSystemIncludes );
+        assertEquals( Arrays.asList( new String( "Target1" ) ), mojo.targets );
+        assertEquals( new File( basedir, "/src/test/resources/unit/configurations/test-msbuild.cmd" ), 
+                mojo.msbuildPath );
+        
+        assertEquals( 2, mojo.msbuildMaxCpuCount );
+        assertEquals( "C:\\include", mojo.msbuildSystemIncludes );
 
         // Version Info settings
-        assertEquals( false, m.versionInfo.skip() ) ;
-        assertEquals( "MyOrg", m.versionInfo.getCompanyName() );
-        assertEquals( "(c) 2013 MyOrg", m.versionInfo.getCopyright() );
-        assertEquals( new File( "src/main/resources/my-version-info.rc" ), m.versionInfo.getTemplate() );
-        assertEquals( new File( "my-version-info.rc" ), m.versionInfo.getOutputFile() );
+        assertEquals( false, mojo.versionInfo.skip() ) ;
+        assertEquals( "MyOrg", mojo.versionInfo.getCompanyName() );
+        assertEquals( "(c) 2013 MyOrg", mojo.versionInfo.getCopyright() );
+        assertEquals( new File( "src/main/resources/my-version-info.rc" ), mojo.versionInfo.getTemplate() );
+        assertEquals( new File( "my-version-info.rc" ), mojo.versionInfo.getOutputFile() );
         
         // CppCheck
-        assertEquals( false, m.cppCheck.skip() );
+        assertEquals( false, mojo.cppCheck.skip() );
         assertEquals( new File( basedir, "/src/test/resources/unit/cppcheck/fake-cppcheck.cmd" ),
-                m.cppCheck.getCppCheckPath() );
-        assertEquals( "cppcheck-report", m.cppCheck.getReportName() );
-        assertEquals( CppCheckType.all, m.cppCheck.getCppCheckType() );
-        assertEquals( "*Test", m.cppCheck.getExcludeProjectRegex() );
-        
+                mojo.cppCheck.getCppCheckPath() );
+        assertEquals( "cppcheck-report", mojo.cppCheck.getReportName() );
+        assertEquals( CppCheckConfiguration.CppCheckType.all, mojo.cppCheck.getCppCheckType() );
+        assertEquals( "*Test", mojo.cppCheck.getExcludeProjectRegex() );
+
+        // Vera++ settings
+        assertEquals( false, mojo.vera.skip() );
+        assertEquals( new File( basedir, "/src/test/resources/unit/vera/fake-vera-home" ), mojo.vera.getVeraHome() );
+        assertEquals( "vera-report", mojo.vera.getReportName() );
+        assertEquals( "full", mojo.vera.getProfile() );
+
         // CxxTest settings
-        assertEquals( false, m.cxxTest.skip() );
+        assertEquals( false, mojo.cxxTest.skip() );
         assertEquals( new File( basedir, "/src/test/resources/unit/cxxtest/fake-cxxtest-home" ),
-                m.cxxTest.getCxxTestHome() );
-        assertEquals( Arrays.asList( new String( "TestTarget1" ) ), m.cxxTest.getTestTargets() );
-        assertEquals( "cxxtest-report", m.cxxTest.getReportName() );
-        assertEquals( "cxxtest-runner.cpp", m.cxxTest.getTestRunnerName() );
-        assertEquals( "cxxtest-runner.tpl", m.cxxTest.getTemplateFile().getName() );
-        assertEquals( "*Test.h", m.cxxTest.getTestHeaderPattern() );
-        
+                mojo.cxxTest.getCxxTestHome() );
+        assertEquals( Arrays.asList( new String( "TestTarget1" ) ), mojo.cxxTest.getTestTargets() );
+        assertEquals( "cxxtest-report", mojo.cxxTest.getReportName() );
+        assertEquals( "cxxtest-runner.cpp", mojo.cxxTest.getTestRunnerName() );
+        assertEquals( "cxxtest-runner.tpl", mojo.cxxTest.getTemplateFile().getName() );
+        assertEquals( "*Test.h", mojo.cxxTest.getTestHeaderPattern() );
+
         // Sonar settings
-        assertEquals( false, m.sonar.skip() );
-        assertEquals( Arrays.asList( new String( "*.cpp" ) ), m.sonar.getSourceSuffixes() );
-        assertEquals( Arrays.asList( new String( "*.h" ) ), m.sonar.getHeaderSuffixes() );
-        assertEquals( Arrays.asList( new String( "**/test" ) ), m.sonar.getExcludes() );
-        assertEquals( Arrays.asList( new String( "TEST_MACRO(x) 0" ) ), m.sonar.getPreprocessorDefs() );
+        assertEquals( false, mojo.sonar.skip() );
+        assertEquals( Arrays.asList( new String( "*.cpp" ) ), mojo.sonar.getSourceSuffixes() );
+        assertEquals( Arrays.asList( new String( "*.h" ) ), mojo.sonar.getHeaderSuffixes() );
+        assertEquals( Arrays.asList( new String( "**/test" ) ), mojo.sonar.getExcludes() );
+        assertEquals( Arrays.asList( new String( "TEST_MACRO(x) 0" ) ), mojo.sonar.getPreprocessorDefs() );
+    }
+    
+    /**
+     *
+     */
+    protected enum LogMessageTag
+    {
+        DEBUG,
+        INFO,
+        WARNING,
+        ERROR
+    }
+    
+    protected List<String> getTaggedLogMessages( String logMessages, LogMessageTag logTag )
+    {
+        List<String> taggedLogMessages = new ArrayList<String>();
+        String tag = "[" + logTag.name() + "] ";
+        
+        for ( String logMessage: logMessages.split( "\r\n" ) )
+        {
+            if ( logMessage.startsWith( tag ) )
+            {
+                taggedLogMessages.add( logMessage.substring( tag.length() ) );
+            }
+        }
+        
+        return taggedLogMessages;
     }
 
     /**
@@ -121,4 +158,6 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
         
         return mojo;
     }
+
+    private static final String LOG_INFO_TAG = "[INFO] ";
 }
