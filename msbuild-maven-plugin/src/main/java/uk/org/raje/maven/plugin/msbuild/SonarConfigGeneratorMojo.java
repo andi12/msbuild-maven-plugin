@@ -23,7 +23,6 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -99,18 +98,23 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         String platformConfigPattern = "-*-" + platform.getName() + "-" + configuration.getName();
         File configFile = getSonarConfigFile( platform, configuration );
         PrintWriter configWriter = createSonarConfigWriter( configFile );
-        Pattern projectExcludePattern = null;
-        if ( sonar.getExcludeProjectRegex() != null )
-        {
-            projectExcludePattern = Pattern.compile( sonar.getExcludeProjectRegex() );
-        }
-        List<VCProject> vcProjects = getParsedProjects( platform, configuration, projectExcludePattern );
+
+        List<VCProject> vcProjects = getParsedProjects( platform, configuration, sonar.getExcludeProjectRegex() );
         List<String> vcProjectNames = new ArrayList<String>( vcProjects.size() );
         List<File> systemIncludeDirs = getSystemIncludeDirs();
 
         // The relative path from basedir to the target directory
-        File targetRelPath = getRelativeFile( 
-                mavenProject.getBasedir(), new File( mavenProject.getBuild().getDirectory() ) ); 
+        File targetRelPath;
+        
+        try
+        {
+            targetRelPath = 
+                    getRelativeFile( mavenProject.getBasedir(), new File( mavenProject.getBuild().getDirectory() ) );
+        }
+        catch ( IOException ioe )
+        {
+            throw new MojoExecutionException( "Failed to compute relative path for build directory", ioe ); 
+        }
         
         for ( VCProject vcProject: vcProjects )
         {
@@ -135,7 +139,17 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
                         .append( cppCheck.getReportName() )
                         .append( platformConfigPattern )
                         .append( ".xml" ).toString().replace( "\\", "\\\\" ) );
-            }            
+            }       
+            
+            if ( isVeraEnabled( true ) )
+            {
+                configWriter.println( new StringBuilder().append( "sonar.cxx.vera.reportPath=" )
+                        .append( VeraMojo.REPORT_DIRECTORY ) 
+                        .append( File.separator )
+                        .append( vera.getReportName() )
+                        .append( platformConfigPattern )
+                        .append( ".xml" ).toString().replace( "\\", "\\\\" ) );
+            }             
 
             if ( isCxxTestEnabled( null, true ) )
             {

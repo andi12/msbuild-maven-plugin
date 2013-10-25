@@ -23,15 +23,20 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 
 /**
- * Configuration holder for CppCheck configuration values.
+ * Configuration holder for Sonar configuration values.
  */
 public class SonarConfiguration
 {
-
     /**
-     * The CppCheck name to output on debug/information messages
+     * The name to output on debug/information messages
      */    
     public static final String SONAR_NAME = "Sonar";
+    
+    /**
+     * The message to use when skipping Sonar execution
+     */
+    public static final String SONAR_SKIP_MESSAGE = "Skipping Sonar analysis";
+
     
     /**
      * Get the configured value for skip 
