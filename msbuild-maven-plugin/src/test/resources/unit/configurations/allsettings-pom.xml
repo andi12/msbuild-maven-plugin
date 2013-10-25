@@ -69,6 +69,14 @@
                         <cppCheckType>all</cppCheckType>
                         <excludeProjectRegex>*Test</excludeProjectRegex>
                     </cppCheck>
+                    <!--  Vera++ -->
+                    <vera>
+                        <skip>false</skip>
+                        <veraHome>${basedir}/src/test/resources/unit/vera/fake-vera-home</veraHome>
+                        <reportName>vera-report</reportName>
+                        <profile>full</profile>
+                        <excludeProjectRegex>*Test</excludeProjectRegex>
+                    </vera>
                     <!-- Cxxtest -->
                     <cxxTest>
                         <skip>false</skip>
