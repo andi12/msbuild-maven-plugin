@@ -18,6 +18,7 @@ package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,21 +55,24 @@ public abstract class CommandLineRunner
     
     public int runCommandLine() throws IOException, InterruptedException
     {
-        Process commandLineProc;
-        List<String> commandLineArguments = getCommandLineArguments();
-        ProcessBuilder processBuilder = new ProcessBuilder( commandLineArguments );
+        logRunnerConfiguration();
+        
+        ProcessBuilder processBuilder = new ProcessBuilder( getCommandLineArguments() );
         processBuilder.directory( workingDirectory );
         processBuilder.environment().putAll( environmentVars );
-        
-        logger.fine( "Executing command line: " + getCommandLine() );
-        logger.fine( "Working directory: " + workingDirectory );
-        logger.fine( "Environemnt variables: " + environmentVars );
-        commandLineProc = processBuilder.start();
-        
+        Process commandLineProc = processBuilder.start();
+
         final StreamPumper stdoutPumper = new StreamPumper( commandLineProc.getInputStream(), outputConsumer );
         final StreamPumper stderrPumper = new StreamPumper( commandLineProc.getErrorStream(), errorConsumer );
         stdoutPumper.start();
         stderrPumper.start();
+        
+        if ( standardInputString != null )
+        {
+            OutputStream outputStream = commandLineProc.getOutputStream();
+            outputStream.write( standardInputString.getBytes() );
+            outputStream.close();
+        }
 
         int exitCode = commandLineProc.waitFor();
         stdoutPumper.waitUntilDone();
@@ -88,6 +92,11 @@ public abstract class CommandLineRunner
         this.environmentVars = environmentVars;
     }
 
+    public void setStandardInputString( String standardInputString ) 
+    {
+        this.standardInputString = standardInputString;
+    }
+    
     protected abstract List<String> getCommandLineArguments();
 
     protected File getWorkingDirectory() 
@@ -99,8 +108,13 @@ public abstract class CommandLineRunner
     {
         return environmentVars;
     }
+    
+    protected String getStandardInputString() 
+    {
+        return standardInputString;
+    }
 
-    protected String getCommandLine() 
+    private void logRunnerConfiguration()
     {
         StringBuilder commandLine = new StringBuilder();
         
@@ -108,8 +122,23 @@ public abstract class CommandLineRunner
         {
             commandLine.append( arg ).append( " " );
         }
+                
+        logger.fine( "Command line:" );
+        logger.fine( "\t" + commandLine.toString() );
+        logger.fine( "Working directory" );
+        logger.fine( "\t" + workingDirectory.getAbsolutePath() );
         
-        return commandLine.toString();
+        if ( environmentVars.size() > 0 )
+        {
+            logger.fine( "Environemnt variables:" );
+            logger.fine( "\t" + environmentVars.toString() );
+        }
+
+        if ( standardInputString != null )
+        {
+            logger.fine( "Standard input string:" );
+            logger.fine( "\t" + standardInputString );
+        }
     }
     
     private final Logger logger = Logger.getLogger( getClass().getName() );
@@ -117,5 +146,6 @@ public abstract class CommandLineRunner
     private StreamConsumer outputConsumer;
     private StreamConsumer errorConsumer;
     private File workingDirectory = new File( "." );
+    private String standardInputString;
     private Map<String, String> environmentVars = new HashMap<String, String>();
 }
