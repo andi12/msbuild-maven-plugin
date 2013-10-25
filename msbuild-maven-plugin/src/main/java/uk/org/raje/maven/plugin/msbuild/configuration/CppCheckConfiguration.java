@@ -25,20 +25,40 @@ import org.apache.maven.plugins.annotations.Parameter;
  */
 public class CppCheckConfiguration
 {
+    /**
+     * The name to output on debug/information messages
+     */    
+    public static final String TOOL_NAME = "CppCheck";
 
     /**
      * The name of the environment variable that can store the PATH TO CppCheck.
      */
-    public static final String CPPCHECK_PATH_ENVVAR = "CPPCHECK_PATH";
+    public static final String PATH_ENVVAR = "CPPCHECK_PATH";
+    
     /**
      * The name of the property that can store the PATH TO CppCheck.
      */
-    public static final String CPPCHECK_PATH_PROPERTY = "cppcheck.path";
+    public static final String PATH_PROPERTY = "cppcheck.path";
 
     /**
-     * The CppCheck name to output on debug/information messages
-     */    
-    public static final String CPPCHECK_NAME = "CppCheck";
+     * The message to use when skipping CppCheck execution
+     */
+    public static final String SKIP_MESSAGE = "Skipping static code analysis";
+   
+    /**
+     * @author dmasato
+     *
+     */
+    public enum CppCheckType
+    {
+        all,
+        style,
+        performance,
+        protability,
+        information,
+        unusedFunction,
+        missingInclude
+    }
     
     /**
      * Get the configured value for skip 
@@ -108,7 +128,7 @@ public class CppCheckConfiguration
      * fixed in {@link AbstractMSBuildPluginMojo}
      */
     @Parameter( 
-            property = CPPCHECK_PATH_PROPERTY,
+            property = PATH_PROPERTY,
             readonly = false, 
             required = false )
     private File cppCheckPath;

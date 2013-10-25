@@ -24,7 +24,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -32,19 +31,16 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.codehaus.plexus.util.DirectoryScanner;
-import org.codehaus.plexus.util.cli.StreamConsumer;
 import org.codehaus.plexus.util.cli.WriterStreamConsumer;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildPlatform;
 import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckConfiguration;
-import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckType;
 import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
 import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamToLog;
 
 /**
- * Configure and run Cppcheck static analysis tool.
+ * Configure and run Cppcheck for static code analysis.
  */
 @Mojo( name = CppCheckMojo.MOJO_NAME, defaultPhase = LifecyclePhase.VERIFY )
 public class CppCheckMojo extends AbstractMSBuildPluginMojo 
@@ -62,28 +58,26 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException 
     {
+        List<Boolean> allChecksPassed = new ArrayList<Boolean>();
+
         if ( !isCppCheckEnabled( false ) ) 
         {
             return;
         }
      
-        CPPCHECK_RUNNER_LOG_HANDLER.setLog( getLog() );
         validateCppCheckConfiguration();
         
-        List<Boolean> allChecksPassed = new LinkedList<Boolean>();
-        
-        Pattern projectExcludePattern = null;
-        if ( cppCheck.getExcludeProjectRegex() != null )
-        {
-            projectExcludePattern = Pattern.compile( cppCheck.getExcludeProjectRegex() );
-        }
         for ( BuildPlatform platform : platforms ) 
         {
             for ( BuildConfiguration configuration : platform.getConfigurations() )
             {
 
-                for ( VCProject vcProject : getParsedProjects( platform, configuration, projectExcludePattern ) )
+                for ( VCProject vcProject : getParsedProjects( platform, configuration, 
+                        cppCheck.getExcludeProjectRegex() ) )
                 {
+                    getLog().info( "Running static code analysis for project " + vcProject.getName() + ", platform=" 
+                            + vcProject.getPlatform() + ", configuration=" + vcProject.getConfiguration() );
+                    
                     try 
                     {
                         allChecksPassed.add( runCppCheck( vcProject ) );
@@ -105,51 +99,8 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         getLog().info( "Static code analysis complete" );
     }
 
-    /**
-     * Finds 'cppcheck-reports' directories and removes them.
-     * @throws MojoFailureException
-     */
-    protected static void clean( File projectFile, Log log ) throws MojoFailureException
-    {
-        final DirectoryScanner directoryScanner = new DirectoryScanner();
-        directoryScanner.setIncludes( new String[]{ "**\\" + REPORT_DIRECTORY } );
-        directoryScanner.setBasedir( projectFile.getParentFile() );
-        directoryScanner.scan();
-
-        log.info( "Cleaning up " + CppCheckConfiguration.CPPCHECK_NAME + " reports" );
-        
-        for ( String directoryName : directoryScanner.getIncludedDirectories() )
-        {
-            final File directory = new File( projectFile.getParentFile(), directoryName );
-            log.debug( "Deleting directory " + directory );
-            
-            try
-            {
-                FileUtils.deleteDirectory( directory );
-            }
-            catch ( IOException ioe )
-            {
-                log.error( "Failed to delete directory " + directory );
-                throw new MojoFailureException( ioe.getMessage(), ioe );
-            }
-        }
-
-        log.info( CppCheckConfiguration.CPPCHECK_NAME + " report clean-up complete" );
-    }
-
     private static final String CPPCHECK_XML_VERSION = "1";
         
-    /**
-     * This handler capture standard Java logging produced by {@link CppCheckRunner} and relays it to the Maven logger
-     * provided by the Mojo. It needs to be static to prevent duplicate log output. 
-     * @see {@link LoggingHandler#LoggingHandler(String name)} 
-     */
-    private static final LoggingHandler CPPCHECK_RUNNER_LOG_HANDLER = 
-            new LoggingHandler( CppCheckRunner.class.getName() );    
-
-    /**
-     * Runs CppCheck against a given Visual C++ project and produces a static code analysis report
-     */    
     private Writer createCppCheckReportWriter( File reportFile ) throws MojoExecutionException
     {
         BufferedWriter cppCheckReportWriter;
@@ -161,7 +112,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         } 
         catch ( IOException ioe ) 
         {
-            throw new MojoExecutionException( "Failed to create " + CppCheckConfiguration.CPPCHECK_NAME + " report " 
+            throw new MojoExecutionException( "Failed to create " + CppCheckConfiguration.TOOL_NAME + " report " 
                     + reportFile, ioe );
         }
 
@@ -171,9 +122,19 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
     private CommandLineRunner createCppCheckRunner( VCProject vcProject, Writer reportWriter ) 
             throws MojoExecutionException
     {
-        CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.getCppCheckPath(), 
-                getRelativeFile( vcProject.getBaseDirectory(), vcProject.getFile().getParentFile() ), 
-                new StdoutStreamToLog( getLog() ), new WriterStreamConsumer( reportWriter ) );
+        File sourcePath;
+        
+        try 
+        {
+            sourcePath = getRelativeFile( vcProject.getBaseDirectory(), vcProject.getFile().getParentFile() );
+        }
+        catch ( IOException ioe )
+        {
+            throw new MojoExecutionException( "Failed to compute relative path for " + vcProject.getName(), ioe ); 
+        }
+        
+        CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.getCppCheckPath(), sourcePath, reportWriter, 
+                getLog() );
         
         cppCheckRunner.setWorkingDirectory( projectFile.getParentFile() );
         cppCheckRunner.setCppCheckType( cppCheck.getCppCheckType() );
@@ -240,21 +201,16 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         } 
         catch ( IOException ioe ) 
         { 
-            throw new MojoExecutionException( "Failed to finalise " + CppCheckConfiguration.CPPCHECK_NAME + " report" 
+            throw new MojoExecutionException( "Failed to finalise " + CppCheckConfiguration.TOOL_NAME + " report" 
                     + reportFile, ioe );
         }
     }
 
     private Boolean runCppCheck( VCProject vcProject ) throws MojoExecutionException, MojoFailureException
     {
-        getLog().info( "Running " + CppCheckConfiguration.CPPCHECK_NAME 
-                + " static code analysis for project " + vcProject.getName() 
-                + ", platform=" + vcProject.getPlatform() + ", configuration=" + vcProject.getConfiguration() + "." );
-
         File reportFile = getReportFile( vcProject );
         Writer reportWriter = createCppCheckReportWriter( reportFile );
         CommandLineRunner cppCheckRunner = createCppCheckRunner( vcProject, reportWriter );
-        
         Boolean checksPassed = executeCppCheckRunner( cppCheckRunner );
         finaliseReportWriter ( reportWriter, reportFile );
         
@@ -267,7 +223,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         return new File( reportDirectory, cppCheck.getReportName() + "-" + vcProject + ".xml" );
     }
     
-    private class CppCheckRunner extends CommandLineRunner
+    private static class CppCheckRunner extends CommandLineRunner
     {
         /**
          * Construct the CppCheckRunner
@@ -276,15 +232,15 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
          * @param outputConsumer StreamConsumer for stdout 
          * @param errorConsumer StreamConsumer for stderr
          */
-        public CppCheckRunner( File cppCheckPath, File sourcePath, StreamConsumer outputConsumer, 
-                StreamConsumer errorConsumer )
+        public CppCheckRunner( File cppCheckPath, File sourcePath, Writer reportWriter, Log log )
         {
-            super( outputConsumer, errorConsumer );
+            super( new StdoutStreamToLog( log ), new WriterStreamConsumer( reportWriter ) );
             this.cppCheckPath = cppCheckPath;
             this.sourcePath = sourcePath;
+            CPPCHECK_RUNNER_LOG_HANDLER.setLog( log );
         }
         
-        public void setCppCheckType( CppCheckType cppCheckType ) 
+        public void setCppCheckType( CppCheckConfiguration.CppCheckType cppCheckType ) 
         {
             this.cppCheckType = cppCheckType;
         }
@@ -339,9 +295,17 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
             return commandLineArguments;
         }
         
+        /**
+         * This handler capture standard Java logging produced by {@link CppCheckRunner} and relays it to the Maven 
+         * logger provided by the Mojo. It needs to be static to prevent duplicate log output. 
+         * @see {@link LoggingHandler#LoggingHandler(String name)} 
+         */
+        private static final LoggingHandler CPPCHECK_RUNNER_LOG_HANDLER = 
+                new LoggingHandler( CppCheckRunner.class.getName() );
+        
         private File cppCheckPath;
         private File sourcePath;
-        private CppCheckType cppCheckType = CppCheckType.all;
+        private CppCheckConfiguration.CppCheckType cppCheckType = CppCheckConfiguration.CppCheckType.all;
         private List<File> includeDirectories = new LinkedList<File>();
         private List<File> excludeDirectories = new LinkedList<File>();
         private List<String> preprocessorDefs = new LinkedList<String>();

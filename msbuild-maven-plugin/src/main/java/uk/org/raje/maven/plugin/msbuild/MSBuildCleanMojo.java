@@ -13,30 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.org.raje.maven.plugin.msbuild;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Execute;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.codehaus.plexus.util.DirectoryScanner;
+
+import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckConfiguration;
+import uk.org.raje.maven.plugin.msbuild.configuration.VeraConfiguration;
 
 /**
  * Mojo to execute MSBuild to clean the required platform/configuration pairs.
  */
-@Mojo( name = MSBuildCleanMojo.MOJO_NAME,
-defaultPhase = LifecyclePhase.CLEAN )
-@Execute( phase = LifecyclePhase.CLEAN )
+@Mojo( name = MSBuildCleanMojo.MOJO_NAME, defaultPhase = LifecyclePhase.CLEAN )
 public class MSBuildCleanMojo extends AbstractMSBuildMojo
 {
     /**
      * The name this Mojo declares, also represents the goal.
      */
     public static final String MOJO_NAME = "clean";
-
+    
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException
     {
@@ -55,10 +61,45 @@ public class MSBuildCleanMojo extends AbstractMSBuildMojo
         {
             VersionInfoMojo.clean( projectFile, versionInfo.getOutputFile() );
         }
+        
         if ( isCppCheckEnabled( true ) )
         {
-            CppCheckMojo.clean( projectFile, getLog() );
+            cleanReports( projectFile, CppCheckMojo.REPORT_DIRECTORY, CppCheckConfiguration.TOOL_NAME, getLog() );
+        }
+
+        if ( isVeraEnabled( true ) )
+        {
+            cleanReports( projectFile, VeraMojo.REPORT_DIRECTORY, VeraConfiguration.TOOL_NAME, getLog() );
         }
     }
 
+    private void cleanReports( File projectFile, String reportDirectory, String toolName, Log log ) 
+            throws MojoFailureException
+    {
+        final DirectoryScanner directoryScanner = new DirectoryScanner();
+        directoryScanner.setIncludes( new String[]{ "**\\" + reportDirectory } );
+        directoryScanner.setBasedir( projectFile.getParentFile() );
+        directoryScanner.scan();
+
+        log.info( "Cleaning up " + toolName + " reports" );
+        
+        for ( String directoryName : directoryScanner.getIncludedDirectories() )
+        {
+            final File directory = new File( projectFile.getParentFile(), directoryName );
+            log.debug( "Deleting directory " + directory );
+            
+            try
+            {
+                FileUtils.deleteDirectory( directory );
+            }
+            catch ( IOException ioe )
+            {
+                log.error( "Failed to delete directory " + directory );
+                throw new MojoFailureException( ioe.getMessage(), ioe );
+            }
+        }
+
+        log.info( toolName + " report clean-up complete" );
+    }    
+    
 }

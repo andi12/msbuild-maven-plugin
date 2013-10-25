@@ -26,27 +26,34 @@ import org.apache.maven.plugins.annotations.Parameter;
 public class CxxTestConfiguration
 {
     /**
+     * The name to output on debug/information messages
+     */
+    public static final String TOOL_NAME = "CxxTest";
+
+    /**
      * The name of the environment variable that can store the path to the CxxTest home directory
      */
-    public static final String CXXTEST_HOME_ENVVAR = "CXXTEST_HOME";
+    public static final String HOME_ENVVAR = "CXXTEST_HOME";
+    
     /**
      * The name of the property that can store the path to the CxxTest home directory
      */
-    public static final String CXXTEST_HOME_PROPERTY = "cxxtest.home";
+    public static final String HOME_PROPERTY = "cxxtest.home";
 
+    /**
+     * The message to use when skipping CxxTest execution
+     */
+    public static final String SKIP_MESSAGE = "Skipping test";
+    
     /**
      * The name of the boolean property that instructs us to skip test execution.
      */
     public static final String SKIP_TESTS_PROPERTY = "skipTests";
+    
     /**
      * The name of the boolean property that instructs us to ignore test failures.
      */
-    public static final String TEST_FAILURE_IGNORE_PROPERTY = "maven.test.failure.ignore";
-
-    /**
-     * The CxxTest name to output on debug/information messages
-     */
-    public static final String CXXTEST_NAME = "CxxTest";
+    public static final String IGNORE_FAILURE_PROPERTY = "maven.test.failure.ignore";
 
     /**
      * Get the configured value for skip 
@@ -181,7 +188,7 @@ public class CxxTestConfiguration
      * but quite convenient on occasion.
      */
     @Parameter( 
-            property = TEST_FAILURE_IGNORE_PROPERTY,
+            property = IGNORE_FAILURE_PROPERTY,
             defaultValue = "false", 
             readonly = false )
     protected boolean testFailureIgnore = false; 
@@ -192,7 +199,7 @@ public class CxxTestConfiguration
      * fixed in {@link AbstractMSBuildPluginMojo}
      */
     @Parameter( 
-            property = CXXTEST_HOME_PROPERTY,
+            property = HOME_PROPERTY,
             readonly = false, 
             required = false )
     protected File cxxTestHome;

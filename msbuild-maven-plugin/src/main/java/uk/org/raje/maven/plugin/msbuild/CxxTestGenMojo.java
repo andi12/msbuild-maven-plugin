@@ -33,7 +33,6 @@ import org.codehaus.plexus.util.DirectoryScanner;
 import org.python.core.PyList;
 import org.python.util.PythonInterpreter;
 
-
 /**
  * Generate a C++ test runner using the CxxTest test framework.
  */
@@ -44,6 +43,12 @@ public class CxxTestGenMojo extends AbstractMSBuildPluginMojo
      * The name this Mojo declares, also represents the goal.
      */
     public static final String MOJO_NAME = "cxxtestgen";
+    
+    public static File getCxxTestPythonHome( File cxxTestHome ) 
+    {
+        return new File( cxxTestHome, "python" );
+    }
+    
     
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException 
@@ -141,7 +146,7 @@ public class CxxTestGenMojo extends AbstractMSBuildPluginMojo
         {
             if ( templateFile.exists() )
             {                
-                return templateFile;                
+                return templateFile;
             }
             else if ( new File( targetPath, templateFile.getName() ).exists() )
             {
@@ -183,7 +188,7 @@ public class CxxTestGenMojo extends AbstractMSBuildPluginMojo
     {
         Properties postProperties = new Properties();
         
-        postProperties.put( "python.path", getCxxTestPython2Home().getAbsolutePath() );
+        postProperties.put( "python.path", getCxxTestPythonHome( cxxTest.getCxxTestHome() ).getAbsolutePath() );
         getLog().debug( "Initialising Jython with properties=" + postProperties );
         PythonInterpreter.initialize( System.getProperties(), postProperties, null );
     }

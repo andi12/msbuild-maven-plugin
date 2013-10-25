@@ -48,21 +48,21 @@ public class MojoHelper
     public static void validateToolPath( File toolPath, String toolName, Log logger ) 
             throws FileNotFoundException
     {
-        logger.debug( "Validating path for " + toolName + "." );
+        logger.debug( "Validating path for " + toolName );
         
         if ( toolPath == null )
         {
-            logger.error( "Missing " + toolName + " path. " );
+            logger.error( "Missing " + toolName + " path" );
             throw new FileNotFoundException();
         }
         
         if ( !toolPath.exists() || !toolPath.isFile() )
         {
-            logger.error( "Could not find " + toolName + " at " + toolPath + "." );
+            logger.error( "Could not find " + toolName + " at " + toolPath );
             throw new FileNotFoundException( toolPath.getAbsolutePath() );
         }
         
-        logger.debug( "Found " + toolName + " at " + toolPath + "." );
+        logger.debug( "Found " + toolName + " at " + toolPath );
     }    
         
     /**

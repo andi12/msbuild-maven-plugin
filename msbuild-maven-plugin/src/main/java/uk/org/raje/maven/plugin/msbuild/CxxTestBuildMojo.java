@@ -48,7 +48,7 @@ public class CxxTestBuildMojo extends AbstractMSBuildMojo
         validateForMSBuild();
 
         Map<String, String> environment = new HashMap<String, String>();
-        environment.put( CxxTestConfiguration.CXXTEST_HOME_ENVVAR, cxxTest.getCxxTestHome().getAbsolutePath() );
+        environment.put( CxxTestConfiguration.HOME_ENVVAR, cxxTest.getCxxTestHome().getAbsolutePath() );
         environment.put( "MAVEN_TESTS", "1" );
         
         runMSBuild( cxxTest.getTestTargets(), environment );

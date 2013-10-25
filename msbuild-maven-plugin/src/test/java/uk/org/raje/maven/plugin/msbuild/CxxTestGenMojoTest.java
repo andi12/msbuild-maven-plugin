@@ -36,10 +36,10 @@ public class CxxTestGenMojoTest extends AbstractMSBuildMojoTestCase
     @Test
     public final void testAllSettingsConfiguration() throws Exception 
     {
-        CppCheckMojo cppCheckMojo = ( CppCheckMojo ) lookupConfiguredMojo( CppCheckMojo.MOJO_NAME, 
+        CxxTestGenMojo cxxTestGenMojo = ( CxxTestGenMojo ) lookupConfiguredMojo( CxxTestGenMojo.MOJO_NAME, 
                 "/unit/configurations/allsettings-pom.xml" );
 
-        assertAllSettingsConfiguration( cppCheckMojo );
+        assertAllSettingsConfiguration( cxxTestGenMojo );
     }
     
     @Test

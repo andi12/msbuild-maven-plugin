@@ -78,7 +78,7 @@ public class CppCheckMojoTest extends AbstractMSBuildMojoTestCase
 
         cppCheckMojo.execute();
         
-        assertTrue( CppCheckConfiguration.CPPCHECK_NAME + " execution was not skipped", 
+        assertTrue( CppCheckConfiguration.TOOL_NAME + " execution was not skipped", 
                 outputStream.toString().trim().equals( "[INFO] Static code analysis complete" ) );
     }    
 
