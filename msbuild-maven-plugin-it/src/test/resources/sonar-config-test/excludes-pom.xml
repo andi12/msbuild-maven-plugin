@@ -19,9 +19,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.org.raje.maven.plugins.msbuild.it</groupId>
-    <artifactId>sonar-config-exludes-solution-test</artifactId>
+    <artifactId>sonar-config-excludes-solution-test</artifactId>
     <version>1-SNAPSHOT</version>
     <packaging>msbuild-solution</packaging>
+    <name>Sonar Excludes Test</name>
 
     <build>
         <plugins>

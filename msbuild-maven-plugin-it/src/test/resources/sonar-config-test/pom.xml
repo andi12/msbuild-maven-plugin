@@ -22,6 +22,7 @@
     <artifactId>sonar-config-solution-test</artifactId>
     <version>1-SNAPSHOT</version>
     <packaging>msbuild-solution</packaging>
+    <name>Sonar Solution Test</name>
 
     <build>
         <plugins>

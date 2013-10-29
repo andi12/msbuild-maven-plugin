@@ -22,6 +22,7 @@
     <artifactId>sonar-config-links-solution-test</artifactId>
     <version>1-SNAPSHOT</version>
     <packaging>msbuild-solution</packaging>
+    <name>Sonar Links Test</name>
     <url>https://github.com/andi12/msbuild-maven-plugin/blob/master/msbuild-maven-plugin-it/src/test/resources/sonar-config-test/links-pom.xml</url>
 
     <ciManagement>

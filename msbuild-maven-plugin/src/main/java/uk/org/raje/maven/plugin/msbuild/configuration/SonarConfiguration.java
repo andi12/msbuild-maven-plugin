@@ -132,14 +132,14 @@ public class SonarConfiguration
      * they can be redefined using this property (for example, ["va_start(x) 0", "va_arg(x) 0", "va_end(x) 0"])     
      */
     @Parameter( 
-            defaultValue = "va_start(x) 0, va_arg(x) 0, va_arg(x, y) 0, va_end(x) 0, _declspec(x), __pragma(x), " 
+            defaultValue = "va_start(x) 0, va_arg(x) 0, va_arg(x,y) 0, va_end(x) 0, _declspec(x), __pragma(x), " 
                     + "__stdcall, DECLARE_MESSAGE_MAP(), DECLARE_DYNCREATE(x), DECLARE_DYNAMIC(x), DECLARE_HANDLE(x)",
             required = false,
             readonly = false )
     private List<String> preprocessorDefs = Arrays.asList( 
             "va_start(x) 0", 
             "va_arg(x) 0", 
-            "va_arg(x\\, y) 0",
+            "va_arg(x\\\\,y) 0",
             "va_end(x) 0", 
             "__declspec(x)", 
             "__pragma(x)", 

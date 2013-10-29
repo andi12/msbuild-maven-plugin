@@ -123,7 +123,7 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         
         try 
         {
-            generateSonarProjectInformation( configWriter );
+            generateMavenProjectInformation( configWriter );
             
             configWriter.println( "sonar.sources=." );
             configWriter.println( "sonar.language=c++" );
@@ -178,34 +178,38 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         getLog().info( "Written sonar configuration file " + configFile.getAbsolutePath() );
     }
 
-    private void generateSonarProjectInformation( PrintWriter writer )
+    private void generateMavenProjectInformation( PrintWriter writer )
     {
         writer.println( "sonar.projectKey=" + mavenProject.getModel().getGroupId() + ":" 
                 + mavenProject.getModel().getArtifactId() );
 
-        writer.println( "sonar.projectName=" + mavenProject.getModel().getArtifactId() );
+        writer.println( "sonar.projectName=" + mavenProject.getModel().getName() );
         writer.println( "sonar.projectVersion=" + mavenProject.getModel().getVersion() );
 
         if ( mavenProject.getUrl() != null )
         {
             writer.println( "sonar.links.homepage=" + mavenProject.getUrl() );
         }
+        
         if ( mavenProject.getCiManagement() != null
                 && mavenProject.getCiManagement().getUrl() != null )
         {
             writer.println( "sonar.links.ci=" + mavenProject.getCiManagement().getUrl() );
         }
+        
         if ( mavenProject.getIssueManagement() != null
                 && mavenProject.getIssueManagement().getUrl() != null )
         {
             writer.println( "sonar.links.issue=" +  mavenProject.getIssueManagement().getUrl() );
         }
+        
         if ( mavenProject.getScm() != null )
         {
             if ( mavenProject.getScm().getUrl() != null )
             {
                 writer.println( "sonar.links.scm=" + mavenProject.getScm().getUrl() );
             }
+            
             if ( mavenProject.getScm().getDeveloperConnection() != null )
             {
                 writer.println( "sonar.links.scm_dev=" + mavenProject.getScm().getDeveloperConnection() );
