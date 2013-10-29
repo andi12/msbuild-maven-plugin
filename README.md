@@ -11,9 +11,11 @@ Requirements:
 In addition to building using msbuild the plugin also supports:
 
 * Creating a version resource from information in your POM
-* Running CppCheck (1.61) to perform static analysis of your code.
-* Generating, building and executing unit tests using CxxTest (4.2.1, don't use 4.3)
-* Generating configuration files for the Sonar runner to ingest source, CppCheck and CxxTest results.
+* Running static analysis tools:
+    * CppCheck (1.61)
+    * Vera++ (1.2.1)
+* Generating, building and executing unit tests using CxxTest (4.2.1, don't use 4.3 due to Windows compilation issues)
+* Generating configuration files for the Sonar runner to ingest source, CppCheck, Vera and CxxTest results.
 
 
 Usage
