@@ -99,7 +99,24 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         getLog().info( "Static code analysis complete" );
     }
 
-    private static final String CPPCHECK_XML_VERSION = "1";
+    private String getSourcesForStdin( VCProject vcProject ) throws MojoExecutionException
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        
+        for ( File sourceFile : getProjectSources( vcProject, false ) )
+        {
+            try 
+            {
+                stringBuilder.append( getRelativeFile( vcProject.getBaseDirectory(), sourceFile ) + "\n" );
+            }
+            catch ( IOException ioe )
+            {
+                throw new MojoExecutionException( "Failed to compute relative path for file " + sourceFile, ioe );
+            }
+        }
+        
+        return stringBuilder.toString();
+    }    
         
     private Writer createCppCheckReportWriter( File reportFile ) throws MojoExecutionException
     {
@@ -122,21 +139,10 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
     private CommandLineRunner createCppCheckRunner( VCProject vcProject, Writer reportWriter ) 
             throws MojoExecutionException
     {
-        File sourcePath;
+        CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.getCppCheckPath(), reportWriter, getLog() );
         
-        try 
-        {
-            sourcePath = getRelativeFile( vcProject.getBaseDirectory(), vcProject.getFile().getParentFile() );
-        }
-        catch ( IOException ioe )
-        {
-            throw new MojoExecutionException( "Failed to compute relative path for " + vcProject.getName(), ioe ); 
-        }
-        
-        CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.getCppCheckPath(), sourcePath, reportWriter, 
-                getLog() );
-        
-        cppCheckRunner.setWorkingDirectory( projectFile.getParentFile() );
+        cppCheckRunner.setWorkingDirectory( vcProject.getBaseDirectory() );
+        cppCheckRunner.setStandardInputString( getSourcesForStdin( vcProject ) );
         cppCheckRunner.setCppCheckType( cppCheck.getCppCheckType() );
         cppCheckRunner.setIncludeDirectories( getRelativeIncludeDirectories( vcProject ) );
         cppCheckRunner.setPreprocessorDefs( vcProject.getPreprocessorDefs() );
@@ -149,31 +155,31 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
      */
     private List<File> getRelativeIncludeDirectories( VCProject vcProject ) throws MojoExecutionException
     {
-        List<File> includeDirs = vcProject.getIncludeDirectories();
-        List<File> result = new ArrayList<File>( includeDirs.size() );
+        final List<File> relativeIncludeDirectories = new ArrayList<File>();
         
-        for ( File f : includeDirs )
+        for ( File includeDir : vcProject.getIncludeDirectories() )
         {
-            if ( f.isAbsolute() )
+            if ( includeDir.isAbsolute() )
             {
-                result.add( f );
+                relativeIncludeDirectories.add( includeDir );
             }
             else
             {
                 try
                 {
-                    File absF = new File ( vcProject.getFile().getParentFile(), f.getPath() ).getCanonicalFile();
-                    result.add( getRelativeFile( projectFile.getParentFile(), absF ) );
+                    File absoluteIncludeDir = new File ( vcProject.getFile().getParentFile(), includeDir.getPath() );
+                    relativeIncludeDirectories.add( getRelativeFile( vcProject.getBaseDirectory(), 
+                            absoluteIncludeDir.getCanonicalFile() ) );
                 }
                 catch ( IOException ioe )
                 {
-                    getLog().error( "Unexpected error calculating relative paths for include directories" );
-                    throw new MojoExecutionException( ioe.getMessage() );
+                    throw new MojoExecutionException( "Failed to compute relative path for directroy " + includeDir, 
+                            ioe );
                 }
             }
         }
         
-        return result;
+        return relativeIncludeDirectories;
     }
 
     private Boolean executeCppCheckRunner( CommandLineRunner cppCheckRunner ) 
@@ -232,11 +238,10 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
          * @param outputConsumer StreamConsumer for stdout 
          * @param errorConsumer StreamConsumer for stderr
          */
-        public CppCheckRunner( File cppCheckPath, File sourcePath, Writer reportWriter, Log log )
+        public CppCheckRunner( File cppCheckPath, Writer reportWriter, Log log )
         {
             super( new StdoutStreamToLog( log ), new WriterStreamConsumer( reportWriter ) );
             this.cppCheckPath = cppCheckPath;
-            this.sourcePath = sourcePath;
             CPPCHECK_RUNNER_LOG_HANDLER.setLog( log );
         }
         
@@ -250,11 +255,6 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
             this.includeDirectories = includeDirectories;
         }
 
-        public void setExcludeDirectories( List<File> excludeDirectories ) 
-        {
-            this.excludeDirectories = excludeDirectories;
-        }
-
         public void setPreprocessorDefs( List<String> preprocessorDefs ) 
         {
             this.preprocessorDefs = preprocessorDefs;
@@ -263,12 +263,10 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         @Override
         protected List<String> getCommandLineArguments() 
         {
+            final String reportXMLVersion = "1";
             List<String> commandLineArguments = new LinkedList<String>();
             
             commandLineArguments.add( cppCheckPath.getAbsolutePath() );
-            commandLineArguments.add( "--quiet" );
-            commandLineArguments.add( "--xml" );
-            commandLineArguments.add( "--xml-version=" + CPPCHECK_XML_VERSION );
             commandLineArguments.add( "--enable=" + cppCheckType.name() );
             
             for ( File includeDirectory : includeDirectories ) 
@@ -290,7 +288,10 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
                 commandLineArguments.add( "-D" + preprocessorDef );
             }
             
-            commandLineArguments.add( sourcePath.getPath() );
+            commandLineArguments.add( "--file-list=-" );
+            commandLineArguments.add( "--xml" );
+            commandLineArguments.add( "--xml-version=" + reportXMLVersion );
+            commandLineArguments.add( "--quiet" );
             
             return commandLineArguments;
         }
@@ -304,7 +305,6 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
                 new LoggingHandler( CppCheckRunner.class.getName() );
         
         private File cppCheckPath;
-        private File sourcePath;
         private CppCheckConfiguration.CppCheckType cppCheckType = CppCheckConfiguration.CppCheckType.all;
         private List<File> includeDirectories = new LinkedList<File>();
         private List<File> excludeDirectories = new LinkedList<File>();

@@ -104,7 +104,7 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         getLog().info( "Coding style analysis complete" );
     }
     
-    private String getProjectSourcesForStdin( VCProject vcProject ) throws MojoExecutionException
+    private String getSourcesForStdin( VCProject vcProject ) throws MojoExecutionException
     {
         StringBuilder stringBuilder = new StringBuilder();
         
@@ -145,8 +145,8 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
             throws MojoExecutionException
     {
         VeraRunner veraRunner = new VeraRunner( vera.getVeraHome(), reportWriter, getLog() );
-        veraRunner.setWorkingDirectory( projectFile.getParentFile() );
-        veraRunner.setStandardInputString( getProjectSourcesForStdin( vcProject ) );
+        veraRunner.setWorkingDirectory( vcProject.getBaseDirectory() );
+        veraRunner.setStandardInputString( getSourcesForStdin( vcProject ) );
         veraRunner.setProfile( vera.getProfile() );
         
         return veraRunner;

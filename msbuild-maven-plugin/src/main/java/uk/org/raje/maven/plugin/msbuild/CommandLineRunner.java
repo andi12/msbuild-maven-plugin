@@ -125,7 +125,7 @@ public abstract class CommandLineRunner
                 
         logger.fine( "Command line:" );
         logger.fine( "\t" + commandLine.toString() );
-        logger.fine( "Working directory" );
+        logger.fine( "Working directory:" );
         logger.fine( "\t" + workingDirectory.getAbsolutePath() );
         
         if ( environmentVars.size() > 0 )
@@ -136,7 +136,7 @@ public abstract class CommandLineRunner
 
         if ( standardInputString != null )
         {
-            logger.fine( "Standard input string:" );
+            logger.fine( "Standard input:" );
             logger.fine( "\t" + standardInputString );
         }
     }
