@@ -49,7 +49,33 @@ public final class VCProjectHolder
         
         if ( vcProjectHolder == null )
         {
-            vcProjectHolder = new VCProjectHolder( inputFile, isSolution );
+            vcProjectHolder = new VCProjectHolder( inputFile, isSolution, new HashMap<String, String>() );
+            VCPROJECT_HOLDERS.put( inputFile, vcProjectHolder );
+        }
+        
+        return vcProjectHolder;
+    }
+
+    /**
+     * Find or create a container for parsed Visual C++ projects. If a container has already been created for the given
+     * {@code inputFile} that container is returned; otherwise a new container is created. 
+     * @param inputFile the file to parse, it can be a Visual Studio solution (containing Visual C++ projects) or a 
+     * standalone Visual C++ project
+     * @param isSolution {@code true} if {@code inputFile} is a solution, {@code false} if it is a standalone project
+     * @param envVariables a map containing environment variable values to substitute while parsing the properties of
+     * Visual C++ projects (such as values for {@code SolutionDir}, {@code Platform}, {@code Configuration}, or for any
+     * environment variable expressed as {@code $(variable)} in the project properties); note that these values will  
+     * <em>override</em> the defaults provided by the OS or set by {@link VCProjectHolder#getParsedProjects}
+     * @return the container for parsed Visual C++ projects
+     */
+    public static VCProjectHolder getVCProjectHolder( File inputFile, boolean isSolution, 
+            Map<String, String> envVariables )
+    {
+        VCProjectHolder vcProjectHolder = VCPROJECT_HOLDERS.get( inputFile );
+        
+        if ( vcProjectHolder == null )
+        {
+            vcProjectHolder = new VCProjectHolder( inputFile, isSolution, envVariables );
             VCPROJECT_HOLDERS.put( inputFile, vcProjectHolder );
         }
         
@@ -60,12 +86,17 @@ public final class VCProjectHolder
      * Create a container for parsed Visual C++ projects.
      * @param inputFile the file to parse, it can be a Visual Studio solution (containing Visual C++ projects) or a 
      * standalone Visual C++ project
-     * @param isSolution {@code true} if {@code inputFile} is a solution, {@code false} if it is a standalone project  
+     * @param isSolution {@code true} if {@code inputFile} is a solution, {@code false} if it is a standalone project 
+     * @param envVariables a map containing environment variable values to substitute while parsing the properties of
+     * Visual C++ projects (such as values for {@code SolutionDir}, {@code Platform}, {@code Configuration}, or for any
+     * environment variable expressed as {@code $(variable)} in the project properties); note that these values will  
+     * <em>override</em> the defaults provided by the OS or set by {@link VCProjectHolder#getParsedProjects}  
      */
-    protected VCProjectHolder( File inputFile, boolean isSolution )
+    protected VCProjectHolder( File inputFile, boolean isSolution, Map<String, String> envVariables )
     {
         this.inputFile = inputFile;
         this.isSolution = isSolution;
+        this.envVariables = envVariables;
     }
     
     /**
@@ -119,8 +150,8 @@ public final class VCProjectHolder
         
         for ( VCProject vcProject : vcSolutionParser.getVCProjects() ) 
         {
-            logger.fine( "Solution " + name + ": found project " + vcProject.getName() 
-                    + " with platform=" + vcProject.getPlatform() + ", configuration=" + vcProject.getConfiguration() );
+            logger.fine( "\tFound project " + vcProject.getName() + " with platform=" + vcProject.getPlatform() 
+                    + ", configuration=" + vcProject.getConfiguration() );
             }
 
         logger.fine( "Solution parsing complete" );
@@ -168,19 +199,31 @@ public final class VCProjectHolder
         vcProjectParser = new VCProjectParser( projectFile, solutionFile, vcProject.getPlatform(), 
                 vcProject.getConfiguration() );
         
+        vcProjectParser.setEnvVariables( envVariables );
         vcProjectParser.parse();
         vcProjectParser.updateVCProject( vcProject );
         
-        logger.fine( "Project " + name + ": output directory=" + vcProject.getOutputDirectory() );
+        logger.fine( "\tOutput directory:" );
+        logger.fine( "\t\t" + vcProject.getOutputDirectory() );
 
         if ( vcProject.getIncludeDirectories().size() > 0 ) 
         {
-            logger.fine( "Project " + name + ": include directories=" + vcProject.getIncludeDirectories() );
+            logger.fine( "\tInclude directories:" );
+            
+            for ( File directory : vcProject.getIncludeDirectories() )
+            {
+                logger.fine( "\t\t" + directory );
+            }
         }
         
         if ( vcProject.getPreprocessorDefs().size() > 0 ) 
         {
-            logger.fine( "Project " + name + ": preprocessor definitions=" + vcProject.getPreprocessorDefs() );
+            logger.fine( "\tPreprocessor definitions:" );
+
+            for ( String preprocessorDef : vcProject.getPreprocessorDefs() )
+            {
+                logger.fine( "\t\t" + preprocessorDef );
+            }
         }
 
         logger.fine( "Project parsing complete" );
@@ -194,4 +237,5 @@ public final class VCProjectHolder
      * The Map is populated as needed (lazy loading) by the method {@link #getParsedProjects}.
      */
     private Map<String, List<VCProject> > parsedVCProjects = new HashMap<String, List<VCProject>>();
+    private Map<String, String> envVariables;
 }

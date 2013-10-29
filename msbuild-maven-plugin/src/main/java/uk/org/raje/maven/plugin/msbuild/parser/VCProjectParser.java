@@ -22,7 +22,11 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -70,6 +74,11 @@ class VCProjectParser extends BaseParser
         
         //Assume the output directory is set to the default value. This can change later if the project specifies one
         outputDirectory = getDefaultOutputDirectory();
+        
+        //$(SolutionDir) is an absolute path and terminates with a separator
+        envVariables.put( "SolutionDir", getBaseDirectory().getPath() + File.separator );
+        envVariables.put( "Configuration", getConfiguration() );
+        envVariables.put( "Platform", getPlatform() );
     }
 
     /**
@@ -88,6 +97,19 @@ class VCProjectParser extends BaseParser
         this( projectFile, null, platform, configuration );
     }
 
+    /**
+     * Set the variable values to substitute while parsing the properties of this Visual C++ project (such as values 
+     * for {@code SolutionDir}, {@code Platform}, {@code Configuration}, or for any environment variable expressed as 
+     * {@code $(variable)} in the project properties); note that these values will <em>override</em> the defaults 
+     * provided by the OS or set by {@link VCProjectHolder#getParsedProjects}
+     * @param envVariables a map containing environment variable values to substitute while parsing the properties of
+     * this Visual C++ project
+     */
+    public void setEnvVariables( Map<String, String> envVariables ) 
+    {
+        this.envVariables.putAll( envVariables );
+    }
+    
     /**
      * Update a {@link VCProject} bean with the Visual C++ project properties retrieved by the parser (Include 
      * Directories, Preprocessor Definitions and Output Directory).
@@ -226,8 +248,13 @@ class VCProjectParser extends BaseParser
         public void characters( char[] chars, int start, int length ) 
                 throws SAXException 
         {
-            //Keep variable replacement here, as later splitEntries gets rid of all variables that were not replaced
-            String entries = replaceVariables( new String( chars, start, length ) );
+            if ( charParserState == CharParserState.PARSE_IGNORE )
+            {
+                return;
+            }
+
+            //Keep variable replacement here as splitEntries, later, gets rid of all variables that were not replaced
+            String entries = replaceEnvVariables( new String( chars, start, length ) );
             
             switch ( charParserState ) 
             {
@@ -260,7 +287,35 @@ class VCProjectParser extends BaseParser
                 break;
                 
             default:
+                throw new SAXException( "Invalid character parser state" );
+                
             }
+        }
+        
+        private String replaceEnvVariables( String entries )
+        {
+            //(Reluctantly) Match environment variable names in the format: $(variable_name), use a group to retrieve
+            // variable_name without surrounding markers
+            Matcher envVariableMatcher = Pattern.compile( "\\$\\((.+?)\\)" ).matcher( entries );
+            StringBuffer parsedEntires = new StringBuffer();
+            
+            //Parse "entries" and find variable names in it
+            while ( envVariableMatcher.find() )
+            {
+                //Extract a matched variable name and check whether it is present in the environment variable map
+                String envVariableValue = envVariables.get( envVariableMatcher.group( 1 ) );
+                
+                if ( envVariableValue != null )
+                {
+                    //Replace the matched variable name with the corresponding value  
+                    envVariableMatcher.appendReplacement( parsedEntires, Matcher.quoteReplacement( envVariableValue ) );
+                }
+            }
+
+            //Append the rest of "entries" that was not matched in the loop above to the final result
+            envVariableMatcher.appendTail( parsedEntires );
+            
+            return parsedEntires.toString();
         }
         
         private List<String> splitEntries( String entries ) 
@@ -276,17 +331,6 @@ class VCProjectParser extends BaseParser
             }
             
             return entryList;
-        }
-        
-        private String replaceVariables( String entries )
-        {
-            //Note: $(SolutionDir) is an absolute path and terminates with a separator
-            entries = entries.replace( "$(SolutionDir)", getBaseDirectory().getPath() + File.separator );
-            
-            entries = entries.replace( "$(Configuration)", getConfiguration() );
-            entries = entries.replace( "$(Platform)", getPlatform() );
-
-            return entries;
         }
     }
     
@@ -343,4 +387,5 @@ class VCProjectParser extends BaseParser
     private List<String> preprocessorDefs = new ArrayList<String>();
     private File outputDirectory;
     private File solutionFile;
+    private Map<String, String> envVariables = new HashMap<String, String>( System.getenv() );
 }

@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -255,8 +257,15 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     protected List<VCProject> getParsedProjects( BuildPlatform platform, BuildConfiguration configuration ) 
             throws MojoExecutionException
     {
+        Map<String, String> envVariables = new HashMap<String, String>();
+        
+        if ( isCxxTestEnabled( null, true ) )
+        {
+            envVariables.put( CxxTestConfiguration.HOME_ENVVAR, cxxTest.getCxxTestHome().getPath() );
+        }
+        
         VCProjectHolder vcProjectHolder = VCProjectHolder.getVCProjectHolder( projectFile, 
-                MSBuildPackaging.isSolution( mavenProject.getPackaging() ) );
+                MSBuildPackaging.isSolution( mavenProject.getPackaging() ), envVariables );
         
         try
         {
