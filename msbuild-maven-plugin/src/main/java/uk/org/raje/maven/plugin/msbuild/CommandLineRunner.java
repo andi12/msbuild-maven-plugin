@@ -52,7 +52,13 @@ public abstract class CommandLineRunner
         this.outputConsumer = outputConsumer;
         this.errorConsumer = errorConsumer;
     }
-    
+
+    /**
+     * Execute the configured program
+     * @return the exit code from the program
+     * @throws IOException if there is a problem with program execution
+     * @throws InterruptedException if we are interrupted waiting for the process to exit or streams to complete
+     */
     public int runCommandLine() throws IOException, InterruptedException
     {
         logRunnerConfiguration();
@@ -81,34 +87,62 @@ public abstract class CommandLineRunner
         
         return exitCode; 
     }    
-    
+
+    /**
+     * Set the working directory for the process
+     * @param workingDirectory the directory to set as the working directory
+     */
     public void setWorkingDirectory( File workingDirectory ) 
     {
         this.workingDirectory = workingDirectory;
     }
 
+    /**
+     * Specify a set of environment variables to setup before running the process 
+     * @param environmentVars a Map containing environment name, value pairs
+     */
     public void setEnvironmentVars( Map<String, String> environmentVars ) 
     {
         this.environmentVars = environmentVars;
     }
 
+    /**
+     * Specify an optional String that is sent to the processes stdin stream
+     * @param standardInputString a String to write to stdin
+     */
     public void setStandardInputString( String standardInputString ) 
     {
         this.standardInputString = standardInputString;
     }
-    
+
+    /**
+     * Method that concrete implementations provide to construct the command line argument list for the process 
+     * @return a List of Strings representing the command line arguments
+     */
     protected abstract List<String> getCommandLineArguments();
 
+    /**
+     * Get the configured working directory
+     * @return an abstract path for the working directory, "." if none was supplied
+     */
     protected File getWorkingDirectory() 
     {
         return workingDirectory;
     }
 
+    /**
+     * Get the configured environment variables
+     * @return a Map containing name, value pairs, by default an empty Map is created
+     */
     protected Map<String, String> getEnvironmentVars() 
     {
         return environmentVars;
     }
-    
+
+    /**
+     * Get the configured String supplied to stdin when the process is executed
+     * @return the configured String or null if none was set
+     */
     protected String getStandardInputString() 
     {
         return standardInputString;
