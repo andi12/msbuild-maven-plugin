@@ -32,6 +32,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.codehaus.plexus.util.cli.StreamConsumer;
 import org.codehaus.plexus.util.cli.WriterStreamConsumer;
 
 import uk.org.raje.maven.plugin.msbuild.configuration.BuildConfiguration;
@@ -160,10 +161,10 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         return cppCheckReportWriter;
     }
     
-    private CommandLineRunner createCppCheckRunner( VCProject vcProject, Writer reportWriter ) 
+    private CppCheckRunner createCppCheckRunner( VCProject vcProject, StreamConsumer report ) 
             throws MojoExecutionException
     {
-        CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.getCppCheckPath(), reportWriter, getLog() );
+        CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.getCppCheckPath(), report, getLog() );
         
         cppCheckRunner.setWorkingDirectory( vcProject.getBaseDirectory() );
         cppCheckRunner.setStandardInputString( getSourcesForStdin( vcProject ) );
@@ -240,9 +241,19 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
     {
         File reportFile = getReportFile( vcProject );
         Writer reportWriter = createCppCheckReportWriter( reportFile );
-        CommandLineRunner cppCheckRunner = createCppCheckRunner( vcProject, reportWriter );
+        CppCheckWriterStreamConsumer reportStreamConsumer = new CppCheckWriterStreamConsumer( reportWriter );
+        CommandLineRunner cppCheckRunner = createCppCheckRunner( vcProject, reportStreamConsumer );
         Boolean checksPassed = executeCppCheckRunner( cppCheckRunner );
         finaliseReportWriter ( reportWriter, reportFile );
+        
+        if ( reportStreamConsumer.isCheckConfigSuggested() )
+        {
+            CppCheckRunner cppCheckCheckConfigRunner = createCppCheckRunner( 
+                    vcProject, 
+                    new StdoutStreamToLog( getLog() ) );
+            cppCheckCheckConfigRunner.setCheckConfig( true );
+            executeCppCheckRunner( cppCheckCheckConfigRunner );
+        }
         
         return checksPassed;
     }
@@ -252,23 +263,22 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         File reportDirectory = new File( vcProject.getFile().getParentFile(), REPORT_DIRECTORY );
         return new File( reportDirectory, cppCheck.getReportName() + "-" + vcProject + ".xml" );
     }
-    
+
     private static class CppCheckRunner extends CommandLineRunner
     {
         /**
          * Construct the CppCheckRunner
          * @param cppCheckPath the path to CppCheck.exe
-         * @param sourcePath the relative path from the working directory to the source files to check
-         * @param outputConsumer StreamConsumer for stdout 
-         * @param errorConsumer StreamConsumer for stderr
+         * @param reportConsumer a StreamConsumer to write the report to
+         * @param log the Maven Log to use
          */
-        public CppCheckRunner( File cppCheckPath, Writer reportWriter, Log log )
+        public CppCheckRunner( File cppCheckPath, StreamConsumer reportConsumer, Log log )
         {
-            super( new StdoutStreamToLog( log ), new WriterStreamConsumer( reportWriter ) );
+            super( new StdoutStreamToLog( log ), reportConsumer );
             this.cppCheckPath = cppCheckPath;
             CPPCHECK_RUNNER_LOG_HANDLER.setLog( log );
         }
-        
+
         public void setCppCheckType( CppCheckConfiguration.CppCheckType cppCheckType ) 
         {
             this.cppCheckType = cppCheckType;
@@ -283,7 +293,12 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         {
             this.preprocessorDefs = preprocessorDefs;
         }    
-        
+
+        public void setCheckConfig( boolean checkConfig )
+        {
+            this.checkConfig = checkConfig;
+        }
+
         @Override
         protected List<String> getCommandLineArguments() 
         {
@@ -313,13 +328,22 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
             }
             
             commandLineArguments.add( "--file-list=-" );
-            commandLineArguments.add( "--xml" );
-            commandLineArguments.add( "--xml-version=" + reportXMLVersion );
-            commandLineArguments.add( "--quiet" );
             
+            if ( checkConfig )
+            {
+                commandLineArguments.add( "--check-config" );
+            }
+            else
+            {
+                commandLineArguments.add( "--xml" );
+                commandLineArguments.add( "--xml-version=" + reportXMLVersion );
+            }
+
+            commandLineArguments.add( "--quiet" );
+
             return commandLineArguments;
         }
-        
+
         /**
          * This handler capture standard Java logging produced by {@link CppCheckRunner} and relays it to the Maven 
          * logger provided by the Mojo. It needs to be static to prevent duplicate log output. 
@@ -333,6 +357,34 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         private List<File> includeDirectories = new LinkedList<File>();
         private List<File> excludeDirectories = new LinkedList<File>();
         private List<String> preprocessorDefs = new LinkedList<String>();
+        private boolean checkConfig = false;
     }
     
+    /**
+     * Override WriterStreamConsumer to add a check for message suggesting running with '--check-config' 
+     */
+    private static class CppCheckWriterStreamConsumer extends WriterStreamConsumer
+    {
+        CppCheckWriterStreamConsumer( Writer writer )
+        {
+            super( writer );
+        }
+
+        @Override
+        public void consumeLine( String line )
+        {
+            if ( line.contains( "--check-config" ) )
+            {
+                checkConfigSuggested = true;
+            }
+            super.consumeLine( line );
+        }
+        
+        boolean isCheckConfigSuggested()
+        {
+            return checkConfigSuggested;
+        }
+        
+        private boolean checkConfigSuggested = false;
+    }
 }
