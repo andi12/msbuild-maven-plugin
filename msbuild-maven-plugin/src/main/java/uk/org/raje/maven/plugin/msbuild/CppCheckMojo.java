@@ -18,6 +18,7 @@ package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -97,6 +98,29 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         }
         
         getLog().info( "Static code analysis complete" );
+    }
+
+    private void validateCppCheckConfiguration() throws MojoExecutionException, MojoFailureException 
+    {
+        try 
+        {
+            MojoHelper.validateToolPath( cppCheck.getCppCheckPath(), 
+                    CppCheckConfiguration.TOOL_NAME, getLog() );
+        }
+        catch ( FileNotFoundException fnfe )
+        {
+            throw new MojoExecutionException( CppCheckConfiguration.TOOL_NAME 
+                    + "could not be found at " + fnfe.getMessage() + ". "
+                    + "You need to configure it in the plugin configuration section of the "
+                    + "POM file using <cppCheckPath>...</cppCheckPath> or "
+                    + "or <properties><" + CppCheckConfiguration.PATH_PROPERTY 
+                    + ">...</" + CppCheckConfiguration.PATH_PROPERTY + "></properties>; "
+                    + "alternatively, you can use the command-line parameter -Dcppcheck.path=... "
+                    + "or set the environment variable " + CppCheckConfiguration.PATH_ENVVAR, fnfe );
+        }
+        
+        validateProjectFile();
+        platforms = MojoHelper.validatePlatforms( platforms );
     }
 
     private String getSourcesForStdin( VCProject vcProject ) throws MojoExecutionException

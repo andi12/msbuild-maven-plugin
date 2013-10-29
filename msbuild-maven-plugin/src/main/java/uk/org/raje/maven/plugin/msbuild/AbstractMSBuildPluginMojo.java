@@ -156,6 +156,8 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     /**
      * Actually perform the work of this Mojo now the configuration has been fixed.
      * @see AbstractMojo#execute
+     * @throws MojoExecutionException if an unexpected problem occurs.
+     * @throws MojoFailureException if an expected problem (such as a compilation failure) occurs.
      */
     protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
 
@@ -219,7 +221,13 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         
         throw new IOException( "Unable to relativize " + targetDirStr + " to " + baseDir );
     }
-    
+
+    /**
+     * Generate a list of source files in the project directory and sub-directories
+     * @param vcProject the parsed project
+     * @param includeHeaders set to true to include header files (*.h and *.hpp)
+     * @return a list of abstract paths representing each source file
+     */
     protected List<File> getProjectSources( VCProject vcProject, boolean includeHeaders ) 
     {
         final DirectoryScanner directoryScanner = new DirectoryScanner();
@@ -431,6 +439,11 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         return result;
     }
 
+    /**
+     * Determine whether CppCheck is enabled by the configuration
+     * @param quiet set to true to suppress logging
+     * @return true if CppCheck is enabled, false otherwise
+     */
     protected boolean isCppCheckEnabled( boolean quiet ) 
     {
         if ( cppCheck.skip() )
@@ -458,29 +471,11 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         return true;
     }
 
-    protected void validateCppCheckConfiguration() throws MojoExecutionException, MojoFailureException 
-    {
-        try 
-        {
-            MojoHelper.validateToolPath( cppCheck.getCppCheckPath(), 
-                    CppCheckConfiguration.TOOL_NAME, getLog() );
-        }
-        catch ( FileNotFoundException fnfe )
-        {
-            throw new MojoExecutionException( CppCheckConfiguration.TOOL_NAME 
-                    + "could not be found at " + fnfe.getMessage() + ". "
-                    + "You need to configure it in the plugin configuration section of the "
-                    + "POM file using <cppCheckPath>...</cppCheckPath> or "
-                    + "or <properties><" + CppCheckConfiguration.PATH_PROPERTY 
-                    + ">...</" + CppCheckConfiguration.PATH_PROPERTY + "></properties>; "
-                    + "alternatively, you can use the command-line parameter -Dcppcheck.path=... "
-                    + "or set the environment variable " + CppCheckConfiguration.PATH_ENVVAR, fnfe );
-        }
-        
-        validateProjectFile();
-        platforms = MojoHelper.validatePlatforms( platforms );
-    }
-    
+    /**
+     * Determine whether Vera++ is enabled by the configuration
+     * @param quiet set to true to suppress logging
+     * @return true if Vera++ is enabled, false otherwise
+     */
     protected boolean isVeraEnabled( boolean quiet ) 
     {
         if ( vera.skip() )
@@ -508,30 +503,6 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         return true;
     }
 
-    protected void validateVeraConfiguration() throws MojoExecutionException, MojoFailureException 
-    {
-        try 
-        {
-            MojoHelper.validateToolPath( VeraMojo.getVeraExecutablePath( vera.getVeraHome() ), 
-                    VeraConfiguration.TOOL_NAME, getLog() );
-        }
-        catch ( FileNotFoundException fnfe )
-        {
-            throw new MojoExecutionException( "The " + VeraConfiguration.TOOL_NAME + " home directory "
-                    + "could not be found at " + fnfe.getMessage() + ". "
-                    + "You need to configure it in the plugin configuration section of the "
-                    + "POM file using <veraHome>...</veraHome> or "
-                    + "or <properties><" + VeraConfiguration.HOME_PROPERTY + ">...</"
-                    + VeraConfiguration.HOME_PROPERTY + "></properties>; "
-                    + "alternatively, you can use the command-line parameter -D" 
-                    + VeraConfiguration.HOME_PROPERTY + "=... "
-                    + "or set the environment variable " + VeraConfiguration.HOME_ENVVAR, fnfe );
-        }
-        
-        validateProjectFile();
-        platforms = MojoHelper.validatePlatforms( platforms );
-    }
-        
     /**
      * Determine whether CxxTest is enabled by the configuration
      * @param stepName the string to use in log messages to describe the process being attempted
@@ -574,7 +545,11 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         return true;
     }
 
-    protected void validateCxxTestConfiguration() throws MojoExecutionException, MojoFailureException 
+    /**
+     * Used by CxxTest Mojo classes to check the configuration of CxxTest
+     * @throws MojoExecutionException if a problem is found with the configuration
+     */
+    protected void validateCxxTestConfiguration() throws MojoExecutionException 
     {
         final File cxxTestPythonHome = CxxTestGenMojo.getCxxTestPythonHome( cxxTest.getCxxTestHome() );
         
@@ -612,25 +587,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         validateProjectFile();
         platforms = MojoHelper.validatePlatforms( platforms );
     }
-    
-    protected boolean isSonarEnabled( boolean quiet ) throws MojoExecutionException
-    {
-        if ( sonar.skip() )
-        {
-            if ( ! quiet )
-            {
-                getLog().info( SonarConfiguration.SONAR_SKIP_MESSAGE 
-                        + ", 'skip' set to true in the " + SonarConfiguration.SONAR_NAME + " configuration." );
-            }
-            
-            return false;
-        }
-        
-        validateProjectFile();
-        platforms = MojoHelper.validatePlatforms( platforms );
-        
-        return true;
-    }
+
 
     /**
      * The MavenProject for the current build.

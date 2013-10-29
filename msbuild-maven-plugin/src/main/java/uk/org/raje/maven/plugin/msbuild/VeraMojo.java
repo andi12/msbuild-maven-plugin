@@ -18,6 +18,7 @@ package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -104,6 +105,30 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         getLog().info( "Coding style analysis complete" );
     }
     
+    private void validateVeraConfiguration() throws MojoExecutionException 
+    {
+        try 
+        {
+            MojoHelper.validateToolPath( VeraMojo.getVeraExecutablePath( vera.getVeraHome() ), 
+                    VeraConfiguration.TOOL_NAME, getLog() );
+        }
+        catch ( FileNotFoundException fnfe )
+        {
+            throw new MojoExecutionException( "The " + VeraConfiguration.TOOL_NAME + " home directory "
+                    + "could not be found at " + fnfe.getMessage() + ". "
+                    + "You need to configure it in the plugin configuration section of the "
+                    + "POM file using <veraHome>...</veraHome> or "
+                    + "or <properties><" + VeraConfiguration.HOME_PROPERTY + ">...</"
+                    + VeraConfiguration.HOME_PROPERTY + "></properties>; "
+                    + "alternatively, you can use the command-line parameter -D" 
+                    + VeraConfiguration.HOME_PROPERTY + "=... "
+                    + "or set the environment variable " + VeraConfiguration.HOME_ENVVAR, fnfe );
+        }
+        
+        validateProjectFile();
+        platforms = MojoHelper.validatePlatforms( platforms );
+    }
+
     private String getSourcesForStdin( VCProject vcProject ) throws MojoExecutionException
     {
         StringBuilder stringBuilder = new StringBuilder();

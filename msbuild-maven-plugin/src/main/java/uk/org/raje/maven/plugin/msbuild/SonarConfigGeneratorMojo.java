@@ -65,6 +65,31 @@ public class SonarConfigGeneratorMojo extends AbstractMSBuildPluginMojo
         
     }
     
+    /**
+     * Determine whether Sonar configuration generation is enabled by the configuration
+     * @param quiet set to true to suppress logging
+     * @return true if sonar configuration generation is enabled, false otherwise
+     * @throws MojoExecutionException if the configured project or solution file is invalid or cannot be parsed
+     */
+    protected boolean isSonarEnabled( boolean quiet ) throws MojoExecutionException
+    {
+        if ( sonar.skip() )
+        {
+            if ( ! quiet )
+            {
+                getLog().info( SonarConfiguration.SONAR_SKIP_MESSAGE 
+                        + ", 'skip' set to true in the " + SonarConfiguration.SONAR_NAME + " configuration." );
+            }
+            
+            return false;
+        }
+        
+        validateProjectFile();
+        platforms = MojoHelper.validatePlatforms( platforms );
+        
+        return true;
+    }
+
     private PrintWriter createSonarConfigWriter( File configFile ) throws MojoExecutionException
     {
         try 
