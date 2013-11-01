@@ -59,18 +59,27 @@ public class CxxTestConfiguration
      * Get the configured value for skip 
      * @return the configured value or false if not configured
      */
-    public final boolean getSkip()
+    public final boolean skip()
     {
         return skip;
     }
 
     /**
-     * Set the configured value for skip
-     * @param skip the new value
+     * Get the configured value for skipTests
+     * @return true if test execution should be skipped
      */
-    public final void setSkip( boolean skip )
+    public final boolean getSkipTests()
     {
-        this.skip = skip;
+        return skipTests;
+    }
+
+    /**
+     * Set the configured value for skipTests
+     * @param b the new value
+     */
+    public final void setSkipTests( boolean b )
+    {
+        skipTests = b;
     }
 
     /**
