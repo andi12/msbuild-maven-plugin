@@ -62,7 +62,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
     {
         List<Boolean> allChecksPassed = new ArrayList<Boolean>();
 
-        if ( !isCppCheckEnabled( false ) ) 
+        if ( ! isCppCheckEnabled( false ) ) 
         {
             return;
         }
@@ -82,7 +82,17 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
                     
                     try 
                     {
-                        allChecksPassed.add( runCppCheck( vcProject ) );
+                        int exitCode = runCppCheck( vcProject );
+                        
+                        if ( exitCode != 0 )
+                        {
+                            getLog().error( "Static code analysis failed with exit code " + exitCode );
+                            allChecksPassed.add( false );
+                        }
+                        else
+                        {
+                            allChecksPassed.add( true );
+                        }
                     }
                     catch ( MojoExecutionException mee )
                     {
@@ -161,11 +171,10 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         return cppCheckReportWriter;
     }
     
-    private CppCheckRunner createCppCheckRunner( VCProject vcProject, StreamConsumer report ) 
+    private CppCheckRunner createCppCheckRunner( VCProject vcProject, StreamConsumer streamConsumer ) 
             throws MojoExecutionException
     {
-        CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.getCppCheckPath(), report, getLog() );
-        
+        CppCheckRunner cppCheckRunner = new CppCheckRunner( cppCheck.getCppCheckPath(), streamConsumer, getLog() );
         cppCheckRunner.setWorkingDirectory( vcProject.getBaseDirectory() );
         cppCheckRunner.setStandardInputString( getSourcesForStdin( vcProject ) );
         cppCheckRunner.setCppCheckType( cppCheck.getCppCheckType() );
@@ -207,14 +216,12 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         return relativeIncludeDirectories;
     }
 
-    private Boolean executeCppCheckRunner( CommandLineRunner cppCheckRunner ) 
+    private int executeCppCheckRunner( CommandLineRunner cppCheckRunner ) 
         throws MojoExecutionException
     {
-        int exitCode;
-        
         try
         {
-            exitCode = cppCheckRunner.runCommandLine();
+            return cppCheckRunner.runCommandLine();
         }
         catch ( IOException ioe )
         {
@@ -224,14 +231,6 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         {
             throw new MojoExecutionException( "Process interrupted while executing command line ", ie );
         }
-        
-        if ( exitCode != 0 )
-        {
-            getLog().error( CppCheckConfiguration.TOOL_NAME + " failed with exit code " + exitCode );
-            return false;
-        }
-        
-        return true;
     }
 
     private void finaliseReportWriter( Writer reportWriter, File reportFile ) throws MojoExecutionException
@@ -247,30 +246,31 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         }
     }
 
-    private Boolean runCppCheck( VCProject vcProject ) throws MojoExecutionException, MojoFailureException
+    private int runCppCheck( VCProject vcProject ) throws MojoExecutionException, MojoFailureException
     {
         File reportFile = getReportFile( vcProject );
         Writer reportWriter = createCppCheckReportWriter( reportFile );
         CppCheckWriterStreamConsumer reportStreamConsumer = new CppCheckWriterStreamConsumer( reportWriter );
+
         CommandLineRunner cppCheckRunner = createCppCheckRunner( vcProject, reportStreamConsumer );
-        Boolean checksPassed = executeCppCheckRunner( cppCheckRunner );
+        int exitCode = executeCppCheckRunner( cppCheckRunner );
         finaliseReportWriter ( reportWriter, reportFile );
         
         if ( reportStreamConsumer.isCheckConfigSuggested() )
         {
-            CppCheckRunner cppCheckCheckConfigRunner = createCppCheckRunner( 
-                    vcProject, 
-                    new StdoutStreamToLog( getLog() ) );
+            CppCheckRunner cppCheckCheckConfigRunner = 
+                    createCppCheckRunner( vcProject, new StdoutStreamToLog( getLog() ) );
+            
             cppCheckCheckConfigRunner.setCheckConfig( true );
             executeCppCheckRunner( cppCheckCheckConfigRunner );
         }
         
-        return checksPassed;
+        return exitCode;
     }
     
     private File getReportFile( VCProject vcProject ) 
     {
-        File reportDirectory = new File( vcProject.getFile().getParentFile(), REPORT_DIRECTORY );
+        final File reportDirectory = new File( vcProject.getFile().getParentFile(), REPORT_DIRECTORY );
         return new File( reportDirectory, cppCheck.getReportName() + "-" + vcProject + ".xml" );
     }
 
@@ -313,7 +313,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         protected List<String> getCommandLineArguments() 
         {
             final String reportXMLVersion = "1";
-            List<String> commandLineArguments = new LinkedList<String>();
+            final List<String> commandLineArguments = new LinkedList<String>();
             
             commandLineArguments.add( cppCheckPath.getAbsolutePath() );
             commandLineArguments.add( "--enable=" + cppCheckType.name() );
@@ -381,6 +381,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
             {
                 checkConfigSuggested = true;
             }
+            
             super.consumeLine( line );
         }
         

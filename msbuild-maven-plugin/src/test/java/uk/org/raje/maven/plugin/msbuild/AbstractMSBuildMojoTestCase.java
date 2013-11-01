@@ -70,7 +70,7 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
         assertEquals( new File( "my-version-info.rc" ), mojo.versionInfo.getOutputFile() );
         
         // CppCheck
-        assertEquals( false, mojo.cppCheck.skip() );
+        assertEquals( false, mojo.cppCheck.getSkip() );
         assertEquals( new File( basedir, "/src/test/resources/unit/cppcheck/fake-cppcheck.cmd" ),
                 mojo.cppCheck.getCppCheckPath() );
         assertEquals( "cppcheck-report", mojo.cppCheck.getReportName() );
@@ -78,7 +78,7 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
         assertEquals( "*Test", mojo.cppCheck.getExcludeProjectRegex() );
 
         // Vera++ settings
-        assertEquals( false, mojo.vera.skip() );
+        assertEquals( false, mojo.vera.getSkip() );
         assertEquals( new File( basedir, "/src/test/resources/unit/vera/fake-vera-home" ), mojo.vera.getVeraHome() );
         assertEquals( "vera-report", mojo.vera.getReportName() );
         assertEquals( "full", mojo.vera.getProfile() );
@@ -107,13 +107,28 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
     }
     
     /**
-     *
+     * The list of available tagged message types that can be extracted from a Maven log.
      */
     protected enum LogMessageTag
     {
+        /**
+         * Extract debug messages.
+         */
         DEBUG,
+
+        /**
+         * Extract information messages.
+         */
         INFO,
+
+        /**
+         * Extract warning messages.
+         */
         WARNING,
+        
+        /**
+         * Extract error messages.
+         */
         ERROR
     }
     
@@ -131,6 +146,26 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
         }
         
         return taggedLogMessages;
+    }
+    
+    protected String findFirstLogMessage( List<String> logMessages, String logMessagePrefix )
+    {
+        String firstLogMessage;
+        
+        assertFalse( logMessages.isEmpty() );
+        
+        do 
+        {
+            firstLogMessage = logMessages.remove( 0 );
+        } while ( ! firstLogMessage.startsWith( logMessagePrefix ) && ! logMessages.isEmpty() );
+        
+        return firstLogMessage;
+    }
+    
+    protected String getNextLogMessage( List<String> logMessages )
+    {
+        assertFalse( logMessages.isEmpty() );
+        return logMessages.remove( 0 );
     }
 
     /**

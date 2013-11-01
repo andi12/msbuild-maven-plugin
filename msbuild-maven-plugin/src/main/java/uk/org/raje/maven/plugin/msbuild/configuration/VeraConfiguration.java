@@ -51,7 +51,7 @@ public class VeraConfiguration
      * Get the configured value for skip.
      * @return the configured value or false if not configured
      */
-    public final boolean skip()
+    public final boolean getSkip()
     {
         return skip;
     }

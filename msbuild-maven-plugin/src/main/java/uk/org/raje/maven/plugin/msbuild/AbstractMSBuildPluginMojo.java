@@ -448,7 +448,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
      */
     protected boolean isCppCheckEnabled( boolean quiet ) 
     {
-        if ( cppCheck.skip() )
+        if ( cppCheck.getSkip() )
         {
             if ( ! quiet )
             {
@@ -480,7 +480,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
      */
     protected boolean isVeraEnabled( boolean quiet ) 
     {
-        if ( vera.skip() )
+        if ( vera.getSkip() )
         {
             if ( ! quiet )
             {
