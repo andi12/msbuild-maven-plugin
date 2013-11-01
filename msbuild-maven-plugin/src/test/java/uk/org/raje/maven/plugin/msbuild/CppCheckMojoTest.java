@@ -56,7 +56,7 @@ public class CppCheckMojoTest extends AbstractMSBuildMojoTestCase
 
         cppCheckMojo.execute();
         
-        assertEquals( "[INFO] Skipping static code analysis, path to CppCheck not set.",
+        assertEquals( "[INFO] Skipping static code analysis, path to CppCheck not set",
                 outputStream.toString().trim() );
     }
     

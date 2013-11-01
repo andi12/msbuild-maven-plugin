@@ -310,18 +310,13 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
             
             for ( File includeDirectory : includeDirectories ) 
             {
-                //WARNING: remove any trailing slashes from include paths, as CppCheck can fail if these are present;
-                // using {@link File}s to wrap include paths is safe, whereas using {@link String}s may cause problems.
+                //WARNING: remove any trailing slashes from include paths because CppCheck may fail if these are 
+                // present; using {@link File}s to wrap include paths is safe, whereas using {@link String}s may 
+                // cause problems
                 commandLineArguments.add( "-I" );
                 commandLineArguments.add( "\"" + includeDirectory + "\"" );
             }
-
-            for ( File excludeDirectory : excludeDirectories ) 
-            {
-                commandLineArguments.add( "-i" );
-                commandLineArguments.add( "\"" + excludeDirectory + "\"" );
-            }
-
+            
             for ( String preprocessorDef : preprocessorDefs ) 
             {
                 commandLineArguments.add( "-D" + preprocessorDef );
@@ -354,9 +349,8 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         
         private File cppCheckPath;
         private CppCheckConfiguration.CppCheckType cppCheckType = CppCheckConfiguration.CppCheckType.all;
-        private List<File> includeDirectories = new LinkedList<File>();
-        private List<File> excludeDirectories = new LinkedList<File>();
-        private List<String> preprocessorDefs = new LinkedList<String>();
+        private List<File> includeDirectories;
+        private List<String> preprocessorDefs;
         private boolean checkConfig = false;
     }
     
