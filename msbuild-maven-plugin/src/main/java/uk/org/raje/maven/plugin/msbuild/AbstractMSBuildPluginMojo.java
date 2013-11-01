@@ -55,7 +55,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException
     {
-        VCPROJECT_HOLDER_LOG_HANDLER.setLog( getLog() );
+        PARSER_LOGGER_HANDLER.setLog( getLog() );
         
         // Fix up configuration
         // This is done with the following fixes for parameters that we want to be able to pull 
@@ -81,7 +81,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         
         if ( "true".equalsIgnoreCase( findProperty( CxxTestConfiguration.SKIP_TESTS_PROPERTY ) ) )
         {
-            cxxTest.setSkipTests( true );
+            cxxTest.setSkip( true );
         }
         
         if ( "true".equalsIgnoreCase( findProperty( CxxTestConfiguration.IGNORE_FAILURE_PROPERTY ) ) )
@@ -451,7 +451,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             if ( ! quiet )
             {
                 getLog().info( CppCheckConfiguration.SKIP_MESSAGE 
-                        + ", 'skip' set to true in the " + CppCheckConfiguration.TOOL_NAME + " configuration." );
+                        + ", 'skip' set to true in the " + CppCheckConfiguration.TOOL_NAME + " configuration" );
             }
             
             return false;
@@ -462,7 +462,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             if ( ! quiet )
             {
                 getLog().info( CppCheckConfiguration.SKIP_MESSAGE 
-                        + ", path to " + CppCheckConfiguration.TOOL_NAME + " not set." );
+                        + ", path to " + CppCheckConfiguration.TOOL_NAME + " not set" );
             }
             
             return false;
@@ -483,7 +483,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             if ( ! quiet )
             {
                 getLog().info( VeraConfiguration.SKIP_MESSAGE 
-                        + ", 'skip' set to true in the " + VeraConfiguration.TOOL_NAME + " configuration." );
+                        + ", 'skip' set to true in the " + VeraConfiguration.TOOL_NAME + " configuration" );
             }
             
             return false;
@@ -494,7 +494,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             if ( ! quiet )
             {
                 getLog().info( VeraConfiguration.SKIP_MESSAGE 
-                        + ", path to " + VeraConfiguration.TOOL_NAME + " home directory not set." );
+                        + ", path to " + VeraConfiguration.TOOL_NAME + " home directory not set" );
             }
             
             return false;
@@ -520,12 +520,13 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             throw new MojoExecutionException( msg );
         }
 
-        if ( cxxTest.skip() )
+        if ( cxxTest.getSkip() )
         {
             if ( ! quiet )
             {
                 getLog().info( CxxTestConfiguration.SKIP_MESSAGE + " " + stepName 
-                        + ", 'skip' set to true in the " + CxxTestConfiguration.TOOL_NAME + " configuration." );
+                        + ", 'skip' was set to true in the " + CxxTestConfiguration.TOOL_NAME + " configuration"
+                        + " or -D" + CxxTestConfiguration.SKIP_TESTS_PROPERTY + " was specified on the command-line"  );
             }
             
             return false;
@@ -536,7 +537,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             if ( ! quiet )
             {
                 getLog().info( CxxTestConfiguration.SKIP_MESSAGE + " " + stepName 
-                        + ", path to " + CxxTestConfiguration.TOOL_NAME + " not set." );
+                        + ", path to " + CxxTestConfiguration.TOOL_NAME + " not set" );
             }
             
             return false;
@@ -689,7 +690,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
      * provided by the Mojo. It needs to be static to prevent duplicate log output. 
      * @see {@link LoggingHandler#LoggingHandler(String name)} 
      */
-    private static final LoggingHandler VCPROJECT_HOLDER_LOG_HANDLER = 
-            new LoggingHandler( VCProjectHolder.class.getName() );
+    private static final LoggingHandler PARSER_LOGGER_HANDLER = 
+            new LoggingHandler( VCProjectHolder.class.getPackage().getName(), false );
     
 }
