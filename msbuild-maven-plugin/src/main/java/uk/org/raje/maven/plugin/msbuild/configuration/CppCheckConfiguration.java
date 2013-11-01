@@ -46,8 +46,7 @@ public class CppCheckConfiguration
     public static final String SKIP_MESSAGE = "Skipping static code analysis";
    
     /**
-     * @author dmasato
-     *
+     * Set of known check types
      */
     public enum CppCheckType
     {
@@ -56,6 +55,9 @@ public class CppCheckConfiguration
         performance,
         protability,
         information,
+        /**
+         * Unused function checking
+         */
         unusedFunction,
         missingInclude
     }
