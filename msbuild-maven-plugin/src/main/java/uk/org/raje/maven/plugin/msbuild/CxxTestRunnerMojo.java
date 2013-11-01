@@ -58,6 +58,15 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         {
             return;
         }
+        
+        //Check if we need to skip the test execution ONLY, and output a predefined message that a CI system (for 
+        // example, Jenkins) may pick up; when this option is enabled the tests are still built, so the build will fail
+        // if the tests do not compile.
+        if ( cxxTest.getSkipTests() )
+        {
+            getLog().info( TEST_SKIP_EXECUTION_MESSAGE );
+            return;
+        }
 
         CXXTEST_RUNNER_LOG_HANDLER.setLog( getLog() );
         
@@ -92,7 +101,7 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         
         if ( allTestPassed.contains( false ) )
         {
-            if ( cxxTest.getTestFailureIgnore() )
+            if ( cxxTest.getIgnoreTestFailure() )
             {
                 getLog().warn( "Some tests failed to pass" );
             }
@@ -113,7 +122,9 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
      * @see {@link LoggingHandler#LoggingHandler(String name)} 
      */
     private static final LoggingHandler CXXTEST_RUNNER_LOG_HANDLER =
-            new LoggingHandler( CxxTestRunner.class.getName() );    
+            new LoggingHandler( CxxTestRunner.class.getName() );
+    
+    private static final String TEST_SKIP_EXECUTION_MESSAGE = "Tests are skipped.";
     
     private CommandLineRunner createCxxTestRunner( File directory, String testTargetName )
             throws MojoExecutionException

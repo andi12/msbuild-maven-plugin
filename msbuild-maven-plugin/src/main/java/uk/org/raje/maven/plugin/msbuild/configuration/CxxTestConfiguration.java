@@ -57,38 +57,46 @@ public class CxxTestConfiguration
 
     /**
      * Get the configured value for skip 
-     * @return the configured value or false if not configured
+     * @return true if the entire CxxTest pipeline (generation, build, execution) should be skipped 
      */
     public final boolean getSkip()
     {
         return skip;
     }
-
+    
     /**
-     * Set the configured value for skip
-     * @param skip the new value
+     * Get the configured value for skipTests
+     * @return {@code true} if test execution <em>only</em> should be skipped
      */
-    public final void setSkip( boolean skip )
+    public final boolean getSkipTests()
     {
-        this.skip = skip;
+        return skipTests;
     }
 
     /**
-     * Get the configured value for testFailureIgnore
-     * @return true if failing tests should be ignored
+     * Set the configured value for skipTests
+     * @param skipTests the new value for skipTests
      */
-    public final boolean getTestFailureIgnore()
+    public final void setSkipTests( boolean skipTests )
     {
-        return testFailureIgnore;
+        this.skipTests = skipTests;
+    }    
+    /**
+     * Get the configured value for testFailureIgnore
+     * @return {@code true} if failing tests should be ignored
+     */
+    public final boolean getIgnoreTestFailure()
+    {
+        return ignoreTestFailure;
     }
 
     /**
      * Set the configured value for testFailureIgnore
-     * @param b the new value
+     * @param ignoreFailure the new value
      */
-    public final void setTestFailureIgnore( boolean b )
+    public final void setIgnoreTestFailure( boolean ignoreFailure )
     {
-        testFailureIgnore = b;
+        ignoreTestFailure = ignoreFailure;
     }
 
     /**
@@ -157,7 +165,7 @@ public class CxxTestConfiguration
     }        
 
     /**
-     * Set to true to skip CxxTest functionality.
+     * Set to {@code true} to skip the entire CxxTest pipeline (generation, build, execution) should be skipped 
      */
     @Parameter( 
             defaultValue = "false", 
@@ -165,8 +173,8 @@ public class CxxTestConfiguration
     protected boolean skip = false; 
 
     /**
-     * Set this to "true" to skip running tests, but still compile them. Its use is NOT RECOMMENDED, 
-     * but quite convenient on occasion.
+     * Set this to {@code true} to skip executing the tests, but still compile them. Its use is NOT RECOMMENDED, but
+     * quite convenient on occasion.
      */
     @Parameter( 
             property = SKIP_TESTS_PROPERTY,
@@ -175,19 +183,21 @@ public class CxxTestConfiguration
     protected boolean skipTests = false; 
 
     /**
-     * Set this to "true" to ignore a failure during testing. Its use is NOT RECOMMENDED, 
-     * but quite convenient on occasion.
+     * Set this to {@code true} to ignore a failure during testing. Its use is NOT RECOMMENDED, but quite convenient on 
+     * occasion.
      */
     @Parameter( 
             property = IGNORE_FAILURE_PROPERTY,
             defaultValue = "false", 
             readonly = false )
-    protected boolean testFailureIgnore = false; 
+    protected boolean ignoreTestFailure = false; 
 
     /**
      * The home directory for CxxTest
-     * Note: The property name specified here is only for documentation, this doesn't work and needs to be manually
-     * fixed in {@link AbstractMSBuildPluginMojo}
+     * <p>
+     * <strong>Note:</strong> The property name specified here is only for documentation, this doesn't work and 
+     * needs to be manually fixed in {@link AbstractMSBuildPluginMojo}.
+     * </p>
      */
     @Parameter( 
             property = HOME_PROPERTY,
@@ -215,11 +225,12 @@ public class CxxTestConfiguration
     protected String reportName = "cxxtest-report";
     
     /**
-     * The filename of the template to use to generate the test runner.
+     * The filename of the template to use to generate the test runner
      * <p>
      * To specify a template for each test project provide just the filename which will be found in each project 
      * directory.<br/>
-     * To use a single template specify a filename relative to the pom or the full path to the file to use. 
+     * To use a single template specify a filename relative to the pom or the full path to the file to use.
+     * </p> 
      */
     @Parameter(
             readonly = false,

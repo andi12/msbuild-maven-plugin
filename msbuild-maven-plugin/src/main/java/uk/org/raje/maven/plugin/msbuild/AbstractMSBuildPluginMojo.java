@@ -81,12 +81,12 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
         
         if ( "true".equalsIgnoreCase( findProperty( CxxTestConfiguration.SKIP_TESTS_PROPERTY ) ) )
         {
-            cxxTest.setSkip( true );
+            cxxTest.setSkipTests( true );
         }
         
         if ( "true".equalsIgnoreCase( findProperty( CxxTestConfiguration.IGNORE_FAILURE_PROPERTY ) ) )
         {
-            cxxTest.setTestFailureIgnore( true );
+            cxxTest.setIgnoreTestFailure( true );
         }
 
         // Configuration fixed, call child to do real work
@@ -525,8 +525,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             if ( ! quiet )
             {
                 getLog().info( CxxTestConfiguration.SKIP_MESSAGE + " " + stepName 
-                        + ", 'skip' was set to true in the " + CxxTestConfiguration.TOOL_NAME + " configuration"
-                        + " or -D" + CxxTestConfiguration.SKIP_TESTS_PROPERTY + " was specified on the command-line"  );
+                        + ", 'skip' was set to true in the " + CxxTestConfiguration.TOOL_NAME + " configuration" );
             }
             
             return false;
