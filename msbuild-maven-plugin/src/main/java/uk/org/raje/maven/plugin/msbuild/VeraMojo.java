@@ -22,7 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -66,8 +65,6 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException 
     {
-        List<Boolean> allChecksPassed = new ArrayList<Boolean>();
-        
         if ( !isVeraEnabled( false ) ) 
         {
             return;
@@ -87,7 +84,7 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
                     
                     try 
                     {
-                        allChecksPassed.add( runVera( vcProject ) );
+                        runVera( vcProject );
                     }
                     catch ( MojoExecutionException mee )
                     {
@@ -96,11 +93,6 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
                     }
                 }
             }
-        }
-        
-        if ( allChecksPassed.contains( false ) )
-        {
-            throw new MojoFailureException( "Coding style analysis failed" );
         }
         
         getLog().info( "Coding style analysis complete" );
@@ -179,12 +171,14 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         return veraRunner;
     }
 
-    private Boolean executeVeraRunner( CommandLineRunner veraRunner ) 
+    private void executeVeraRunner( CommandLineRunner veraRunner ) 
         throws MojoExecutionException
     {
+        int exitCode;
+        
         try
         {
-            return veraRunner.runCommandLine() == 0;
+            exitCode = veraRunner.runCommandLine();
         }
         catch ( IOException ioe )
         {
@@ -194,6 +188,12 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         {
             throw new MojoExecutionException( "Process interrupted while executing command line ", ie );
         }
+        
+        if ( exitCode != 0 )
+        {
+            throw new MojoExecutionException( VeraConfiguration.TOOL_NAME + " failed with exit code " 
+                    + exitCode );
+        }        
     }
     
     private void finaliseReportWriter( Writer reportWriter, File reportFile ) throws MojoExecutionException
@@ -209,15 +209,13 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         }
     }    
 
-    private Boolean runVera( VCProject vcProject ) throws MojoExecutionException, MojoFailureException
+    private void runVera( VCProject vcProject ) throws MojoExecutionException, MojoFailureException
     {
         File reportFile = getReportFile( vcProject );
         Writer reportWriter = createVeraReportWriter( reportFile );
         CommandLineRunner veraRunner = createVeraRunner( vcProject, reportWriter );
-        Boolean checksPassed = executeVeraRunner( veraRunner );
+        executeVeraRunner( veraRunner );
         finaliseReportWriter( reportWriter, reportFile );
-        
-        return checksPassed;
     }
     
     private File getReportFile( VCProject vcProject ) 
