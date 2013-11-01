@@ -16,6 +16,7 @@
 package uk.org.raje.maven.plugin.msbuild.parser;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -225,6 +226,6 @@ public class VCProject
     private String configuration;
     private String platform;
     private File outputDirectory;
-    private List<File> includeDirectories;
-    private List<String> preprocessorDefs;
+    private List<File> includeDirectories = Collections.emptyList();
+    private List<String> preprocessorDefs = Collections.emptyList();;
 }

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -153,6 +154,8 @@ class VCSolutionParser extends BaseParser
         validateProjectPlatformConfigs();
     }
     
+    private static final Logger LOGGER = Logger.getLogger( VCSolutionParser.class.getName() );
+    
     private static final String BEGIN_SOLUTION_GLOBAL_SECTION = "GlobalSection(SolutionConfigurationPlatforms)";
     private static final String BEGIN_PROJECT_GLOBAL_SECTION = "GlobalSection(ProjectConfigurationPlatforms)";
     private static final String END_SOLUTION_GLOBAL_SECTION = "EndGlobalSection";
@@ -244,12 +247,12 @@ class VCSolutionParser extends BaseParser
         File fullProjectPath = new File( getInputFile().getParentFile(), relativeProjectPath );
         
         //Create and populate a new bean for this project.
-        VCProject project = new VCProject( ProjectProperty.name.getValue( projMatcher ), fullProjectPath );
-        project.setTargetName( new File( relativeProjectPath ).getParent() );
-        project.setGuid( ProjectProperty.guid.getValue( projMatcher ) );
-        project.setSolutionGuid( ProjectProperty.solutionGuid.getValue( projMatcher ) );
+        VCProject vcProject = new VCProject( ProjectProperty.name.getValue( projMatcher ), fullProjectPath );
+        vcProject.setTargetName( new File( relativeProjectPath ).getParent() );
+        vcProject.setGuid( ProjectProperty.guid.getValue( projMatcher ) );
+        vcProject.setSolutionGuid( ProjectProperty.solutionGuid.getValue( projMatcher ) );
         
-        projects.put( project.getGuid(), project );
+        projects.put( vcProject.getGuid(), vcProject );
     }
     
     private void parseProjectPlatformConfig( String line ) 
@@ -283,12 +286,16 @@ class VCSolutionParser extends BaseParser
                 && projectActiveConfigEntry.startsWith( "ActiveCfg" )  
                 && solutionConfigurationPlatform.compareTo( getConfigurationPlatform() ) == 0 ) 
         {
-            VCProject project = projects.get( projectGUID );
+            VCProject vcProject = projects.get( projectGUID );
             String projConfigurationPlatform[] = 
                     projectActiveConfigEntry.split( "=" )[projectConfigurationPlatformId].split( "\\|" );
             
-            project.setConfiguration( projConfigurationPlatform[projectConfigurationEntryId] );
-            project.setPlatform( projConfigurationPlatform[projectPlatformEntryId] );
+            vcProject.setConfiguration( projConfigurationPlatform[projectConfigurationEntryId] );
+            vcProject.setPlatform( projConfigurationPlatform[projectPlatformEntryId] );
+            
+            LOGGER.fine( "\tFound project " + vcProject.getName() + " with platform=" + vcProject.getPlatform() 
+                    + ", configuration=" + vcProject.getConfiguration() );
+            
         }
     }
     
