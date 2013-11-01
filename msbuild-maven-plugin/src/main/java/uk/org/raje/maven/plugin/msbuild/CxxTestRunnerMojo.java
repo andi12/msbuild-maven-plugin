@@ -49,19 +49,13 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
      * The name of the directory created under 'target' where we store CxxTest report files.
      * Use the standard surefire-reports directory as the files are in that format.
      */
-    public static final String REPORT_DIRECTORY = "surefire-reports";
+    public static final String REPORT_DIRECTORY = "test-reports";
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException
     {
         if ( !isCxxTestEnabled( "runner execution", false ) )
         {
-            return;
-        }
-
-        if ( cxxTest.getSkipTests() )
-        {
-            getLog().info( "Tests are skipped." );
             return;
         }
 
@@ -148,13 +142,13 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         }
     }
     
-    private void moveCxxTestReport( String testTargetName, BuildPlatform platform, BuildConfiguration configuration, 
-            File sourceDirectory, File destinationDirectory ) throws MojoExecutionException
+    private void copyCxxTestReport( String testTargetName, BuildPlatform platform, BuildConfiguration configuration, 
+            File sourceDirectory, File destDirectory ) throws MojoExecutionException
     {
-        String reportSuffix = cxxTest.getReportName() + "-" + testTargetName;
-        File reportSource = new File ( sourceDirectory, reportSuffix + ".xml" );
-        File reportDest = new File ( destinationDirectory, reportSuffix + "-" + platform.getName() + "-" 
-                + configuration.getName() + ".xml" );
+        final String reportSuffix = cxxTest.getReportName() + "-" + testTargetName;
+        final String reportName = reportSuffix + "-" + platform.getName() + "-" + configuration.getName();
+        final File reportSource = new File ( sourceDirectory, reportSuffix + ".xml" );
+        final File reportDest = new File ( destDirectory, reportName + ".xml" );
         
         try 
         {
@@ -181,15 +175,10 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         CommandLineRunner cxxTestRunner = createCxxTestRunner( directory, testTargetName );
 
         Boolean testPassed = executeCxxTestRunner( cxxTestRunner );
-        moveCxxTestReport( testTargetName, platform, configuration, cxxTestRunner.getWorkingDirectory(), 
-                getReportDirectory() );
+        copyCxxTestReport( testTargetName, platform, configuration, cxxTestRunner.getWorkingDirectory(),
+                new File( mavenProject.getBuild().getDirectory(), REPORT_DIRECTORY ) );
 
         return testPassed;
-    }
-    
-    private File getReportDirectory()
-    {
-        return new File( mavenProject.getBuild().getDirectory(), REPORT_DIRECTORY );
     }
     
     /**
