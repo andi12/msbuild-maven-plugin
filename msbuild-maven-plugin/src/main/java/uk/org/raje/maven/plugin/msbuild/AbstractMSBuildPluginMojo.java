@@ -242,7 +242,9 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
             sourceFilePatterns.add( "**\\*.h" );
             sourceFilePatterns.add( "**\\*.hpp" );
         }
-        
+
+        //Make sure we use case-insensitive matches as this plugin runs on a Windows platform 
+        directoryScanner.setCaseSensitive( false );
         directoryScanner.setIncludes( sourceFilePatterns.toArray( new String[0] ) );
         directoryScanner.setBasedir( vcProject.getFile().getParentFile() );
         directoryScanner.scan();
