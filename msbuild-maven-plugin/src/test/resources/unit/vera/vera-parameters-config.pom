@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <groupId>uk.org.raje.maven.plugins.unit</groupId>
-    <artifactId>sln-single-platform-single-config</artifactId>
+    <artifactId>vera-parameters-config</artifactId>
     <version>1</version>
     <packaging>msbuild-solution</packaging>
     
@@ -28,20 +28,14 @@
                 <groupId>uk.org.raje.maven.plugins</groupId>
                 <artifactId>msbuild-maven-plugin</artifactId>
                 <configuration>
-                    <projectFile>${basedir}/src/test/resources/unit/cppcheck/hello-world-solution/hello-world.sln</projectFile>
-                    <platforms>
-                        <platform>
-                            <name>Win32</name>
-                            <configurations>
-                                <configuration>
-                                    <name>Debug</name>
-                                </configuration>
-                            </configurations>
-                        </platform>
-                    </platforms>
-                    <cppCheck>
-                        <cppCheckPath>${basedir}/src/test/resources/unit/cppcheck/fake-cppcheck-home/cppcheck.exe</cppCheckPath>
-                    </cppCheck>
+                    <projectFile>${basedir}/src/test/resources/unit/vera/hello-world/hello-world.sln</projectFile>
+                    <vera>
+                        <veraHome>${basedir}/src/test/resources/unit/vera/fake-vera-home</veraHome>
+                        <parameters>
+                            <max-line-length>120</max-line-length>
+                            <max-filename-length>40</max-filename-length>
+                        </parameters>
+                    </vera>
                 </configuration>
             </plugin>
         </plugins>

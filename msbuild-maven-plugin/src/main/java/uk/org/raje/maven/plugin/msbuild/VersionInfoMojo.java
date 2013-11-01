@@ -27,7 +27,6 @@ import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.shared.filtering.MavenFileFilter;
@@ -36,9 +35,7 @@ import org.apache.maven.shared.filtering.MavenFilteringException;
 /**
  * Mojo to place an rc file containing version information generated from Maven into the specified targets.
  */
-@Mojo( name = VersionInfoMojo.MOJO_NAME,
-defaultPhase = LifecyclePhase.GENERATE_RESOURCES )
-@Execute( phase = LifecyclePhase.GENERATE_RESOURCES )
+@Mojo( name = VersionInfoMojo.MOJO_NAME, defaultPhase = LifecyclePhase.GENERATE_RESOURCES )
 public class VersionInfoMojo extends AbstractMSBuildPluginMojo
 {
     /**

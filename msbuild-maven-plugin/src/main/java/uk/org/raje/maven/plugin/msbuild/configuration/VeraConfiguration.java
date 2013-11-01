@@ -17,9 +17,10 @@
 package uk.org.raje.maven.plugin.msbuild.configuration;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.Map;
 
 import org.apache.maven.plugins.annotations.Parameter;
-
 
 /**
  * Configuration holder for Vera++ configuration values.
@@ -50,7 +51,7 @@ public class VeraConfiguration
      * Get the configured value for skip.
      * @return the configured value or false if not configured
      */
-    public final boolean skip()
+    public final boolean getSkip()
     {
         return skip;
     }
@@ -99,6 +100,15 @@ public class VeraConfiguration
     {
         return excludeProjectRegex;
     }
+    
+    /**
+     * Get the regular expression used to determine which Visual C++ projects to exclude from the Vera++ analysis.
+     * @return the configured regular expression, or null otherwise
+     */
+    public final Map<String, String> getParameters()
+    {
+        return parameters;
+    }    
 
     /**
      * Set to true to skip Vera++ code analysis
@@ -144,4 +154,14 @@ public class VeraConfiguration
             readonly = false, 
             required = false )
     private String excludeProjectRegex;
+    
+    /**
+     * Get the values for named parameters used to customise the behaviour of some Vera++ rules (for example, {@code
+     * max-line-length}, {@code max-file-length})
+     * @see {@link https://bitbucket.org/verateam/vera/wiki/Rules}
+     */
+    @Parameter(
+            readonly = false, 
+            required = false )
+    private Map<String, String> parameters = Collections.emptyMap();
 }

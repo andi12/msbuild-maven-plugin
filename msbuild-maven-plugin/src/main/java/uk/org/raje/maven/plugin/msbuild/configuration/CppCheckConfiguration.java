@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.org.raje.maven.plugin.msbuild.configuration;
 
 import java.io.File;
 
 import org.apache.maven.plugins.annotations.Parameter;
 
-
 /**
- * Configuration holder for CppCheck configuration values.
+ * Configuration holder for CppCheck.
  */
 public class CppCheckConfiguration
 {
@@ -46,19 +46,44 @@ public class CppCheckConfiguration
     public static final String SKIP_MESSAGE = "Skipping static code analysis";
    
     /**
-     * Set of known check types
+     * The list of check provided by CppCheck. 
      */
     public enum CppCheckType
     {
-        all,
-        style,
-        performance,
-        protability,
-        information,
         /**
-         * Unused function checking
+         * Enable all checks. 
+         */
+        all,
+        
+        /**
+         * Enable all coding style checks. All messages with the severities 'style', 'performance' and 'portability' are
+         * enabled. 
+         */
+        style,
+        
+        /**
+         * Enable performance messages. 
+         */
+        performance,
+        
+        /**
+         * Enable portability messages.
+         */
+        portability,
+        
+        /**
+         * Enable portability messages.
+         */
+        information,
+        
+        /**
+         * Check for unused functions.
          */
         unusedFunction,
+        
+        /**
+         * Warn if there are missing includes. For detailed information, use '--check-config'.
+         */
         missingInclude
     }
     
@@ -66,7 +91,7 @@ public class CppCheckConfiguration
      * Get the configured value for skip 
      * @return the configured value or false if not configured
      */
-    public final boolean skip()
+    public final boolean getSkip()
     {
         return skip;
     }

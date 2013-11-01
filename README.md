@@ -34,7 +34,7 @@ use our 'exe' packaging.
     <plugin>
         <groupId>uk.org.raje.maven.plugins</groupId>
         <artifactId>msbuild-maven-plugin</artifactId>
-        <version>1.1</version>
+        <version>1.2</version>
         <extensions>true</extensions>
         <configuration>
             <projectFile>hello-world.vcxproj</projectFile>
@@ -54,3 +54,25 @@ use our 'exe' packaging.
         </configuration>
     </plugin>
 ```
+
+
+Changelog
+=========
+
+This section provides a summary of significant changes in each release. For all details see the commitlog.
+
+1.2 (1-Nov-2013)
+
+* Add support for Vera++ code style checker
+* #8: CppCheck outputs results of --check-config to the Maven log
+* #21: CPPCHECK_PATH environment variable can be used to configure the location of CppCheck
+* #21: CXXTEST_HOME environment variable can be used to configure the home path for CxxTest
+* #20: Test report files from CxxTest output to target/test-results instead of target/surefire-reports
+* #18: Support for maven.test.failure.ignore which suppresses a build failure if tests fail.
+* #18: Support for skipTests property which skips test execution.
+
+1.1 (10-Oct-2013)
+
+* #13: Sonar properties files now include links configured in the POM
+* #6: VersionInfoMojo allows input file to be configured
+* #5: VersionInfoMojo allows destination file to be specified

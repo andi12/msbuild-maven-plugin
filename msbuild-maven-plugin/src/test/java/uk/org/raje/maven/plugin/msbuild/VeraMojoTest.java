@@ -18,8 +18,13 @@ package uk.org.raje.maven.plugin.msbuild;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.junit.Test;
 
 /**
@@ -95,37 +100,74 @@ public class VeraMojoTest extends AbstractMSBuildMojoTestCase
     }    
 
     @Test
-    public final void testVeraExecutionParameters() throws Exception 
+    public final void testVeraMinimalConfig()
+            throws Exception
     {
         VeraMojo veraMojo = ( VeraMojo ) lookupConfiguredMojo( VeraMojo.MOJO_NAME, 
                 "/unit/vera/minimal-vera-config.pom" );
         
+        testVeraExecution( veraMojo, Collections.<String, String> emptyMap() );
+    }
+
+    @Test
+    public final void testVeraParametersConfig()
+            throws Exception
+    {
+        Map<String, String> testParameters = new HashMap<String, String>();
+        testParameters.put( "max-line-length", "120" );
+        testParameters.put( "max-filename-length", "40" );
+        
+        VeraMojo veraMojo = ( VeraMojo ) lookupConfiguredMojo( VeraMojo.MOJO_NAME, 
+                "/unit/vera/vera-parameters-config.pom" );
+
+        testVeraExecution( veraMojo, testParameters );
+    }
+
+    
+    private void testVeraExecution( VeraMojo veraMojo, Map<String, String> expectedParameters )
+        throws MojoFailureException, MojoExecutionException
+    {
+        final Map<String, String> parameters = new HashMap<String, String>();
+        final String veraMarker = "Running coding style analysis";
+        
         veraMojo.execute();
+        
         List<String> infoLogMessages = getTaggedLogMessages( outputStream.toString(), LogMessageTag.INFO );
+        assertEquals( veraMarker + " for project hello-world, platform=Win32, configuration=Release", 
+                findFirstLogMessage( infoLogMessages, veraMarker ) );
         
-        assertEquals( "Running coding style analysis for project hello-world, platform=Win32, configuration=Release", 
-                infoLogMessages.remove( 0 ) );
-        
-        File veraToolPath = new File( infoLogMessages.remove( 0 ) );
+        File veraToolPath = new File( getNextLogMessage( infoLogMessages ) );
         File veraHome = veraToolPath.getParentFile().getParentFile(); 
         assertEquals( veraToolPath, new File( veraHome, "bin/vera++.exe" ) );
 
-        assertEquals( "--root", infoLogMessages.remove( 0 ) );
+        assertEquals( "--root", getNextLogMessage( infoLogMessages ) );
         
-        File rootDir = new File( infoLogMessages.remove( 0 ) );
-        assertEquals( rootDir, new File( veraHome, "lib/vera++" ) );
+        File rootDir = new File( getNextLogMessage( infoLogMessages ) );
+        assertEquals( new File( veraHome, "lib/vera++" ), rootDir );
 
-        assertEquals( "--profile", infoLogMessages.remove( 0 ) );
-        assertEquals( "full", infoLogMessages.remove( 0 ) );
+        assertEquals( "--profile", getNextLogMessage( infoLogMessages ) );
+        assertEquals( "full", getNextLogMessage( infoLogMessages ) );
 
-        assertEquals( "--checkstyle-report", infoLogMessages.remove( 0 ) );
-        assertEquals( "-", infoLogMessages.remove( 0 ) );
+        assertEquals( "--checkstyle-report", getNextLogMessage( infoLogMessages ) );
+        assertEquals( "-", getNextLogMessage( infoLogMessages ) );
+        
+        for ( int i = 0; i < expectedParameters.size(); i++ )
+        {
+            String parameterLine = getNextLogMessage( infoLogMessages );
+            assertEquals( "--parameter", parameterLine );
+            
+            String parameter[] = getNextLogMessage( infoLogMessages ).split( "=" );
+            parameters.put( parameter[0], parameter[1] );
+        }
 
-        assertEquals( "--warning", infoLogMessages.remove( 0 ) );
-        assertEquals( "--quiet", infoLogMessages.remove( 0 ) );
+        assertEquals( expectedParameters, parameters );
+        assertEquals( "--warning", getNextLogMessage( infoLogMessages ) );
+        assertEquals( "--quiet", getNextLogMessage( infoLogMessages ) );
 
-        assertEquals( "Coding style analysis complete", infoLogMessages.remove( 0 ) );
-        assertEquals( infoLogMessages.size(), 0 );
+        assertEquals( "hello-world-project\\hello-world.cpp", getNextLogMessage( infoLogMessages ) );
+
+        assertEquals( "Coding style analysis complete", getNextLogMessage( infoLogMessages ) );
+        assertTrue( infoLogMessages.isEmpty() );
     }
     
     private static final String VERA_SKIP_MESSAGE = "Skipping coding style analysis";

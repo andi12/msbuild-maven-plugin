@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -67,7 +68,7 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
     {
         List<Boolean> allChecksPassed = new ArrayList<Boolean>();
         
-        if ( !isVeraEnabled( false ) ) 
+        if ( ! isVeraEnabled( false ) ) 
         {
             return;
         }
@@ -86,7 +87,17 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
                     
                     try 
                     {
-                        allChecksPassed.add( runVera( vcProject ) );
+                        int exitCode = runVera( vcProject );
+                        
+                        if ( exitCode != 0 )
+                        {
+                            getLog().error( "Coding style analysis failed with exit code " + exitCode );
+                            allChecksPassed.add( false );
+                        }
+                        else
+                        {
+                            allChecksPassed.add( true );
+                        }
                     }
                     catch ( MojoExecutionException mee )
                     {
@@ -173,16 +184,17 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         veraRunner.setWorkingDirectory( vcProject.getBaseDirectory() );
         veraRunner.setStandardInputString( getSourcesForStdin( vcProject ) );
         veraRunner.setProfile( vera.getProfile() );
+        veraRunner.setParameters( vera.getParameters() );
         
         return veraRunner;
     }
 
-    private Boolean executeVeraRunner( CommandLineRunner veraRunner ) 
+    private int executeVeraRunner( CommandLineRunner veraRunner ) 
         throws MojoExecutionException
     {
         try
         {
-            return veraRunner.runCommandLine() == 0;
+            return veraRunner.runCommandLine();
         }
         catch ( IOException ioe )
         {
@@ -207,15 +219,16 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         }
     }    
 
-    private Boolean runVera( VCProject vcProject ) throws MojoExecutionException, MojoFailureException
+    private int runVera( VCProject vcProject ) throws MojoExecutionException, MojoFailureException
     {
         File reportFile = getReportFile( vcProject );
         Writer reportWriter = createVeraReportWriter( reportFile );
-        CommandLineRunner veraRunner = createVeraRunner( vcProject, reportWriter );
-        Boolean checksPassed = executeVeraRunner( veraRunner );
+        
+        CommandLineRunner veraRunner = createVeraRunner( vcProject, reportWriter );        
+        int exitCode = executeVeraRunner( veraRunner );
         finaliseReportWriter( reportWriter, reportFile );
         
-        return checksPassed;
+        return exitCode;
     }
     
     private File getReportFile( VCProject vcProject ) 
@@ -245,6 +258,11 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         {
             this.profile = profile;
         }        
+        
+        public void setParameters( Map<String, String> parameters ) 
+        {
+            this.parameters = parameters;
+        }            
 
         @Override
         protected List<String> getCommandLineArguments() 
@@ -262,6 +280,12 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
             commandLineArguments.add( "--checkstyle-report" );
             commandLineArguments.add( "-" );
             
+            for ( String name : parameters.keySet() )
+            {
+                commandLineArguments.add( "--parameter" );
+                commandLineArguments.add( name + "=" + parameters.get( name ) );
+            }
+            
             commandLineArguments.add( "--warning" );
             commandLineArguments.add( "--quiet" );
             
@@ -277,6 +301,7 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         
         private File veraHome;
         private String profile = "full";
+        private Map<String, String> parameters;
     }
     
 }

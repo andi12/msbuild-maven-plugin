@@ -40,7 +40,7 @@
                         </platform>
                     </platforms>
                     <cppCheck>
-                        <cppCheckPath>${basedir}/src/test/resources/unit/cppcheck/fake-cppcheck.cmd</cppCheckPath>
+                        <cppCheckPath>${basedir}/src/test/resources/unit/cppcheck/fake-cppcheck-home/cppcheck.exe</cppCheckPath>
                         <excludeProjectRegex>.*-world.*</excludeProjectRegex>
                     </cppCheck>
                 </configuration>

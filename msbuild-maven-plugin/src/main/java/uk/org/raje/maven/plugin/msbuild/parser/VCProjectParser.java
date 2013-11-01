@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -120,7 +121,7 @@ class VCProjectParser extends BaseParser
         vcProject.setBaseDirectory( getBaseDirectory() );
         vcProject.setOutputDirectory( outputDirectory );
         vcProject.setPreprocessorDefs( preprocessorDefs );
-        vcProject.setIncludeDirectories( includeDirs );
+        vcProject.setIncludeDirectories( includeDirectories );
     }
 
     @Override
@@ -139,6 +140,8 @@ class VCProjectParser extends BaseParser
             throw new ParseException( sae.getMessage(), 0 );
         }
     }
+
+    private static final Logger LOGGER = Logger.getLogger( VCProjectParser.class.getName() );
     
     private static final List<String> PATH_PROPERTY_GROUP = Arrays.asList( "Project", "PropertyGroup" );
     private static final List<String> PATH_OUTDIR = Arrays.asList( "Project", "PropertyGroup", "OutDir" );
@@ -156,7 +159,7 @@ class VCProjectParser extends BaseParser
         public void startElement( String uri, String localName, String qName, Attributes attributes ) 
                 throws SAXException 
         {
-            path.add( qName );
+            xmlPath.add( qName );
             String condition = attributes.getValue( "Condition" );
             
             switch ( elementParserState ) 
@@ -170,9 +173,9 @@ class VCProjectParser extends BaseParser
                 if ( condition == null
                     || ( condition != null && condition.contains( getConfigurationPlatform() ) ) )
                 {
-                    if ( path.equals( PATH_OUTDIR ) ) 
+                    if ( xmlPath.equals( PATH_OUTDIR ) ) 
                     {
-                        charParserState = CharParserState.PARSE_OUTDIR;
+                        charParserState = CharParserState.PARSE_OUTPUT_DIRECTORY;
                     }
                 }
             
@@ -184,12 +187,12 @@ class VCProjectParser extends BaseParser
                 if ( condition == null
                     || ( condition != null && condition.contains( getConfigurationPlatform() ) ) )
                 {
-                    if ( path.equals( PATH_ADDITIONAL_INCDIRS ) ) 
+                    if ( xmlPath.equals( PATH_ADDITIONAL_INCDIRS ) ) 
                     {
-                        charParserState = CharParserState.PARSE_INCLUDE_DIRS;
+                        charParserState = CharParserState.PARSE_INCLUDE_DIRECTORIES;
                     }
                     
-                    if ( path.equals( PATH_PREPROCESSOR_DEFS ) ) 
+                    if ( xmlPath.equals( PATH_PREPROCESSOR_DEFS ) ) 
                     {
                         charParserState = CharParserState.PARSE_PREPROCESSOR_DEFS;
                     }
@@ -215,11 +218,11 @@ class VCProjectParser extends BaseParser
                  */
                 if ( condition == null || condition.contains( getConfigurationPlatform() ) )
                 {
-                    if ( path.equals( PATH_PROPERTY_GROUP ) )
+                    if ( xmlPath.equals( PATH_PROPERTY_GROUP ) )
                     {
                         elementParserState = ElementParserState.PARSE_PROPERTY_GROUP;
                     }
-                    else if ( path.equals( PATH_ITEM_DEFINITION_GROUP ) )
+                    else if ( xmlPath.equals( PATH_ITEM_DEFINITION_GROUP ) )
                     {
                         elementParserState = ElementParserState.PARSE_CONFIGPLATFORM_GROUP;
                     }
@@ -231,17 +234,18 @@ class VCProjectParser extends BaseParser
         public void endElement( String uri, String localName, String qName ) 
                 throws SAXException 
         {
-            if ( path.equals( PATH_PROPERTY_GROUP ) ) 
+            if ( xmlPath.equals( PATH_PROPERTY_GROUP ) ) 
             {
                 elementParserState = ElementParserState.PARSE_IGNORE;
             }
-            if ( path.equals( PATH_ITEM_DEFINITION_GROUP ) ) 
+            
+            if ( xmlPath.equals( PATH_ITEM_DEFINITION_GROUP ) ) 
             {
                 elementParserState = ElementParserState.PARSE_IGNORE;
             }
 
             charParserState = CharParserState.PARSE_IGNORE;
-            path.remove( path.lastIndexOf( qName ) );
+            xmlPath.remove( xmlPath.lastIndexOf( qName ) );
         }
         
         @Override
@@ -253,42 +257,80 @@ class VCProjectParser extends BaseParser
                 return;
             }
 
-            //Keep variable replacement here as splitEntries, later, gets rid of all variables that were not replaced
+            //Replace named environment variables with their corresponding values 
             String entries = replaceEnvVariables( new String( chars, start, length ) );
             
             switch ( charParserState ) 
             {
             
             //The project specifies an output directory, possibly different from the default
-            case PARSE_OUTDIR: 
-                outputDirectory = new File( entries );
-                
-                //If the output directory is not absolute, then it is relative to the project directory. The solution
-                // directory does not come into play here (otherwise the output directory would be an absolute path).
-                if ( ! outputDirectory.isAbsolute() ) 
-                {
-                    outputDirectory = new File( getInputFile().getParentFile(), outputDirectory.getPath() );
-                }
-                
+            case PARSE_OUTPUT_DIRECTORY: 
+                parseOutputDirectory( entries );
                 break;
 
             //The project specifies some additional header locations
-            case PARSE_INCLUDE_DIRS:
-                for ( String directory : splitEntries( entries ) )
-                {
-                    includeDirs.add( new File( directory ) );
-                }
-                
+            case PARSE_INCLUDE_DIRECTORIES:
+                parseIncludeDirectories( entries );
                 break;
                 
             //The project specifies some preprocessor definitions
             case PARSE_PREPROCESSOR_DEFS:
-                preprocessorDefs = splitEntries( entries );
+                parsePreprocessorDefs( entries );
                 break;
                 
             default:
                 throw new SAXException( "Invalid character parser state" );
                 
+            }
+        }
+        
+        private void parseOutputDirectory( String directory )
+        {
+            outputDirectory = new File( directory );
+            
+            //If the output directory is not absolute, then it is relative to the project directory. The solution
+            // directory does not come into play here (otherwise the output directory would be an absolute path).
+            if ( ! outputDirectory.isAbsolute() ) 
+            {
+                outputDirectory = new File( getInputFile().getParentFile(), outputDirectory.getPath() );
+            }
+
+            LOGGER.fine( "Output directory:" );
+            LOGGER.fine( "\t" + outputDirectory );
+        }
+        
+        
+        private void parseIncludeDirectories( String entries )
+        {
+            for ( String directory : splitEntries( entries ) )
+            {
+                includeDirectories.add( new File( directory ) );
+            }
+            
+            if ( includeDirectories.size() > 0 ) 
+            {
+                LOGGER.fine( "Include directories:" );
+                
+                for ( File directory : includeDirectories )
+                {
+                    LOGGER.fine( "\t" + directory );
+                }
+            }
+            
+        }
+        
+        private void parsePreprocessorDefs( String entries )
+        {
+            preprocessorDefs = splitEntries( entries );
+
+            if ( preprocessorDefs.size() > 0 ) 
+            {
+                LOGGER.fine( "Preprocessor definitions:" );
+    
+                for ( String preprocessorDef : preprocessorDefs )
+                {
+                    LOGGER.fine( "\t" + preprocessorDef );
+                }
             }
         }
         
@@ -303,9 +345,15 @@ class VCProjectParser extends BaseParser
             while ( envVariableMatcher.find() )
             {
                 //Extract a matched variable name and check whether it is present in the environment variable map
-                String envVariableValue = envVariables.get( envVariableMatcher.group( 1 ) );
+                String envVariableName = envVariableMatcher.group( 1 );
+                String envVariableValue = envVariables.get( envVariableName );
                 
-                if ( envVariableValue != null )
+                if ( envVariableValue == null )
+                {
+                    LOGGER.warning( "Could not find value for environment variable '" + envVariableName 
+                            + "' - skipping substitution" );
+                }
+                else
                 {
                     //Replace the matched variable name with the corresponding value  
                     envVariableMatcher.appendReplacement( parsedEntires, Matcher.quoteReplacement( envVariableValue ) );
@@ -324,7 +372,9 @@ class VCProjectParser extends BaseParser
             
             for ( String entry : entries.split( ";" ) ) 
             {
-                if ( !entry.startsWith( "%" ) && !entry.startsWith( "$" ) && !entry.trim().isEmpty() ) 
+                //Remove empty entries and entries beginning with % (internal Visual Studio variable, not handled at 
+                // the moment)
+                if ( !entry.startsWith( "%" ) && !entry.trim().isEmpty() ) 
                 {
                     entryList.add( entry.trim() );
                 }
@@ -374,18 +424,18 @@ class VCProjectParser extends BaseParser
     private enum CharParserState 
     {
         PARSE_IGNORE,
-        PARSE_OUTDIR,
-        PARSE_INCLUDE_DIRS,
+        PARSE_OUTPUT_DIRECTORY,
+        PARSE_INCLUDE_DIRECTORIES,
         PARSE_PREPROCESSOR_DEFS
     }    
     
     private SAXParser parser = null; 
-    private List<String> path = new ArrayList<String>(); 
+    private List<String> xmlPath = new ArrayList<String>(); 
     private ElementParserState elementParserState = ElementParserState.PARSE_IGNORE;
     private CharParserState charParserState = CharParserState.PARSE_IGNORE;
-    private List<File> includeDirs = new ArrayList<File>();
+    private List<File> includeDirectories = new ArrayList<File>();
     private List<String> preprocessorDefs = new ArrayList<String>();
+    private Map<String, String> envVariables = new HashMap<String, String>( System.getenv() );
     private File outputDirectory;
     private File solutionFile;
-    private Map<String, String> envVariables = new HashMap<String, String>( System.getenv() );
 }
