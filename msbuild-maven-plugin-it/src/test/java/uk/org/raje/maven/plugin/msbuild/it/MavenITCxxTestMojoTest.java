@@ -81,8 +81,8 @@ public class MavenITCxxTestMojoTest
         verifier.verifyErrorFreeLog();
         assertTrue( "Test runner not generated", outputFile.exists() );
         FileAssert.assertEquals( 
-                createExpected( testDir, new File( testDir, "expected\\cxxtest-runner.cpp" ) ), 
-                new File( testDir, "compute-pi-test\\cxxtest-runner.cpp" ) );
+                createExpected( testDir, new File( testDir, "expected/cxxtest-runner.cpp" ) ), 
+                new File( testDir, "compute-pi-test/cxxtest-runner.cpp" ) );
         verifier.resetStreams();
 
         verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestBuildMojo.MOJO_NAME );
@@ -93,11 +93,11 @@ public class MavenITCxxTestMojoTest
         verifier.verifyErrorFreeLog();
         verifier.resetStreams();
         FileAssert.assertEquals( 
-                new File( testDir, "expected\\cxxtest-report-compute-pi-test-Win32-Debug.xml" ),
-                new File( testDir, "target\\surefire-reports\\cxxtest-report-compute-pi-test-Win32-Debug.xml" ) );
+                new File( testDir, "expected/cxxtest-report-compute-pi-test-Win32-Debug.xml" ),
+                new File( testDir, "target/test-reports/cxxtest-report-compute-pi-test-Win32-Debug.xml" ) );
         FileAssert.assertEquals( 
-                new File( testDir, "expected\\cxxtest-report-compute-pi-test-Win32-Release.xml" ),
-                new File( testDir, "target\\surefire-reports\\cxxtest-report-compute-pi-test-Win32-Release.xml" ) );
+                new File( testDir, "expected/cxxtest-report-compute-pi-test-Win32-Release.xml" ),
+                new File( testDir, "target/test-reports/cxxtest-report-compute-pi-test-Win32-Release.xml" ) );
     }
     
     @Test
@@ -138,8 +138,8 @@ public class MavenITCxxTestMojoTest
         verifier.verifyErrorFreeLog();
         assertTrue( "Test runner not generated", outputFile.exists() );
         FileAssert.assertEquals( 
-                createExpected( testDir, new File( testDir, "expected\\cxxtest-runner.cpp" ) ), 
-                new File( testDir, "compute-pi-test\\cxxtest-runner.cpp" ) );
+                createExpected( testDir, new File( testDir, "expected/cxxtest-runner.cpp" ) ), 
+                new File( testDir, "compute-pi-test/cxxtest-runner.cpp" ) );
         verifier.resetStreams();
 
         verifier.executeGoal( GROUPID + ":" + ARTIFACTID + ":" + CxxTestBuildMojo.MOJO_NAME );
@@ -150,11 +150,11 @@ public class MavenITCxxTestMojoTest
         verifier.verifyErrorFreeLog();
         verifier.resetStreams();        
         FileAssert.assertEquals( 
-                new File( testDir, "expected\\cxxtest-report-compute-pi-test-Win32-Debug.xml" ),
-                new File( testDir, "target\\surefire-reports\\cxxtest-report-compute-pi-test-Win32-Debug.xml" ) );
+                new File( testDir, "expected/cxxtest-report-compute-pi-test-Win32-Debug.xml" ),
+                new File( testDir, "target/test-reports/cxxtest-report-compute-pi-test-Win32-Debug.xml" ) );
         FileAssert.assertEquals( 
-                new File( testDir, "expected\\cxxtest-report-compute-pi-test-Win32-Release.xml" ),
-                new File( testDir, "target\\surefire-reports\\cxxtest-report-compute-pi-test-Win32-Release.xml" ) );
+                new File( testDir, "expected/cxxtest-report-compute-pi-test-Win32-Release.xml" ),
+                new File( testDir, "target/test-reports/cxxtest-report-compute-pi-test-Win32-Release.xml" ) );
     }
 
     private File calculateAndDeleteTestRunnerCpp( String directory ) throws IOException
