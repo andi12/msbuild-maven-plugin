@@ -152,8 +152,13 @@ public final class VCProjectHolder
 
         for ( VCProject vcProject : vcSolutionParser.getVCProjects() ) 
         {
+            LOGGER.info( "Parsing project " + vcProject.getName() + " with platform=" + vcProject.getPlatform() 
+                    + ", configuration=" + vcProject.getConfiguration() );
+
             parseVCProject( vcProject, solutionFile );
         }
+        
+        LOGGER.info( "Project parsing complete" );
         
         return vcSolutionParser.getVCProjects();
     }
@@ -163,7 +168,13 @@ public final class VCProjectHolder
     {
         
         VCProject vcProject = new VCProject( getFilename( projectFile ), projectFile, platform, configuration );
+        
+        LOGGER.info( "Parsing standalone project " + vcProject.getName() + " with platform=" + vcProject.getPlatform() 
+                + ", configuration=" + vcProject.getConfiguration() );
+        
         parseVCProject( vcProject, null );
+
+        LOGGER.info( "Project parsing complete" );
         
         return vcProject;
     }
@@ -185,10 +196,6 @@ public final class VCProjectHolder
     {
         VCProjectParser vcProjectParser;
         File projectFile = vcProject.getFile();
-        String name = vcProject.getName();
-        
-        LOGGER.info( "Parsing project " + name + " with platform=" + vcProject.getPlatform() 
-                + ", configuration=" + vcProject.getConfiguration() );
         
         vcProjectParser = new VCProjectParser( projectFile, solutionFile, vcProject.getPlatform(), 
                 vcProject.getConfiguration() );
@@ -200,8 +207,6 @@ public final class VCProjectHolder
         
         vcProjectParser.parse();
         vcProjectParser.updateVCProject( vcProject );
-        
-        LOGGER.info( "Project parsing complete" );
     }
     
     private File inputFile;

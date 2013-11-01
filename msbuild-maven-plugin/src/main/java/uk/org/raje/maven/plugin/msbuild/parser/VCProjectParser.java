@@ -295,8 +295,8 @@ class VCProjectParser extends BaseParser
                 outputDirectory = new File( getInputFile().getParentFile(), outputDirectory.getPath() );
             }
 
-            LOGGER.fine( "\tOutput directory:" );
-            LOGGER.fine( "\t\t" + outputDirectory );
+            LOGGER.fine( "Output directory:" );
+            LOGGER.fine( "\t" + outputDirectory );
         }
         
         
@@ -309,11 +309,11 @@ class VCProjectParser extends BaseParser
             
             if ( includeDirectories.size() > 0 ) 
             {
-                LOGGER.fine( "\tInclude directories:" );
+                LOGGER.fine( "Include directories:" );
                 
                 for ( File directory : includeDirectories )
                 {
-                    LOGGER.fine( "\t\t" + directory );
+                    LOGGER.fine( "\t" + directory );
                 }
             }
             
@@ -325,11 +325,11 @@ class VCProjectParser extends BaseParser
 
             if ( preprocessorDefs.size() > 0 ) 
             {
-                LOGGER.fine( "\tPreprocessor definitions:" );
+                LOGGER.fine( "Preprocessor definitions:" );
     
                 for ( String preprocessorDef : preprocessorDefs )
                 {
-                    LOGGER.fine( "\t\t" + preprocessorDef );
+                    LOGGER.fine( "\t" + preprocessorDef );
                 }
             }
         }
