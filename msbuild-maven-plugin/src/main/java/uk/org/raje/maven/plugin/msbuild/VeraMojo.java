@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -173,6 +174,7 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         veraRunner.setWorkingDirectory( vcProject.getBaseDirectory() );
         veraRunner.setStandardInputString( getSourcesForStdin( vcProject ) );
         veraRunner.setProfile( vera.getProfile() );
+        veraRunner.setParameters( vera.getParameters() );
         
         return veraRunner;
     }
@@ -245,6 +247,11 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         {
             this.profile = profile;
         }        
+        
+        public void setParameters( Map<String, String> parameters ) 
+        {
+            this.parameters = parameters;
+        }            
 
         @Override
         protected List<String> getCommandLineArguments() 
@@ -262,6 +269,12 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
             commandLineArguments.add( "--checkstyle-report" );
             commandLineArguments.add( "-" );
             
+            for ( String name : parameters.keySet() )
+            {
+                commandLineArguments.add( "--parameter" );
+                commandLineArguments.add( name + "=" + parameters.get( name ) );
+            }
+            
             commandLineArguments.add( "--warning" );
             commandLineArguments.add( "--quiet" );
             
@@ -277,6 +290,7 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         
         private File veraHome;
         private String profile = "full";
+        private Map<String, String> parameters;
     }
     
 }

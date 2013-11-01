@@ -18,8 +18,13 @@ package uk.org.raje.maven.plugin.msbuild;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.junit.Test;
 
 /**
@@ -95,10 +100,34 @@ public class VeraMojoTest extends AbstractMSBuildMojoTestCase
     }    
 
     @Test
-    public final void testVeraExecutionParameters() throws Exception 
+    public final void testVeraMinimalConfig()
+            throws Exception
     {
         VeraMojo veraMojo = ( VeraMojo ) lookupConfiguredMojo( VeraMojo.MOJO_NAME, 
                 "/unit/vera/minimal-vera-config.pom" );
+        
+        testVeraExecution( veraMojo, Collections.<String, String> emptyMap() );
+    }
+
+    @Test
+    public final void testVeraParametersConfig()
+            throws Exception
+    {
+        Map<String, String> testParameters = new HashMap<String, String>();
+        testParameters.put( "max-line-length", "120" );
+        testParameters.put( "max-filename-length", "40" );
+        
+        VeraMojo veraMojo = ( VeraMojo ) lookupConfiguredMojo( VeraMojo.MOJO_NAME, 
+                "/unit/vera/vera-parameters-config.pom" );
+
+        testVeraExecution( veraMojo, testParameters );
+    }
+
+    
+    private void testVeraExecution( VeraMojo veraMojo, Map<String, String> expectedParameters )
+        throws MojoFailureException, MojoExecutionException
+    {
+        Map<String, String> parameters = new HashMap<String, String>();
         
         veraMojo.execute();
         List<String> infoLogMessages = getTaggedLogMessages( outputStream.toString(), LogMessageTag.INFO );
@@ -120,9 +149,21 @@ public class VeraMojoTest extends AbstractMSBuildMojoTestCase
 
         assertEquals( "--checkstyle-report", infoLogMessages.remove( 0 ) );
         assertEquals( "-", infoLogMessages.remove( 0 ) );
+        
+        for ( int i = 0; i < expectedParameters.size(); i++ )
+        {
+            String parameterLine = infoLogMessages.remove( 0 );
+            assertEquals( "--parameter", parameterLine );
+            
+            String parameter[] = infoLogMessages.remove( 0 ).split( "=" );
+            parameters.put( parameter[0], parameter[1] );
+        }
 
+        assertEquals( expectedParameters, parameters );
         assertEquals( "--warning", infoLogMessages.remove( 0 ) );
         assertEquals( "--quiet", infoLogMessages.remove( 0 ) );
+
+        assertEquals( "hello-world-project\\hello-world.cpp", infoLogMessages.remove( 0 ) );
 
         assertEquals( "Coding style analysis complete", infoLogMessages.remove( 0 ) );
         assertEquals( infoLogMessages.size(), 0 );
