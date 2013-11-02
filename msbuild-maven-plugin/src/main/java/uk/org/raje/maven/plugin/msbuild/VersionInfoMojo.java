@@ -68,6 +68,7 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
         
         try
         {
+            boolean usingBuiltInTemplate = false;
             File versionInfoSrc = versionInfo.getTemplate();
             if ( versionInfoSrc != null )
             {
@@ -76,6 +77,7 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
             else
             {
                 getLog().info( "Version info source is the built in template" );
+                usingBuiltInTemplate = true;
                 versionInfoSrc = writeVersionInfoTemplateToTempFile();
             }
             File outputFile = versionInfo.getOutputFile();
@@ -88,8 +90,11 @@ public class VersionInfoMojo extends AbstractMSBuildPluginMojo
             
             fileFiltering.copyFile( versionInfoSrc, outputFile, true, mavenProject, 
                     Collections.<String> emptyList(), true, "UTF-8", null );
-            
-            versionInfoSrc.delete();
+
+            if ( usingBuiltInTemplate )
+            {
+                versionInfoSrc.delete();
+            }
         }
         catch ( MavenFilteringException mfe )
         {

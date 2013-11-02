@@ -133,6 +133,7 @@ public class VersionInfoMojoTest extends AbstractMSBuildMojoTestCase
         
         viMojo.execute();
         
+        assertTrue( "Template file was deleted", viMojo.versionInfo.getTemplate().exists() );
         checkVersionFile( rcFile );
     }
     
