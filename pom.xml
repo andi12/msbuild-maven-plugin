@@ -73,7 +73,7 @@
         
         <!-- Release properties -->
         <autoVersionSubmodules>true</autoVersionSubmodules>
-        <tagNameFormat>msbuild-maven-plugin-${project.version}</tagNameFormat>
+        <tagNameFormat>msbuild-maven-plugin-@{project.version}</tagNameFormat>
     </properties>
 
     <dependencyManagement>
