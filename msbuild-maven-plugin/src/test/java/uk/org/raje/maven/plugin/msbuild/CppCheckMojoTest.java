@@ -22,10 +22,9 @@ import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.logging.Logger;
 import org.junit.Test;
 
-import uk.org.raje.maven.plugin.msbuild.configuration.CppCheckConfiguration;
-
 /**
  * Test CppCheckMojo configuration options.
+ * Note: jUnit annotations are not observed as this class extends an old style test class.
  */
 public class CppCheckMojoTest extends AbstractMSBuildMojoTestCase 
 {
@@ -78,8 +77,9 @@ public class CppCheckMojoTest extends AbstractMSBuildMojoTestCase
 
         cppCheckMojo.execute();
         
-        assertTrue( CppCheckConfiguration.TOOL_NAME + " execution was not skipped", 
-                outputStream.toString().trim().equals( "[INFO] Static code analysis complete" ) );
+        assertFalse( "Unexpected error log", outputStream.toString().contains( "[ERROR]" ) );
+        assertTrue( "Expected '[INFO] Static code analysis complete' not present in log",
+                outputStream.toString().contains( "[INFO] Static code analysis complete" ) );
     }    
 
     private ByteArrayOutputStream outputStream;
