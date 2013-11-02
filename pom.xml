@@ -70,6 +70,10 @@
         <maven-surefire-report-plugin.version>2.14.1</maven-surefire-report-plugin.version>
         <cobertura-maven-plugin.version>2.6</cobertura-maven-plugin.version>
         <maven-pmd-plugin.version>3.0.1</maven-pmd-plugin.version>
+        
+        <!-- Release properties -->
+        <autoVersionSubmodules>true</autoVersionSubmodules>
+        <tagNameFormat>msbuild-maven-plugin-${project.version}</tagNameFormat>
     </properties>
 
     <dependencyManagement>
