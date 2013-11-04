@@ -22,7 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +65,7 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException 
     {
-        List<Boolean> allChecksPassed = new ArrayList<Boolean>();
+        boolean wasExecutionSuccessful = true;
         
         if ( ! isVeraEnabled( false ) ) 
         {
@@ -87,17 +86,7 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
                     
                     try 
                     {
-                        int exitCode = runVera( vcProject );
-                        
-                        if ( exitCode != 0 )
-                        {
-                            getLog().error( "Coding style analysis failed with exit code " + exitCode );
-                            allChecksPassed.add( false );
-                        }
-                        else
-                        {
-                            allChecksPassed.add( true );
-                        }
+                        wasExecutionSuccessful &= runVera( vcProject );
                     }
                     catch ( MojoExecutionException mee )
                     {
@@ -108,7 +97,7 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
             }
         }
         
-        if ( allChecksPassed.contains( false ) )
+        if ( ! wasExecutionSuccessful )
         {
             throw new MojoFailureException( "Coding style analysis failed" );
         }
@@ -189,12 +178,12 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         return veraRunner;
     }
 
-    private int executeVeraRunner( CommandLineRunner veraRunner ) 
+    private boolean executeVeraRunner( CommandLineRunner veraRunner ) 
         throws MojoExecutionException
     {
         try
         {
-            return veraRunner.runCommandLine();
+            return veraRunner.runCommandLine() == 0;
         }
         catch ( IOException ioe )
         {
@@ -219,16 +208,16 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         }
     }    
 
-    private int runVera( VCProject vcProject ) throws MojoExecutionException, MojoFailureException
+    private boolean runVera( VCProject vcProject ) throws MojoExecutionException, MojoFailureException
     {
         File reportFile = getReportFile( vcProject );
         Writer reportWriter = createVeraReportWriter( reportFile );
         
         CommandLineRunner veraRunner = createVeraRunner( vcProject, reportWriter );        
-        int exitCode = executeVeraRunner( veraRunner );
+        boolean wasExecutionSuccessful = executeVeraRunner( veraRunner );
         finaliseReportWriter( reportWriter, reportFile );
         
-        return exitCode;
+        return wasExecutionSuccessful;
     }
     
     private File getReportFile( VCProject vcProject ) 
@@ -248,8 +237,8 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
          */
         public VeraRunner( File veraHome, Writer reportWriter, Log log )
         {
-            super( new StdoutStreamToLog( log ), new WriterStreamConsumer( reportWriter ) );
-            VERA_RUNNER_LOGHANDLER.setLog( log );
+            super( VeraConfiguration.TOOL_NAME, new StdoutStreamToLog( log ), 
+                    new WriterStreamConsumer( reportWriter ) );
 
             this.veraHome = veraHome;
         }
@@ -291,13 +280,6 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
             
             return commandLineArguments;
         }
-
-        /**
-         * This handler capture standard Java logging produced by {@link VeraRunner} and relays it to the Maven logger
-         * provided by the Mojo. It needs to be static to prevent duplicate log output. 
-         * @see {@link LoggingHandler#LoggingHandler(String name)} 
-         */
-        private static final LoggingHandler VERA_RUNNER_LOGHANDLER = new LoggingHandler( VeraRunner.class.getName() );
         
         private File veraHome;
         private String profile = "full";

@@ -196,8 +196,8 @@ public class CxxTestGenMojo extends AbstractMSBuildPluginMojo
     /**
      * Releases of CxxTest previous to 4.3 do not reset the test parser state between consecutive runs (this seems to be
      * a bug). As a consequence, after CxxTest generates the test runner for the first test target, the tests for the  
-     * first target get also included into the other test targets (if there are any), but that should not happen!
-     * In order to prevent this issue, we manually reset the parser state with the three Python statements below. 
+     * first target are also included into the other test targets (if there are any), but that should not happen!
+     * In order to prevent this issue, we manually reset the parser state using the Python statements below. 
      * This has been solved in version 4.3 (see https://github.com/CxxTest/cxxtest/commit/
      * 25cd65fa6db552955fcac4dbb5ed9d6b743dc613#diff-8e2015e71b643c6c0beaeca4ea81ab88)
      */

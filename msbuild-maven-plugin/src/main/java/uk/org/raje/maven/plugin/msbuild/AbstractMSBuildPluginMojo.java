@@ -56,6 +56,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     public final void execute() throws MojoExecutionException, MojoFailureException
     {
         PARSER_LOGGER_HANDLER.setLog( getLog() );
+        CMDLINE_RUNNER_LOGHANDLER.setLog( getLog() );
         
         // Fix up configuration
         // This is done with the following fixes for parameters that we want to be able to pull 
@@ -687,11 +688,21 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     private static final String SOLUTION_EXTENSION = "sln";
 
     /**
-     * This handler capture standard Java logging produced by {@link VCProjectHolder} and relays it to the Maven logger
-     * provided by the Mojo. It needs to be static to prevent duplicate log output. 
+     * This handler capture standard Java logging produced by {@link VCProjectHolder} (and by all classes in the 
+     * same package) and relays it to the Maven logger provided by the Mojo. It needs to be static to prevent duplicate 
+     * log output. 
      * @see {@link LoggingHandler#LoggingHandler(String name)} 
      */
     private static final LoggingHandler PARSER_LOGGER_HANDLER = 
-            new LoggingHandler( VCProjectHolder.class.getPackage().getName(), false );
+            new LoggingHandler( VCProjectHolder.class.getPackage().getName() );
+    
+    /**
+     * This handler capture standard Java logging produced by {@link CommandLineRunner} and relays it to the Maven 
+     * logger provided by the Mojo. It needs to be static to prevent duplicate log output. 
+     * @see {@link LoggingHandler#LoggingHandler(String name)} 
+     */
+    private static final LoggingHandler CMDLINE_RUNNER_LOGHANDLER = 
+            new LoggingHandler( CommandLineRunner.class.getName() );
+    
     
 }

@@ -60,7 +60,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException 
     {
-        List<Boolean> allChecksPassed = new ArrayList<Boolean>();
+        boolean wasExecutionSuccessful = true;
 
         if ( ! isCppCheckEnabled( false ) ) 
         {
@@ -82,17 +82,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
                     
                     try 
                     {
-                        int exitCode = runCppCheck( vcProject );
-                        
-                        if ( exitCode != 0 )
-                        {
-                            getLog().error( "Static code analysis failed with exit code " + exitCode );
-                            allChecksPassed.add( false );
-                        }
-                        else
-                        {
-                            allChecksPassed.add( true );
-                        }
+                        wasExecutionSuccessful &= runCppCheck( vcProject );
                     }
                     catch ( MojoExecutionException mee )
                     {
@@ -103,7 +93,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
             }
         }
         
-        if ( allChecksPassed.contains( false ) )
+        if ( ! wasExecutionSuccessful )
         {
             throw new MojoFailureException( "Static code analysis failed" );
         }
@@ -216,12 +206,12 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         return relativeIncludeDirectories;
     }
 
-    private int executeCppCheckRunner( CommandLineRunner cppCheckRunner ) 
+    private boolean executeCppCheckRunner( CommandLineRunner cppCheckRunner ) 
         throws MojoExecutionException
     {
         try
         {
-            return cppCheckRunner.runCommandLine();
+            return cppCheckRunner.runCommandLine() == 0;
         }
         catch ( IOException ioe )
         {
@@ -246,14 +236,14 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
         }
     }
 
-    private int runCppCheck( VCProject vcProject ) throws MojoExecutionException, MojoFailureException
+    private boolean runCppCheck( VCProject vcProject ) throws MojoExecutionException, MojoFailureException
     {
         File reportFile = getReportFile( vcProject );
         Writer reportWriter = createCppCheckReportWriter( reportFile );
         CppCheckWriterStreamConsumer reportStreamConsumer = new CppCheckWriterStreamConsumer( reportWriter );
 
         CommandLineRunner cppCheckRunner = createCppCheckRunner( vcProject, reportStreamConsumer );
-        int exitCode = executeCppCheckRunner( cppCheckRunner );
+        boolean wasExecutionSuccessful = executeCppCheckRunner( cppCheckRunner );
         finaliseReportWriter ( reportWriter, reportFile );
         
         if ( reportStreamConsumer.isCheckConfigSuggested() )
@@ -265,7 +255,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
             executeCppCheckRunner( cppCheckCheckConfigRunner );
         }
         
-        return exitCode;
+        return wasExecutionSuccessful;
     }
     
     private File getReportFile( VCProject vcProject ) 
@@ -284,9 +274,8 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
          */
         public CppCheckRunner( File cppCheckPath, StreamConsumer reportConsumer, Log log )
         {
-            super( new StdoutStreamToLog( log ), reportConsumer );
+            super( CppCheckConfiguration.TOOL_NAME, new StdoutStreamToLog( log ), reportConsumer );
             this.cppCheckPath = cppCheckPath;
-            CPPCHECK_RUNNER_LOG_HANDLER.setLog( log );
         }
 
         public void setCppCheckType( CppCheckConfiguration.CppCheckType cppCheckType ) 
@@ -348,14 +337,6 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
 
             return commandLineArguments;
         }
-
-        /**
-         * This handler capture standard Java logging produced by {@link CppCheckRunner} and relays it to the Maven 
-         * logger provided by the Mojo. It needs to be static to prevent duplicate log output. 
-         * @see {@link LoggingHandler#LoggingHandler(String name)} 
-         */
-        private static final LoggingHandler CPPCHECK_RUNNER_LOG_HANDLER = 
-                new LoggingHandler( CppCheckRunner.class.getName() );
         
         private File cppCheckPath;
         private CppCheckConfiguration.CppCheckType cppCheckType = CppCheckConfiguration.CppCheckType.all;

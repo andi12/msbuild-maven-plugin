@@ -17,7 +17,7 @@ package uk.org.raje.maven.plugin.msbuild;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -54,6 +54,8 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException
     {
+        boolean wasExecutionSuccessful = true;
+        
         if ( !isCxxTestEnabled( "runner execution", false ) )
         {
             return;
@@ -68,10 +70,7 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
             return;
         }
 
-        CXXTEST_RUNNER_LOG_HANDLER.setLog( getLog() );
-        
         validateCxxTestConfiguration();
-        List<Boolean> allTestPassed = new LinkedList<Boolean>();
 
         for ( String testTarget : cxxTest.getTestTargets() ) 
         {
@@ -82,8 +81,8 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
                     try 
                     {
                         VCProject vcProject = getParsedProject( testTarget, platform, configuration );
-                        allTestPassed.add( executeCxxTestTarget( vcProject.getOutputDirectory(), testTarget, 
-                                platform, configuration ) );
+                        wasExecutionSuccessful &= executeCxxTestTarget( vcProject.getOutputDirectory(), testTarget, 
+                                platform, configuration );
                     }
                     catch ( MojoExecutionException mee )
                     {
@@ -99,7 +98,7 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
             }
         }
         
-        if ( allTestPassed.contains( false ) )
+        if ( ! wasExecutionSuccessful )
         {
             if ( cxxTest.getIgnoreTestFailure() )
             {
@@ -116,28 +115,19 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         }
     }
     
-    /**
-     * This handler capture standard Java logging produced by {@link CxxTestRunner} and relays it to the Maven logger
-     * provided by the Mojo. It needs to be static to prevent duplicate log output. 
-     * @see {@link LoggingHandler#LoggingHandler(String name)} 
-     */
-    private static final LoggingHandler CXXTEST_RUNNER_LOG_HANDLER =
-            new LoggingHandler( CxxTestRunner.class.getName() );
-    
     private static final String TEST_SKIP_EXECUTION_MESSAGE = "Tests are skipped.";
     
     private CommandLineRunner createCxxTestRunner( File directory, String testTargetName )
             throws MojoExecutionException
     {
-        File testTargetExec = new File( directory, testTargetName + ".exe" );
-        
+        final File testTargetExec = new File( directory, testTargetName + ".exe" );
         CxxTestRunner cxxTestRunner = new CxxTestRunner( testTargetExec, getLog() );
         cxxTestRunner.setWorkingDirectory( directory );
 
         return cxxTestRunner;
     }
     
-    private Boolean executeCxxTestRunner( CommandLineRunner cxxTestRunner ) throws MojoExecutionException
+    private boolean executeCxxTestRunner( CommandLineRunner cxxTestRunner ) throws MojoExecutionException
     {
         try
         {
@@ -173,9 +163,8 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         }
     }    
     
-    private Boolean executeCxxTestTarget( 
-            File directory, String testTarget, 
-            BuildPlatform platform, BuildConfiguration configuration ) 
+    private boolean executeCxxTestTarget( File directory, String testTarget, BuildPlatform platform, 
+            BuildConfiguration configuration ) 
             throws MojoExecutionException, MojoFailureException
     {
         getLog().info( "Running " + CxxTestConfiguration.TOOL_NAME.toLowerCase() 
@@ -185,11 +174,11 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
         String testTargetName = new File ( testTarget ).getName();
         CommandLineRunner cxxTestRunner = createCxxTestRunner( directory, testTargetName );
 
-        Boolean testPassed = executeCxxTestRunner( cxxTestRunner );
+        boolean wasExecutionSuccessful = executeCxxTestRunner( cxxTestRunner );
         copyCxxTestReport( testTargetName, platform, configuration, cxxTestRunner.getWorkingDirectory(),
                 new File( mavenProject.getBuild().getDirectory(), REPORT_DIRECTORY ) );
 
-        return testPassed;
+        return wasExecutionSuccessful;
     }
     
     /**
@@ -199,17 +188,14 @@ public class CxxTestRunnerMojo extends AbstractMSBuildMojo
     {
         public CxxTestRunner( File testTargetExec, Log log )
         {
-            super( new StdoutStreamToLog( log ), new StderrStreamToLog( log ) );
+            super( CxxTestConfiguration.TOOL_NAME, new StdoutStreamToLog( log ), new StderrStreamToLog( log ) );
             this.testTargetExec = testTargetExec;
         }
         
         @Override
         protected List<String> getCommandLineArguments() 
         {
-            List<String> commandLineArguments = new LinkedList<String>();
-            commandLineArguments.add( testTargetExec.getAbsolutePath() );
-
-            return commandLineArguments;
+            return Arrays.asList( testTargetExec.getAbsolutePath() );
         }
         
         private File testTargetExec;
