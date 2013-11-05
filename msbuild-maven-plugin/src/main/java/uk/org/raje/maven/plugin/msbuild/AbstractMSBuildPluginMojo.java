@@ -58,6 +58,7 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     {
         super.setLog( log );
         PARSER_LOGGER_HANDLER.setLog( log );
+        CMDLINE_RUNNER_LOGHANDLER.setLog( log );
     }
 
     @Override
@@ -728,11 +729,21 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     private static final String SOLUTION_EXTENSION = "sln";
 
     /**
-     * This handler capture standard Java logging produced by {@link VCProjectHolder} and relays it to the Maven logger
-     * provided by the Mojo. It needs to be static to prevent duplicate log output. 
+     * This handler capture standard Java logging produced by {@link VCProjectHolder} (and by all classes in the 
+     * same package) and relays it to the Maven logger provided by the Mojo. It needs to be static to prevent duplicate 
+     * log output. 
      * @see {@link LoggingHandler#LoggingHandler(String name)} 
      */
     private static final LoggingHandler PARSER_LOGGER_HANDLER = 
-            new LoggingHandler( VCProjectHolder.class.getPackage().getName(), false );
+            new LoggingHandler( VCProjectHolder.class.getPackage().getName() );
+    
+    /**
+     * This handler capture standard Java logging produced by {@link CommandLineRunner} and relays it to the Maven 
+     * logger provided by the Mojo. It needs to be static to prevent duplicate log output. 
+     * @see {@link LoggingHandler#LoggingHandler(String name)} 
+     */
+    private static final LoggingHandler CMDLINE_RUNNER_LOGHANDLER = 
+            new LoggingHandler( CommandLineRunner.class.getName() );
+    
     
 }

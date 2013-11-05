@@ -42,13 +42,15 @@ public abstract class CommandLineRunner
 {
     /**
      * Create a new command-line process runner.
+     * @param processName the name of the process being run (for log messages)
      * @param outputConsumer a consumer for the process' standard output 
      * @param errorConsumer a consumer for the process' standard error 
      * @see uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamToLog
      * @see uk.org.raje.maven.plugin.msbuild.streamconsumers.StderrStreamToLog
      */
-    public CommandLineRunner( StreamConsumer outputConsumer, StreamConsumer errorConsumer )
+    public CommandLineRunner( String processName, StreamConsumer outputConsumer, StreamConsumer errorConsumer )
     {
+        this.processName = processName;
         this.outputConsumer = outputConsumer;
         this.errorConsumer = errorConsumer;
     }
@@ -83,7 +85,15 @@ public abstract class CommandLineRunner
         int exitCode = commandLineProc.waitFor();
         stdoutPumper.waitUntilDone();
         stderrPumper.waitUntilDone();
-        logger.fine( "Command line returned exit code " + exitCode );
+        
+        if ( exitCode == 0 )
+        {
+            LOGGER.fine( processName + " returned zero exit code"  );
+        }
+        else 
+        { 
+            LOGGER.severe( processName + " returned non-zero exit code (" + exitCode + ")" );
+        }
         
         return exitCode; 
     }    
@@ -157,26 +167,27 @@ public abstract class CommandLineRunner
             commandLine.append( arg ).append( " " );
         }
                 
-        logger.fine( "Command line:" );
-        logger.fine( "\t" + commandLine.toString() );
-        logger.fine( "Working directory:" );
-        logger.fine( "\t" + workingDirectory.getAbsolutePath() );
+        LOGGER.fine( processName + " command line:" );
+        LOGGER.fine( "\t" + commandLine.toString() );
+        LOGGER.fine( "Working directory:" );
+        LOGGER.fine( "\t" + workingDirectory.getAbsolutePath() );
         
         if ( environmentVars.size() > 0 )
         {
-            logger.fine( "Environemnt variables:" );
-            logger.fine( "\t" + environmentVars.toString() );
+            LOGGER.fine( "Environemnt variables:" );
+            LOGGER.fine( "\t" + environmentVars.toString() );
         }
 
         if ( standardInputString != null )
         {
-            logger.fine( "Standard input:" );
-            logger.fine( "\t" + standardInputString );
+            LOGGER.fine( "Standard input:" );
+            LOGGER.fine( "\t" + standardInputString );
         }
     }
     
-    private final Logger logger = Logger.getLogger( getClass().getName() );
+    private static final Logger LOGGER = Logger.getLogger( CommandLineRunner.class.getName() );
     
+    private String processName;
     private StreamConsumer outputConsumer;
     private StreamConsumer errorConsumer;
     private File workingDirectory = new File( "." );
