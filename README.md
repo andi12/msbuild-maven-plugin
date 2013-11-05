@@ -34,7 +34,7 @@ use our 'exe' packaging.
     <plugin>
         <groupId>uk.org.raje.maven.plugins</groupId>
         <artifactId>msbuild-maven-plugin</artifactId>
-        <version>1.2</version>
+        <version>1.2.1</version>
         <extensions>true</extensions>
         <configuration>
             <projectFile>hello-world.vcxproj</projectFile>
@@ -60,6 +60,11 @@ Changelog
 =========
 
 This section provides a summary of significant changes in each release. For all details see the commitlog.
+
+1.2.1 (5-Nov-2013)
+
+* Add support for a set of exclude patterns to be specified for CppCheck and Vera
+* Change default Vera profile to 'default' from 'full'
 
 1.2 (1-Nov-2013)
 
