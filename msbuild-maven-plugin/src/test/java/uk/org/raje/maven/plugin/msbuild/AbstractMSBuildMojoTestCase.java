@@ -75,6 +75,8 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
                 mojo.cppCheck.getCppCheckPath() );
         assertEquals( "cppcheck-report", mojo.cppCheck.getReportName() );
         assertEquals( CppCheckConfiguration.CppCheckType.all, mojo.cppCheck.getCppCheckType() );
+        assertEquals( Arrays.asList( new String[] { "nocppcheck.cpp", "foo/foonocppcheck.cpp" } ),
+                mojo.cppCheck.getExcludes() );
         assertEquals( "*Test", mojo.cppCheck.getExcludeProjectRegex() );
 
         // Vera++ settings
@@ -82,6 +84,9 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
         assertEquals( new File( basedir, "/src/test/resources/unit/vera/fake-vera-home" ), mojo.vera.getVeraHome() );
         assertEquals( "vera-report", mojo.vera.getReportName() );
         assertEquals( "full", mojo.vera.getProfile() );
+        assertEquals( Arrays.asList( new String[] { "novera.cpp", "foo/foonovera.cpp" } ),
+                mojo.vera.getExcludes() );
+        assertEquals( "*Test", mojo.cppCheck.getExcludeProjectRegex() );
         
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put( "key1", "value1" );  

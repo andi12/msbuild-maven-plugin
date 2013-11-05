@@ -67,6 +67,10 @@
                         <cppCheckPath>${basedir}/src/test/resources/unit/cppcheck/fake-cppcheck.cmd</cppCheckPath>
                         <reportName>cppcheck-report</reportName>
                         <cppCheckType>all</cppCheckType>
+                        <excludes>
+                            <exclude>nocppcheck.cpp</exclude>
+                            <exclude>foo/foonocppcheck.cpp</exclude>
+                            </excludes>
                         <excludeProjectRegex>*Test</excludeProjectRegex>
                     </cppCheck>
                     <!--  Vera++ -->
@@ -75,6 +79,10 @@
                         <veraHome>${basedir}/src/test/resources/unit/vera/fake-vera-home</veraHome>
                         <reportName>vera-report</reportName>
                         <profile>full</profile>
+                        <excludes>
+                            <exclude>novera.cpp</exclude>
+                            <exclude>foo/foonovera.cpp</exclude>
+                        </excludes>
                         <excludeProjectRegex>*Test</excludeProjectRegex>
                         <parameters>
                             <key1>value1</key1>

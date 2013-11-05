@@ -17,6 +17,8 @@
 package uk.org.raje.maven.plugin.msbuild.configuration;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -133,6 +135,15 @@ public class CppCheckConfiguration
     }
 
     /**
+     * Get the List of pathname patterns to exclude from analysis.
+     * @return the configured List of Strings or an empty List 
+     */
+    public final List<String> getExcludes()
+    {
+        return excludes;
+    }
+
+    /**
      * Get the configured exclusion regex, may be null.
      * @return the configured String or null
      */
@@ -174,6 +185,15 @@ public class CppCheckConfiguration
             required = false )
     private CppCheckType cppCheckType = CppCheckType.all;
     
+    /**
+     * Pathname patterns to exclude from the set of files to analyse.
+     * Paths should be specified relative to the project or solution file.
+     */
+    @Parameter(
+            readonly = false, 
+            required = false )
+    private List<String> excludes = new ArrayList<String>();
+
     @Parameter( 
             readonly = false, 
             required = false )

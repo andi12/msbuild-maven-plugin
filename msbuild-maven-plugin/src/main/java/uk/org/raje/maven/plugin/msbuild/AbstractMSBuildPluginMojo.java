@@ -32,6 +32,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.DirectoryScanner;
@@ -53,10 +54,15 @@ import uk.org.raje.maven.plugin.msbuild.parser.VCProjectHolder;
 public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
 {
     @Override
+    public void setLog( Log log )
+    {
+        super.setLog( log );
+        PARSER_LOGGER_HANDLER.setLog( log );
+    }
+
+    @Override
     public final void execute() throws MojoExecutionException, MojoFailureException
     {
-        PARSER_LOGGER_HANDLER.setLog( getLog() );
-        
         // Fix up configuration
         // This is done with the following fixes for parameters that we want to be able to pull 
         // from -D's, settings.xml or environment variables but are stored in configuration sub-classes.
@@ -226,37 +232,72 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
      * Generate a list of source files in the project directory and sub-directories
      * @param vcProject the parsed project
      * @param includeHeaders set to true to include header files (*.h and *.hpp)
+     * @param excludes a List of pathname patterns to exclude from results
      * @return a list of abstract paths representing each source file
      */
-    protected List<File> getProjectSources( VCProject vcProject, boolean includeHeaders ) 
+    protected List<File> getProjectSources( VCProject vcProject, boolean includeHeaders, List<String> excludes )
+            throws MojoExecutionException
     {
         final DirectoryScanner directoryScanner = new DirectoryScanner();
         List<String> sourceFilePatterns = new ArrayList<String>();
-        List<File> sourceFiles = new ArrayList<File>();
-        
-        sourceFilePatterns.add( "**\\*.c" );
-        sourceFilePatterns.add( "**\\*.cpp" );
+        String relProjectDir = calculateProjectRelativeDirectory( vcProject );
+
+        sourceFilePatterns.add( relProjectDir + "**\\*.c" );
+        sourceFilePatterns.add( relProjectDir + "**\\*.cpp" );
         
         if ( includeHeaders )
         {
-            sourceFilePatterns.add( "**\\*.h" );
-            sourceFilePatterns.add( "**\\*.hpp" );
+            sourceFilePatterns.add( relProjectDir + "**\\*.h" );
+            sourceFilePatterns.add( relProjectDir + "**\\*.hpp" );
         }
 
         //Make sure we use case-insensitive matches as this plugin runs on a Windows platform 
         directoryScanner.setCaseSensitive( false );
         directoryScanner.setIncludes( sourceFilePatterns.toArray( new String[0] ) );
-        directoryScanner.setBasedir( vcProject.getFile().getParentFile() );
+        directoryScanner.setExcludes( excludes.toArray( new String[excludes.size()] ) );
+        directoryScanner.setBasedir( vcProject.getBaseDirectory() );
         directoryScanner.scan();
         
+        List<File> sourceFiles = new ArrayList<File>();
         for ( String fileName : directoryScanner.getIncludedFiles() )
         {
-            sourceFiles.add( new File( vcProject.getFile().getParentFile(), fileName ) );
+            sourceFiles.add( new File( vcProject.getBaseDirectory(), fileName ) );
         }
         
         return sourceFiles;
     }
-    
+
+    /**
+     * Calculate the relative path between the project and it's base directory.
+     * For a project (vcxproj) file this will be an empty string.
+     * For a solution (sln) file this will be the path from the soltuion to the project terminated with a \
+     * @param vcProject the parsed project
+     * @return a String containing the relative path
+     * @throws MojoExecutionException if there is an IOException checking the file system
+     */
+    private String calculateProjectRelativeDirectory( VCProject vcProject ) throws MojoExecutionException
+    {
+        String relProjectDir = "";
+        try
+        {
+            relProjectDir = getRelativeFile( vcProject.getBaseDirectory(), 
+                    vcProject.getFile().getParentFile() ).getPath();
+            if ( ".".equals( relProjectDir ) )
+            {
+                relProjectDir = "";
+            }
+            else
+            {
+                relProjectDir += "\\";
+            }
+        }
+        catch ( IOException ioe )
+        {
+            throw new MojoExecutionException( ioe.getMessage(), ioe );
+        }
+        return relProjectDir;
+    }
+
     /**
      * Return project configurations for the specified platform and configuration.
      * @param platform the platform to parse for

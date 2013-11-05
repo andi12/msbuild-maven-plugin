@@ -144,7 +144,7 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
     {
         StringBuilder stringBuilder = new StringBuilder();
         
-        for ( File sourceFile : getProjectSources( vcProject, true ) )
+        for ( File sourceFile : getProjectSources( vcProject, true, vera.getExcludes() ) )
         {
             try 
             {

@@ -146,7 +146,7 @@ public class VeraMojoTest extends AbstractMSBuildMojoTestCase
         assertEquals( new File( veraHome, "lib/vera++" ), rootDir );
 
         assertEquals( "--profile", getNextLogMessage( infoLogMessages ) );
-        assertEquals( "full", getNextLogMessage( infoLogMessages ) );
+        assertEquals( "default", getNextLogMessage( infoLogMessages ) );
 
         assertEquals( "--checkstyle-report", getNextLogMessage( infoLogMessages ) );
         assertEquals( "-", getNextLogMessage( infoLogMessages ) );

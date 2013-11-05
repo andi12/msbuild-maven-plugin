@@ -17,7 +17,9 @@
 package uk.org.raje.maven.plugin.msbuild.configuration;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.plugins.annotations.Parameter;
@@ -93,6 +95,15 @@ public class VeraConfiguration
     }
 
     /**
+     * Get the List of pathname patterns to exclude from analysis.
+     * @return the configured List of Strings or an empty List 
+     */
+    public final List<String> getExcludes()
+    {
+        return excludes;
+    }
+
+    /**
      * Get the regular expression used to determine which Visual C++ projects to exclude from the Vera++ analysis.
      * @return the configured regular expression, or null otherwise
      */
@@ -142,11 +153,20 @@ public class VeraConfiguration
      * The Vera++ check profile (that is, the rules used to analyse the coding style)
      */
     @Parameter( 
-            defaultValue = "full",
+            defaultValue = "default",
             readonly = false, 
             required = false )
-    private String profile = "full";
-    
+    private String profile = "default";
+
+    /**
+     * Pathname patterns to exclude from the set of files to analyse.
+     * Paths should be specified relative to the project or solution file.
+     */
+    @Parameter(
+            readonly = false, 
+            required = false )
+    private List<String> excludes = new ArrayList<String>();
+
     /**
      * The regular expression used to determine which Visual C++ projects to exclude from the Vera++ analysis
      */

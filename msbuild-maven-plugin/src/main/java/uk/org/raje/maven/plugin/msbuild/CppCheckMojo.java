@@ -138,7 +138,7 @@ public class CppCheckMojo extends AbstractMSBuildPluginMojo
     {
         StringBuilder stringBuilder = new StringBuilder();
         
-        for ( File sourceFile : getProjectSources( vcProject, false ) )
+        for ( File sourceFile : getProjectSources( vcProject, false, cppCheck.getExcludes() ) )
         {
             try 
             {
