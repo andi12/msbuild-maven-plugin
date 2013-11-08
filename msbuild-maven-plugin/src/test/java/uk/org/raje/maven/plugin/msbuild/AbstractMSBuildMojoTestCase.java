@@ -95,6 +95,8 @@ public abstract class AbstractMSBuildMojoTestCase extends AbstractMojoTestCase
 
         // CxxTest settings
         assertEquals( false, mojo.cxxTest.getSkip() );
+        assertEquals( false, mojo.cxxTest.getSkipTests() );
+        assertEquals( false, mojo.cxxTest.getIgnoreTestFailure() );
         assertEquals( new File( basedir, "/src/test/resources/unit/cxxtest/fake-cxxtest-home" ),
                 mojo.cxxTest.getCxxTestHome() );
         assertEquals( Arrays.asList( new String( "TestTarget1" ) ), mojo.cxxTest.getTestTargets() );

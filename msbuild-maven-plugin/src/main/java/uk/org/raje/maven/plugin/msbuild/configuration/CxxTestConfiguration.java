@@ -87,7 +87,7 @@ public class CxxTestConfiguration
      */
     public final boolean getIgnoreTestFailure()
     {
-        return ignoreTestFailure;
+        return testFailureIgnore;
     }
 
     /**
@@ -96,7 +96,7 @@ public class CxxTestConfiguration
      */
     public final void setIgnoreTestFailure( boolean ignoreFailure )
     {
-        ignoreTestFailure = ignoreFailure;
+        testFailureIgnore = ignoreFailure;
     }
 
     /**
@@ -190,7 +190,7 @@ public class CxxTestConfiguration
             property = IGNORE_FAILURE_PROPERTY,
             defaultValue = "false", 
             readonly = false )
-    protected boolean ignoreTestFailure = false; 
+    protected boolean testFailureIgnore = false; 
 
     /**
      * The home directory for CxxTest

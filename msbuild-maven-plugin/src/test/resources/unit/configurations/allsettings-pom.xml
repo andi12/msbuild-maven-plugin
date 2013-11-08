@@ -92,6 +92,8 @@
                     <!-- Cxxtest -->
                     <cxxTest>
                         <skip>false</skip>
+                        <skipTests>false</skipTests>
+                        <testFailureIgnore>false</testFailureIgnore>
                         <cxxTestHome>${basedir}/src/test/resources/unit/cxxtest/fake-cxxtest-home</cxxTestHome>
                         <testTargets>
                             <target>TestTarget1</target>
