@@ -24,12 +24,12 @@ public class MSBuildPackaging
      * Visual Studio Solution
      */
     public static final String MSBUILD_SOLUTION = "msbuild-solution";
-	
-	/**
-	 * Visual Studio Project
-	 */
-	public static final String MSBUILD_PROJECT = "msbuild-project";
-	
+
+    /**
+     * Visual Studio Project
+     */
+    public static final String MSBUILD_PROJECT = "msbuild-project";
+
     /**
      * Windows static library
      */
@@ -58,13 +58,13 @@ public class MSBuildPackaging
     public static boolean isValid( String packaging )
     {
         return MSBUILD_SOLUTION.equals( packaging ) 
-				|| MSBUILD_PROJECT.equals( packaging )
+                || MSBUILD_PROJECT.equals( packaging )
                 || EXE.equals( packaging ) 
                 || DLL.equals( packaging ) 
                 || LIB.equals( packaging );
     }
 
-	/**
+    /**
      * Test whether a packing is for a solution.
      * @param packaging string to test
      * @return true if the packing is {@link #MSBUILD_PROJECT}, false otherwise.
@@ -73,7 +73,7 @@ public class MSBuildPackaging
     {
         return MSBUILD_PROJECT.equals( packaging );
     }
-	
+
     /**
      * Test whether a packing is for a solution.
      * @param packaging string to test
@@ -92,7 +92,7 @@ public class MSBuildPackaging
     {
         return new StringBuilder()
             .append( MSBUILD_SOLUTION ).append( ", " )
-			.append( MSBUILD_PROJECT ).append( ", " )
+            .append( MSBUILD_PROJECT ).append( ", " )
             .append( EXE ).append( ", " )
             .append( DLL ).append( ", " )
             .append( LIB ).toString();

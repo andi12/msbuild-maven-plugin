@@ -70,7 +70,7 @@ public class MSBuildMojoConfigurationTest extends AbstractMSBuildMojoTestCase
         catch ( MojoExecutionException mee )
         {
             assertEquals( "Please set packaging to one of "
-                    + "msbuild-solution, exe, dll, lib", mee.getMessage() );
+                    + "msbuild-solution, msbuild-project, exe, dll, lib", mee.getMessage() );
         }
     }
 
