@@ -77,6 +77,67 @@
                 <language>native</language>
             </configuration>
         </component>
+		<!-- ********************************************************************** -->
+        <!-- Configure msbuild-project packaging -->
+        <!-- ********************************************************************** -->
+        <component>
+            <role>org.apache.maven.lifecycle.mapping.LifecycleMapping
+            </role>
+            <role-hint>msbuild-project</role-hint>
+            <implementation>
+                org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
+            </implementation>
+            <configuration>
+                <phases>
+                    <clean>
+                        org.apache.maven.plugins:maven-clean-plugin:clean,uk.org.raje.maven.plugins:msbuild-maven-plugin:clean
+                    </clean>
+                    <generate-resources>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:version-info
+                    </generate-resources>
+                    <compile>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:build
+                    </compile>
+                    <generate-test-sources>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:cxxtestgen
+                    </generate-test-sources>
+                    <test-compile>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:testbuild
+                    </test-compile>
+                    <test>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:test
+                    </test>
+                    <verify>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:cppcheck,uk.org.raje.maven.plugins:msbuild-maven-plugin:vera,uk.org.raje.maven.plugins:msbuild-maven-plugin:sonar
+                    </verify>
+                    <package>
+                        uk.org.raje.maven.plugins:msbuild-maven-plugin:project-package
+                    </package>
+                    <install>
+                        org.apache.maven.plugins:maven-install-plugin:install
+                    </install>
+                    <deploy>
+                        org.apache.maven.plugins:maven-deploy-plugin:deploy
+                    </deploy>
+                </phases>
+            </configuration>
+        </component>
+        <component>
+            <role>org.apache.maven.artifact.handler.ArtifactHandler
+            </role>
+            <role-hint>msbuild-project</role-hint>
+            <implementation>
+                org.apache.maven.artifact.handler.DefaultArtifactHandler
+            </implementation>
+            <configuration>
+                <packaging>msbuild-project</packaging>
+                <!--the extension used by Maven in the repository -->
+                <extension>zip</extension>
+                <!--the type used when specifying dependencies etc. -->
+                <type>msbuild-project</type>
+                <language>native</language>
+            </configuration>
+        </component>
         <!-- ********************************************************************** -->
         <!-- Configure exe packaging -->
         <!-- ********************************************************************** -->
