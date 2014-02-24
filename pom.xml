@@ -19,7 +19,7 @@
 
     <groupId>Agilent.BuildPlugins</groupId>
     <artifactId>msbuild-maven-plugin-parent</artifactId>
-    <version>1.2.6</version>
+    <version>1.2.7-SNAPSHOT</version>
     <packaging>pom</packaging>
 
 	<distributionManagement>
@@ -32,7 +32,7 @@
     <scm>
         <connection>scm:git:http://wadla02.germany.agilent.com/Spacefish/maven-msbuild-plugin.git</connection>
         <developerConnection>scm:git:http://wadla02.germany.agilent.com/Spacefish/maven-msbuild-plugin.git</developerConnection>
-      <tag>msbuild-maven-plugin-parent-1.2.6</tag>
+      <tag>HEAD</tag>
 	</scm>
 
     <developers>
