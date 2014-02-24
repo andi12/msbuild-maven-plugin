@@ -24,22 +24,16 @@
 
 	<distributionManagement>
 		<repository>
-			<id>internal.releases</id>
-			<name>Releases</name>
-			<url>${repository.releases}</url>
+			<id>agilent-plugins</id>
+			<url>http://wadla02.germany.agilent.com:8081/nexus/content/repositories/agilent-plugins</url>
 		</repository>
-		<snapshotRepository>
-            <id>internal.snapshots</id>
-            <name>Snapshots</name>
-            <url>${repository.snapshots}</url>
-        </snapshotRepository>
 	</distributionManagement>
 	
     <scm>
         <connection>scm:git:http://wadla02.germany.agilent.com/Spacefish/maven-msbuild-plugin.git</connection>
         <developerConnection>scm:git:http://wadla02.germany.agilent.com/Spacefish/maven-msbuild-plugin.git</developerConnection>
       <tag>HEAD</tag>
-  </scm>
+	</scm>
 
     <developers>
         <developer>
