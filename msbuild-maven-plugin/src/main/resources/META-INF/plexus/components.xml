@@ -29,28 +29,28 @@
             <configuration>
                 <phases>
                     <clean>
-                        org.apache.maven.plugins:maven-clean-plugin:clean,uk.org.raje.maven.plugins:msbuild-maven-plugin:clean
+                        org.apache.maven.plugins:maven-clean-plugin:clean,Agilent.BuildPlugins:msbuild-maven-plugin:clean
                     </clean>
                     <generate-resources>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:version-info
+                        Agilent.BuildPlugins:msbuild-maven-plugin:version-info
                     </generate-resources>
                     <compile>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:build
+                        Agilent.BuildPlugins.plugins:msbuild-maven-plugin:build
                     </compile>
                     <generate-test-sources>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:cxxtestgen
+                       Agilent.BuildPlugins:msbuild-maven-plugin:cxxtestgen
                     </generate-test-sources>
                     <test-compile>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:testbuild
+                        Agilent.BuildPlugins:msbuild-maven-plugin:testbuild
                     </test-compile>
                     <test>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:test
+                        Agilent.BuildPlugins:msbuild-maven-plugin:test
                     </test>
                     <verify>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:cppcheck,uk.org.raje.maven.plugins:msbuild-maven-plugin:vera,uk.org.raje.maven.plugins:msbuild-maven-plugin:sonar
+                        Agilent.BuildPlugins:msbuild-maven-plugin:cppcheck,Agilent.BuildPlugins:msbuild-maven-plugin:vera,Agilent.BuildPlugins:msbuild-maven-plugin:sonar
                     </verify>
                     <package>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:solution-package
+                        Agilent.BuildPlugins:msbuild-maven-plugin:solution-package
                     </package>
                     <install>
                         org.apache.maven.plugins:maven-install-plugin:install
@@ -151,25 +151,25 @@
             <configuration>
                 <phases>
                     <clean>
-                        org.apache.maven.plugins:maven-clean-plugin:clean,uk.org.raje.maven.plugins:msbuild-maven-plugin:clean
+                        org.apache.maven.plugins:maven-clean-plugin:clean,Agilent.BuildPlugins:msbuild-maven-plugin:clean
                     </clean>
                     <generate-resources>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:version-info
+                        Agilent.BuildPlugins:msbuild-maven-plugin:version-info
                     </generate-resources>
                     <compile>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:build
+                        Agilent.BuildPlugins:msbuild-maven-plugin:build
                     </compile>
                     <generate-test-sources>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:cxxtestgen
+                        Agilent.BuildPlugins:msbuild-maven-plugin:cxxtestgen
                     </generate-test-sources>
                     <test-compile>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:testbuild
+                        Agilent.BuildPlugins:msbuild-maven-plugin:testbuild
                     </test-compile>
                     <test>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:test
+                        Agilent.BuildPlugins:msbuild-maven-plugin:test
                     </test>
                     <verify>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:cppcheck,uk.org.raje.maven.plugins:msbuild-maven-plugin:vera,uk.org.raje.maven.plugins:msbuild-maven-plugin:sonar
+                        Agilent.BuildPlugins:msbuild-maven-plugin:cppcheck,Agilent.BuildPlugins:msbuild-maven-plugin:vera,Agilent.BuildPlugins:msbuild-maven-plugin:sonar
                     </verify>
                     <install>
                         org.apache.maven.plugins:maven-install-plugin:install
@@ -207,22 +207,22 @@
             <configuration>
                 <phases>
                     <clean>
-                        org.apache.maven.plugins:maven-clean-plugin:clean,uk.org.raje.maven.plugins:msbuild-maven-plugin:clean
+                        org.apache.maven.plugins:maven-clean-plugin:clean,Agilent.BuildPlugins:msbuild-maven-plugin:clean
                     </clean>
                     <compile>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:build
+                        Agilent.BuildPlugins:msbuild-maven-plugin:build
                     </compile>
                     <generate-test-sources>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:cxxtestgen
+                        Agilent.BuildPlugins:msbuild-maven-plugin:cxxtestgen
                     </generate-test-sources>
                     <test-compile>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:testbuild
+                        Agilent.BuildPlugins:msbuild-maven-plugin:testbuild
                     </test-compile>
                     <test>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:test
+                        Agilent.BuildPlugins:msbuild-maven-plugin:test
                     </test>
                     <verify>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:cppcheck,uk.org.raje.maven.plugins:msbuild-maven-plugin:vera,uk.org.raje.maven.plugins:msbuild-maven-plugin:sonar
+                        Agilent.BuildPlugins:msbuild-maven-plugin:cppcheck,Agilent.BuildPlugins:msbuild-maven-plugin:vera,Agilent.BuildPlugins:msbuild-maven-plugin:sonar
                     </verify>
                     <install>
                         org.apache.maven.plugins:maven-install-plugin:install
@@ -260,25 +260,25 @@
             <configuration>
                 <phases>
                     <clean>
-                        org.apache.maven.plugins:maven-clean-plugin:clean,uk.org.raje.maven.plugins:msbuild-maven-plugin:clean
+                        org.apache.maven.plugins:maven-clean-plugin:clean,Agilent.BuildPlugins:msbuild-maven-plugin:clean
                     </clean>
                     <generate-resources>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:version-info
+                        Agilent.BuildPlugins:msbuild-maven-plugin:version-info
                     </generate-resources>
                     <compile>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:build
+                        Agilent.BuildPlugins:msbuild-maven-plugin:build
                     </compile>
                     <generate-test-sources>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:cxxtestgen
+                        Agilent.BuildPlugins:msbuild-maven-plugin:cxxtestgen
                     </generate-test-sources>
                     <test-compile>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:testbuild
+                        Agilent.BuildPlugins:msbuild-maven-plugin:testbuild
                     </test-compile>
                     <test>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:test
+                        Agilent.BuildPlugins:msbuild-maven-plugin:test
                     </test>
                     <verify>
-                        uk.org.raje.maven.plugins:msbuild-maven-plugin:cppcheck,uk.org.raje.maven.plugins:msbuild-maven-plugin:vera,uk.org.raje.maven.plugins:msbuild-maven-plugin:sonar
+                        Agilent.BuildPlugins:msbuild-maven-plugin:cppcheck,Agilent.BuildPlugins:msbuild-maven-plugin:vera,Agilent.BuildPlugins:msbuild-maven-plugin:sonar
                     </verify>
                     <install>
                         org.apache.maven.plugins:maven-install-plugin:install
