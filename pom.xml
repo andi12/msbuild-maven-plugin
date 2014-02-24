@@ -17,19 +17,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>uk.org.raje.maven.plugins</groupId>
+    <groupId>Agilent.BuildPlugins</groupId>
     <artifactId>msbuild-maven-plugin-parent</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
+    <version>1.2.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-   <parent>
-      <groupId>org.sonatype.oss</groupId>
-      <artifactId>oss-parent</artifactId>
-      <version>7</version>
-   </parent>
-
+	<distributionManagement>
+		<repository>
+			<id>internal.releases</id>
+			<name>Releases</name>
+			<url>${repository.releases}</url>
+		</repository>
+		<snapshotRepository>
+            <id>internal.snapshots</id>
+            <name>Snapshots</name>
+            <url>${repository.snapshots}</url>
+        </snapshotRepository>
+	</distributionManagement>
+	
     <scm>
-        <url>https://github.com/andi12/msbuild-maven-plugin/tree/master</url>
         <connection>scm:git:git://github.com/andi12/msbuild-maven-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/andi12/msbuild-maven-plugin.git</developerConnection>
     </scm>
@@ -46,11 +52,16 @@
             <name>Daniele Masato</name>
             <email>masato.daniele@gmail.com</email>
         </developer>
+		
+		<developer>
+            <id>timwitte</id>
+            <name>Timo Witte</name>
+            <email>timo_witte@agilent.com</email>
+        </developer>
     </developers>
 
     <modules>
         <module>msbuild-maven-plugin</module>
-        <module>msbuild-maven-plugin-it</module>
     </modules>
 
     <properties>
@@ -114,11 +125,6 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>${maven-checkstyle-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>${maven-deploy-plugin.version}</version>
                 </plugin>
@@ -136,5 +142,4 @@
             </plugins>
         </pluginManagement>
     </build>
-
 </project>
