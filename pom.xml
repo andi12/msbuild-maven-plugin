@@ -36,8 +36,8 @@
 	</distributionManagement>
 	
     <scm>
-        <connection>scm:git:git://github.com/andi12/msbuild-maven-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/andi12/msbuild-maven-plugin.git</developerConnection>
+        <connection>scm:git:http://wadla02.germany.agilent.com/Spacefish/maven-msbuild-plugin.git</connection>
+        <developerConnection>scm:git:http://wadla02.germany.agilent.com/Spacefish/maven-msbuild-plugin.git</developerConnection>
     </scm>
 
     <developers>
