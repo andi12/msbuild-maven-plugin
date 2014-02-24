@@ -32,11 +32,12 @@ import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamToLog;
 final class MSBuildExecutor
 {
 
-    public MSBuildExecutor( Log log, File msbuild, int maxCpuCount, File projectFile )
+    public MSBuildExecutor( Log log, File msbuild, int maxCpuCount, String referencePath, File projectFile )
     {
         this.log = log;
         this.msbuild = msbuild;
         this.maxCpuCount = maxCpuCount;
+        this.referencePath = referencePath;
         this.projectFile = projectFile;
     }
 
@@ -94,6 +95,10 @@ final class MSBuildExecutor
         else
         {
             command.add( "/maxcpucount:" + maxCpuCount );
+        }
+        if ( referencePath != null )
+        {
+            command.add( "/p:ReferencePath=" + referencePath );
         }
         if ( configuration != null )
         {
@@ -153,6 +158,7 @@ final class MSBuildExecutor
 
     private File msbuild;
     private int maxCpuCount;
+    private String referencePath;
     private File projectFile;
     private List<String> buildTargets;
     private List<BuildPlatform> buildPlatforms;

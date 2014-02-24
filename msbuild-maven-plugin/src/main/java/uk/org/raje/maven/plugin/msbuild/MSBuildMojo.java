@@ -82,6 +82,11 @@ public class MSBuildMojo extends AbstractMSBuildMojo
             getLog().debug( "Not attaching any artifacts yet. "
                     + "Solution artifact bundle will be created in package phase." );
         }
+        else if ( MSBuildPackaging.isProject( mavenProject.getPackaging() ) )
+        {
+            getLog().debug( "Not attaching any artifacts yet. "
+                    + "Project artifact bundle will be created in package phase." );
+        }
         else
         {
             getLog().info( "Attaching built artifacts" );

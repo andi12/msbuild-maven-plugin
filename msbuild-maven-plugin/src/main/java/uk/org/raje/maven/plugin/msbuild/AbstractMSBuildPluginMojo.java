@@ -683,6 +683,14 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     protected int msbuildMaxCpuCount = -1;
 
     /**
+     * The value for 'ReferencePath' to pass to MSBuild.
+     */
+    @Parameter(
+            readonly = false,
+            required = false )
+    protected String msbuildReferencePath;
+
+    /**
      * The system includes to use.
      * A semi-colon separated list of paths.
      * Currently only used to generate Sonar configuration.
