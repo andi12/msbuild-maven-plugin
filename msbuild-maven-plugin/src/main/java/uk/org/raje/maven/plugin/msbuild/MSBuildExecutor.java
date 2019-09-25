@@ -91,7 +91,7 @@ final class MSBuildExecutor
         {
             command.add( "/maxcpucount" );
         }
-        else
+        else if ( maxCpuCount > 0 )
         {
             command.add( "/maxcpucount:" + maxCpuCount );
         }
