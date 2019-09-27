@@ -33,7 +33,7 @@ import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.checkProje
  * Integration test that runs the hello-world-lib-test
  *
  */
-public class MavenITHelloWorldLibTest 
+public class MavenITHelloWorldLibTest
 {
 
     @Test
@@ -46,18 +46,18 @@ public class MavenITHelloWorldLibTest
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );
-        
+
         // Delete any existing artifact from the local repository
         verifier.deleteArtifacts( GROUPID, SOLUTION_ARTIFACTID, VERSION );
 
         verifier.executeGoal( "install" );
         verifier.verifyErrorFreeLog();
-        assertDirectoryContents( releaseDir, 1, Arrays.asList( 
+        assertDirectoryContents( releaseDir, 1, Arrays.asList(
                 new String[]{"hello-world-lib.lib"} ) );
-        assertDirectoryContents( debugDir, 1, Arrays.asList( 
-                new String[]{"hello-world-lib.lib"} ) );
-        
-        File artifactsDir = new File( 
+        assertDirectoryContents( debugDir, 2, Arrays.asList(
+                new String[]{"hello-world-lib.lib", "hello-world-lib.pdb"} ) );
+
+        File artifactsDir = new File(
                 verifier.getArtifactMetadataPath( GROUPID, SOLUTION_ARTIFACTID, VERSION ) ).getParentFile();
         assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
                 SOLUTION_ARTIFACTID + "-" + VERSION + ".pom",
@@ -65,7 +65,7 @@ public class MavenITHelloWorldLibTest
                 SOLUTION_ARTIFACTID + "-" + VERSION + "-Win32-Debug.zip"} ) );
 
         verifier.resetStreams();
-        
+
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();
         assertEquals( 0, releaseDir.list().length );
@@ -82,7 +82,7 @@ public class MavenITHelloWorldLibTest
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );
-        
+
         // Delete any existing artifact from the local repository
         verifier.deleteArtifacts( GROUPID, PROJECT_ARTIFACTID, VERSION );
 
@@ -91,12 +91,12 @@ public class MavenITHelloWorldLibTest
 
         // We don't check all the files, just the most important ones
         // Different versions/installs of Visual Studio generate different file sets anyway!
-        assertDirectoryContents( releaseDir, -1, Arrays.asList( 
+        assertDirectoryContents( releaseDir, -1, Arrays.asList(
                 new String[]{"hello-world.obj", "hello-world-lib.lib"} ) );
-        assertDirectoryContents( debugDir, -1, Arrays.asList( 
+        assertDirectoryContents( debugDir, -1, Arrays.asList(
                 new String[]{"hello-world.obj", "hello-world-lib.lib"} ) );
-        
-        File artifactsDir = new File( 
+
+        File artifactsDir = new File(
                 verifier.getArtifactMetadataPath( GROUPID, PROJECT_ARTIFACTID, VERSION ) ).getParentFile();
         assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
                 PROJECT_ARTIFACTID + "-" + VERSION + ".pom",
@@ -105,7 +105,7 @@ public class MavenITHelloWorldLibTest
 
 
         verifier.resetStreams();
-        
+
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();
         checkProjectBuildOutputIsCleaned( "hello-world-lib", releaseDir );

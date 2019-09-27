@@ -33,7 +33,7 @@ import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.checkProje
  * Integration test that runs the hello-world-dll-test
  *
  */
-public class MavenITHelloWorldDllTest 
+public class MavenITHelloWorldDllTest
 {
 
     @Test
@@ -46,18 +46,19 @@ public class MavenITHelloWorldDllTest
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );
-        
+
         // Delete any existing artifact from the local repository
         verifier.deleteArtifacts( GROUPID, SOLUTION_ARTIFACTID, VERSION );
 
         verifier.executeGoal( "install" );
         verifier.verifyErrorFreeLog();
-        assertDirectoryContents( releaseDir, 2, Arrays.asList( 
-                new String[]{"hello-world-dll.dll", "hello-world-dll.pdb"} ) );
-        assertDirectoryContents( debugDir, 3, Arrays.asList( 
+        assertDirectoryContents( releaseDir, 4, Arrays.asList(
+                new String[]{"hello-world-dll.dll", "hello-world-dll.iobj",
+                             "hello-world-dll.ipdb", "hello-world-dll.pdb"} ) );
+        assertDirectoryContents( debugDir, 3, Arrays.asList(
                 new String[]{"hello-world-dll.dll", "hello-world-dll.ilk", "hello-world-dll.pdb"} ) );
 
-        File artifactsDir = new File( 
+        File artifactsDir = new File(
                 verifier.getArtifactMetadataPath( GROUPID, SOLUTION_ARTIFACTID, VERSION ) ).getParentFile();
         assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
                 SOLUTION_ARTIFACTID + "-" + VERSION + ".pom",
@@ -65,7 +66,7 @@ public class MavenITHelloWorldDllTest
                 SOLUTION_ARTIFACTID + "-" + VERSION + "-Win32-Debug.zip"} ) );
 
         verifier.resetStreams();
-        
+
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();
         assertEquals( 0, releaseDir.list().length );
@@ -82,7 +83,7 @@ public class MavenITHelloWorldDllTest
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );
-        
+
         // Delete any existing artifact from the local repository
         verifier.deleteArtifacts( GROUPID, PROJECT_ARTIFACTID, VERSION );
 
@@ -90,16 +91,16 @@ public class MavenITHelloWorldDllTest
         verifier.verifyErrorFreeLog();
         // We don't check all the files, just the most important ones
         // Different versions/installs of Visual Studio generate different file sets anyway!
-        assertDirectoryContents( releaseDir, -1, Arrays.asList( 
-                new String[]{"hello-world-dll.dll", 
-                        "hello-world-dll.obj", "stdafx.obj", "dllmain.obj",  
+        assertDirectoryContents( releaseDir, -1, Arrays.asList(
+                new String[]{"hello-world-dll.dll",
+                        "hello-world-dll.obj", "stdafx.obj", "dllmain.obj",
                         "hello-world-dll.pch", "hello-world-dll.pdb"} ) );
-        assertDirectoryContents( debugDir, -1, Arrays.asList( 
-                new String[]{"hello-world-dll.dll",  
-                        "hello-world-dll.obj", "stdafx.obj", "dllmain.obj",  
+        assertDirectoryContents( debugDir, -1, Arrays.asList(
+                new String[]{"hello-world-dll.dll",
+                        "hello-world-dll.obj", "stdafx.obj", "dllmain.obj",
                         "hello-world-dll.ilk", "hello-world-dll.pch", "hello-world-dll.pdb"} ) );
 
-        File artifactsDir = new File( 
+        File artifactsDir = new File(
                 verifier.getArtifactMetadataPath( GROUPID, PROJECT_ARTIFACTID, VERSION ) ).getParentFile();
         assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
                 PROJECT_ARTIFACTID + "-" + VERSION + ".pom",
@@ -107,7 +108,7 @@ public class MavenITHelloWorldDllTest
                 PROJECT_ARTIFACTID + "-" + VERSION + "-Win32-Debug.dll"} ) );
 
         verifier.resetStreams();
-        
+
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();
         checkProjectBuildOutputIsCleaned( "hello-world-dll", releaseDir );

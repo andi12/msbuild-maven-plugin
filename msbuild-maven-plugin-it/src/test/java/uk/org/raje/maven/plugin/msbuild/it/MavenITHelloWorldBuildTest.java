@@ -33,7 +33,7 @@ import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.checkProje
  * Integration test that runs the hello-world-build-test
  *
  */
-public class MavenITHelloWorldBuildTest 
+public class MavenITHelloWorldBuildTest
 {
 
     @Test
@@ -47,25 +47,25 @@ public class MavenITHelloWorldBuildTest
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );
-        
+
         // Delete any existing artifact from the local repository
         verifier.deleteArtifacts( GROUPID, SOLUTION_ARTIFACTID, VERSION );
 
         verifier.executeGoal( "compile" );
         verifier.verifyErrorFreeLog();
-        assertDirectoryContents( releaseDir, 2, Arrays.asList( 
-                new String[]{"hello-world.exe", "hello-world.pdb"} ) );
-        assertDirectoryContents( debugDir, 3, Arrays.asList( 
+        assertDirectoryContents( releaseDir, 4, Arrays.asList(
+                new String[]{"hello-world.exe", "hello-world.iobj", "hello-world.ipdb", "hello-world.pdb"} ) );
+        assertDirectoryContents( debugDir, 3, Arrays.asList(
                 new String[]{"hello-world.exe", "hello-world.ilk", "hello-world.pdb"} ) );
 
         verifier.assertFileNotPresent( targetDir.getPath() );
 
-        File artifactsDir = new File( 
+        File artifactsDir = new File(
                 verifier.getArtifactMetadataPath( GROUPID, SOLUTION_ARTIFACTID, VERSION ) ).getParentFile();
         verifier.assertFileNotPresent( artifactsDir.getPath() );
 
         verifier.resetStreams();
-        
+
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();
         assertEquals( 0, releaseDir.list().length );
@@ -83,22 +83,23 @@ public class MavenITHelloWorldBuildTest
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );
-        
+
         // Delete any existing artifact from the local repository
         verifier.deleteArtifacts( GROUPID, SOLUTION_ARTIFACTID, VERSION );
 
         verifier.executeGoal( "install" );
         verifier.verifyErrorFreeLog();
-        assertDirectoryContents( releaseDir, 2, Arrays.asList( 
-                new String[]{"hello-world.exe", "hello-world.pdb"} ) );
-        assertDirectoryContents( debugDir, 3, Arrays.asList( 
+        assertDirectoryContents( releaseDir, 4, Arrays.asList(
+                new String[]{"hello-world.exe", "hello-world.iobj",
+                             "hello-world.ipdb", "hello-world.pdb"} ) );
+        assertDirectoryContents( debugDir, 3, Arrays.asList(
                 new String[]{"hello-world.exe", "hello-world.ilk", "hello-world.pdb"} ) );
-        
+
         assertDirectoryContents( targetDir, 2, Arrays.asList( new String[]{
                 SOLUTION_ARTIFACTID + "-" + VERSION + "-Win32-Release.zip",
                 SOLUTION_ARTIFACTID + "-" + VERSION + "-Win32-Debug.zip"} ) );
 
-        File artifactsDir = new File( 
+        File artifactsDir = new File(
                 verifier.getArtifactMetadataPath( GROUPID, SOLUTION_ARTIFACTID, VERSION ) ).getParentFile();
         assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
                 SOLUTION_ARTIFACTID + "-" + VERSION + ".pom",
@@ -106,7 +107,7 @@ public class MavenITHelloWorldBuildTest
                 SOLUTION_ARTIFACTID + "-" + VERSION + "-Win32-Debug.zip"} ) );
 
         verifier.resetStreams();
-        
+
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();
         assertEquals( 0, releaseDir.list().length );
@@ -123,7 +124,7 @@ public class MavenITHelloWorldBuildTest
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );
-        
+
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();
         if ( releaseDir.exists() )
@@ -146,7 +147,7 @@ public class MavenITHelloWorldBuildTest
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );
-        
+
         // Delete any existing artifact from the local repository
         verifier.deleteArtifacts( GROUPID, PROJECT_ARTIFACTID, VERSION );
 
@@ -154,12 +155,12 @@ public class MavenITHelloWorldBuildTest
         verifier.verifyErrorFreeLog();
         // We don't check all the files, just the most important ones
         // Different versions/installs of Visual Studio generate different file sets anyway!
-        assertDirectoryContents( releaseDir, -1, Arrays.asList( 
+        assertDirectoryContents( releaseDir, -1, Arrays.asList(
                 new String[]{"hello-world.exe", "hello-world.obj", "hello-world.pdb"} ) );
-        assertDirectoryContents( debugDir, -1, Arrays.asList( 
+        assertDirectoryContents( debugDir, -1, Arrays.asList(
                 new String[]{"hello-world.exe", "hello-world.obj", "hello-world.ilk", "hello-world.pdb"} ) );
 
-        File artifactsDir = new File( 
+        File artifactsDir = new File(
                 verifier.getArtifactMetadataPath( GROUPID, PROJECT_ARTIFACTID, VERSION ) ).getParentFile();
         assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
                 PROJECT_ARTIFACTID + "-" + VERSION + ".pom",
@@ -167,7 +168,7 @@ public class MavenITHelloWorldBuildTest
                 PROJECT_ARTIFACTID + "-" + VERSION + "-Win32-Debug.exe"} ) );
 
         verifier.resetStreams();
-        
+
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();
         checkProjectBuildOutputIsCleaned( "hello-world", releaseDir );
@@ -184,7 +185,7 @@ public class MavenITHelloWorldBuildTest
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );
-        
+
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();
         checkProjectBuildOutputIsCleaned( "hello-world", releaseDir );

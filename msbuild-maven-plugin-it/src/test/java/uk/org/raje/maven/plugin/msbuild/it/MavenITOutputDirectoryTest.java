@@ -32,7 +32,7 @@ import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.calculateA
  * Integration test that runs the multi-platform-test
  *
  */
-public class MavenITOutputDirectoryTest 
+public class MavenITOutputDirectoryTest
 {
 
     @Test
@@ -45,19 +45,20 @@ public class MavenITOutputDirectoryTest
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );
-        
+
         // Delete any existing artifact from the local repository
         verifier.deleteArtifacts( GROUPID, SOLUTION_ARTIFACTID, VERSION );
 
         verifier.executeGoal( "install" );
         verifier.verifyErrorFreeLog();
-        assertDirectoryContents( win32ReleaseDir, 3, Arrays.asList( new String[]
-                {"output-directory-test.exe", "output-directory-test.pdb", "output-directory-test-lib.lib"} ) );
-        assertDirectoryContents( win32DebugDir, 4, Arrays.asList( new String[]
-                {"output-directory-test.exe", "output-directory-test.ilk", "output-directory-test.pdb", 
-                "output-directory-test-lib.lib"} ) );
-        
-        File artifactsDir = new File( 
+        assertDirectoryContents( win32ReleaseDir, 5, Arrays.asList( new String[]
+                {"output-directory-test.exe", "output-directory-test.iobj", "output-directory-test-lib.lib",
+                 "output-directory-test.ipdb", "output-directory-test.pdb"} ) );
+        assertDirectoryContents( win32DebugDir, 5, Arrays.asList( new String[]
+                {"output-directory-test.exe", "output-directory-test.ilk", "output-directory-test.pdb",
+                 "output-directory-test-lib.lib", "output-directory-test-lib.pdb"} ) );
+
+        File artifactsDir = new File(
                 verifier.getArtifactMetadataPath( GROUPID, SOLUTION_ARTIFACTID, VERSION ) ).getParentFile();
         assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
                 SOLUTION_ARTIFACTID + "-" + VERSION + ".pom",
@@ -65,7 +66,7 @@ public class MavenITOutputDirectoryTest
                 SOLUTION_ARTIFACTID + "-" + VERSION + "-Win32-Debug.zip"} ) );
 
         verifier.resetStreams();
-        
+
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();
         assertEquals( 0, win32ReleaseDir.list().length );
@@ -82,7 +83,7 @@ public class MavenITOutputDirectoryTest
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );
-        
+
         // Delete any existing artifact from the local repository
         verifier.deleteArtifacts( GROUPID, SOLUTION_ARTIFACTID, VERSION );
 
@@ -90,10 +91,10 @@ public class MavenITOutputDirectoryTest
         verifier.verifyErrorFreeLog();
         assertDirectoryContents( win32ReleaseDir, 1, Arrays.asList( new String[]
                 {"output-directory-test-lib.lib"} ) );
-        assertDirectoryContents( win32DebugDir, 1, Arrays.asList( new String[]
-                {"output-directory-test-lib.lib"} ) );
-        
-        File artifactsDir = new File( 
+        assertDirectoryContents( win32DebugDir, 2, Arrays.asList( new String[]
+                {"output-directory-test-lib.lib", "output-directory-test-lib.pdb"} ) );
+
+        File artifactsDir = new File(
                 verifier.getArtifactMetadataPath( GROUPID, LIBPROJ_ARTIFACTID, VERSION ) ).getParentFile();
         assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
                 LIBPROJ_ARTIFACTID + "-" + VERSION + ".pom",
@@ -101,12 +102,12 @@ public class MavenITOutputDirectoryTest
                 LIBPROJ_ARTIFACTID + "-" + VERSION + "-Win32-Debug.lib"} ) );
 
         verifier.resetStreams();
-        
+
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();
         assertEquals( 0, win32ReleaseDir.list().length );
         assertEquals( 0, win32DebugDir.list().length );
-    }    
+    }
 
     private static final String GROUPID = "uk.org.raje.maven.plugins.msbuild.it";
     private static final String SOLUTION_ARTIFACTID = "output-directory-solution-test";

@@ -32,7 +32,7 @@ import static uk.org.raje.maven.plugin.msbuild.it.MSBuildMojoITHelper.calculateA
  * Integration test that runs the multi-platform-test
  *
  */
-public class MavenITMultiPlatformTest 
+public class MavenITMultiPlatformTest
 {
 
     @Test
@@ -47,22 +47,24 @@ public class MavenITMultiPlatformTest
 
         Verifier verifier = new Verifier( testDir.getAbsolutePath() );
         addPropertiesToVerifier( verifier );
-        
+
         // Delete any existing artifact from the local repository
         verifier.deleteArtifacts( GROUPID, SOLUTION_ARTIFACTID, VERSION );
 
         verifier.executeGoal( "install" );
         verifier.verifyErrorFreeLog();
-        assertDirectoryContents( win32ReleaseDir, 2, Arrays.asList( 
-                new String[]{"multi-platform-test.exe", "multi-platform-test.pdb"} ) );
-        assertDirectoryContents( win32DebugDir, 3, Arrays.asList( 
+        assertDirectoryContents( win32ReleaseDir, 4, Arrays.asList(
+                new String[]{"multi-platform-test.exe", "multi-platform-test.iobj",
+                             "multi-platform-test.ipdb", "multi-platform-test.pdb"} ) );
+        assertDirectoryContents( win32DebugDir, 3, Arrays.asList(
                 new String[]{"multi-platform-test.exe", "multi-platform-test.ilk", "multi-platform-test.pdb"} ) );
-        assertDirectoryContents( x64ReleaseDir, 2, Arrays.asList( 
-                new String[]{"multi-platform-test.exe", "multi-platform-test.pdb"} ) );
-        assertDirectoryContents( x64DebugDir, 3, Arrays.asList( 
+        assertDirectoryContents( x64ReleaseDir, 4, Arrays.asList(
+                new String[]{"multi-platform-test.exe", "multi-platform-test.iobj",
+                             "multi-platform-test.ipdb", "multi-platform-test.pdb"} ) );
+        assertDirectoryContents( x64DebugDir, 3, Arrays.asList(
                 new String[]{"multi-platform-test.exe", "multi-platform-test.ilk", "multi-platform-test.pdb"} ) );
-        
-        File artifactsDir = new File( 
+
+        File artifactsDir = new File(
                 verifier.getArtifactMetadataPath( GROUPID, SOLUTION_ARTIFACTID, VERSION ) ).getParentFile();
         assertDirectoryContents( artifactsDir, 7, Arrays.asList( new String[]{
                 SOLUTION_ARTIFACTID + "-" + VERSION + ".pom",
@@ -72,7 +74,7 @@ public class MavenITMultiPlatformTest
                 SOLUTION_ARTIFACTID + "-" + VERSION + "-x64-Debug.zip"} ) );
 
         verifier.resetStreams();
-        
+
         verifier.executeGoal( "clean" );
         verifier.verifyErrorFreeLog();
         assertEquals( 0, win32ReleaseDir.list().length );

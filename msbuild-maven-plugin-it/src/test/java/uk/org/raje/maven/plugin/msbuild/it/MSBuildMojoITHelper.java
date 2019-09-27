@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -53,12 +54,12 @@ class MSBuildMojoITHelper
      * </profile>
      * }
      * </pre>
-     *  
+     *
      */
     public static final String MSBUILD_PLUGIN_TOOLS_ENABLE = "msbuild-plugin-tools";
 
     /**
-     * The name of the properties file that contains properties that are used in test POMs 
+     * The name of the properties file that contains properties that are used in test POMs
      * and need to be included by the Verifier.
      */
     private static final String VERIFIER_PROPERTIES_FILE = "/verifier.properties";
@@ -129,7 +130,7 @@ class MSBuildMojoITHelper
                 throw new IOException( "Failed to delete " +  result.getAbsolutePath() );
             }
         }
-        
+
         return result;
     }
 
@@ -142,13 +143,23 @@ class MSBuildMojoITHelper
     {
         if ( outputDir.exists() ) // if the directory doesn't exist we're clean
         {
-            List<String> dirContents = Arrays.asList( outputDir.list() );
+            // What is left depends on exact tool version so we aren't too strict
+            List<String> dirContents = Arrays.asList( outputDir.list( new FilenameFilter() {
+                @Override
+                public boolean accept( File path, String name )
+                {
+                    return path.isFile();
+                }
+            } ) );
             if ( dirContents.size() != 0 ) // if the directory contains something it should just be the log file
             {
                 assertEquals( 1, dirContents.size() );
-                assertTrue( dirContents.contains( projectName + ".Build.CppClean.log" ) );
+                assertTrue( "Unexpect files left after clean",
+                         dirContents.contains( projectName + ".Build.CppClean.log" ) // VS 2010
+                         || dirContents.contains( projectName + ".log" ) // VS 2015
+                         );
             }
         }
-        
+
     }
 }
