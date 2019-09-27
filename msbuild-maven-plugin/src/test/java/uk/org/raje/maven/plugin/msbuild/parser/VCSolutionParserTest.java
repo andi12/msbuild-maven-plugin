@@ -53,7 +53,7 @@ public class VCSolutionParserTest
             testSingleProjectSolution( platform, TEST_CONFIGURATIONS[0] );
         }
     }
-    
+
     @Test
     public void testMultipleProjects()
     {
@@ -65,68 +65,69 @@ public class VCSolutionParserTest
             }
         }
     }
-    
+
     private void testSingleProjectSolution( String platform, String configuration )
     {
         String solutionPath = TEST_RESOURCE_DIR + "hello-world-solution/hello-world.sln";
         File solutionFile = new File( this.getClass().getResource( solutionPath ).getPath() );
-        List<VCProject> vcProjects = parseSolution( solutionFile, platform, configuration ); 
+        List<VCProject> vcProjects = parseSolution( solutionFile, platform, configuration );
 
         Assert.assertEquals( 1, vcProjects.size() );
-        validateProject( vcProjects.get( 0 ), TEST_PROJECT_NAMES[0], platform, configuration );
+        validateProject( vcProjects.get( 0 ), TEST_PROJECT_NAMES_SINGLE[0], platform, configuration );
     }
-    
+
     private void testMultipleProjectSolution( String platform, String configuration )
     {
         String solutionPath = TEST_RESOURCE_DIR + "hello-goodbye-world-solution/hello-goodbye-world.sln";
         File solutionFile = new File( this.getClass().getResource( solutionPath ).getPath() );
         List<VCProject> vcProjects = parseSolution( solutionFile, platform, configuration );
-        Assert.assertEquals( TEST_PROJECT_NAMES.length, vcProjects.size() );
-        
-        for ( int i = 0; i < TEST_PROJECT_NAMES.length; i++ ) 
+        Assert.assertEquals( TEST_PROJECT_NAMES_MULTIPLE.length, vcProjects.size() );
+
+        for ( int i = 0; i < TEST_PROJECT_NAMES_MULTIPLE.length; i++ )
         {
-            validateProject( vcProjects.get( i ), TEST_PROJECT_NAMES[i], platform, configuration );
+            validateProject( vcProjects.get( i ), TEST_PROJECT_NAMES_MULTIPLE[i], platform, configuration );
         }
     }
 
     private List<VCProject> parseSolution( File solutionFile, String platform, String configuration )
     {
         VCSolutionParser solutionParser = null;
-        
-        try 
+
+        try
         {
             solutionParser = new VCSolutionParser( solutionFile, platform, configuration );
-        } 
-        catch ( FileNotFoundException fnfe ) 
+        }
+        catch ( FileNotFoundException fnfe )
         {
             Assert.fail( fnfe.getMessage() );
         }
-        
-        try 
+
+        try
         {
             solutionParser.parse();
-        } 
-        catch ( IOException ioe ) 
+        }
+        catch ( IOException ioe )
         {
             Assert.fail( ioe.getMessage() );
         }
-        catch ( ParseException pe ) 
+        catch ( ParseException pe )
         {
             Assert.fail( pe.getMessage() );
         }
-        
+
         return solutionParser.getVCProjects();
     }
-    
+
     private void validateProject( VCProject vcProject, String name, String platform, String configuration )
     {
         Assert.assertEquals( name, vcProject.getName() );
         Assert.assertEquals( platform, vcProject.getPlatform() );
         Assert.assertEquals( configuration, vcProject.getConfiguration() );
     }
-    
+
     private static final String TEST_RESOURCE_DIR = "/unit/cppcheck/";
-    private static final String[] TEST_PROJECT_NAMES = { "hello-world", "goodbye-world" };
+    private static final String[] TEST_PROJECT_NAMES_SINGLE = { "hello-world" };
+    private static final String[] TEST_PROJECT_NAMES_MULTIPLE = { "goodbye-world", "hello-world" };
     private static final String[] TEST_PLATFORMS = { "Win32", "x64" };
-    private static final String[] TEST_CONFIGURATIONS = { "Debug", "Release" };   
+    private static final String[] TEST_CONFIGURATIONS = { "Debug", "Release" };
 }
