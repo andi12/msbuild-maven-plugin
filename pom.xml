@@ -19,13 +19,13 @@
 
     <groupId>uk.org.raje.maven.plugins</groupId>
     <artifactId>msbuild-maven-plugin-parent</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
+    <version>1.2.2</version>
     <packaging>pom</packaging>
 
    <parent>
       <groupId>org.sonatype.oss</groupId>
       <artifactId>oss-parent</artifactId>
-      <version>7</version>
+      <version>9</version>
    </parent>
 
     <scm>
@@ -73,9 +73,7 @@
         
         <!-- Release properties -->
         <autoVersionSubmodules>true</autoVersionSubmodules>
-        <!-- Would like to use the following by need release plugin v2.2 or higher.
-             oss-parent currently uses 2.1
-        <tagNameFormat>msbuild-maven-plugin-@{project.version}</tagNameFormat>-->
+        <tagNameFormat>msbuild-maven-plugin-@{project.version}</tagNameFormat>
     </properties>
 
     <dependencyManagement>
