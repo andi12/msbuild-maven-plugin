@@ -41,11 +41,11 @@ import uk.org.raje.maven.plugin.msbuild.parser.VCProject;
 import uk.org.raje.maven.plugin.msbuild.streamconsumers.StdoutStreamToLog;
 
 /**
- * This class configures and runs Vera++, a tool to perform coding style analysis on C++ source code. 
- * @see {@link https://bitbucket.org/verateam}
+ * This class configures and runs Vera++, a tool to perform coding style analysis on C++ source code.
+ * @see <a href="https://bitbucket.org/verateam">https://bitbucket.org/verateam</a>
  */
 @Mojo( name = VeraMojo.MOJO_NAME, defaultPhase = LifecyclePhase.VERIFY )
-public class VeraMojo extends AbstractMSBuildPluginMojo 
+public class VeraMojo extends AbstractMSBuildPluginMojo
 {
     /**
      * The name this Mojo declares, also represents the goal.
@@ -56,35 +56,35 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
      * The name of the directory created under 'target' where we store CppCheck report files.
      */
     public static final String REPORT_DIRECTORY = "checkstyle-reports";
-    
-    public static File getVeraExecutablePath( File veraHome ) 
+
+    public static File getVeraExecutablePath( File veraHome )
     {
         return new File( veraHome, "bin/vera++.exe" ).getAbsoluteFile();
-    }    
+    }
 
     @Override
-    public void doExecute() throws MojoExecutionException, MojoFailureException 
+    public void doExecute() throws MojoExecutionException, MojoFailureException
     {
         boolean wasExecutionSuccessful = true;
-        
-        if ( ! isVeraEnabled( false ) ) 
+
+        if ( ! isVeraEnabled( false ) )
         {
             return;
         }
-     
+
         validateVeraConfiguration();
 
-        for ( BuildPlatform platform : platforms ) 
+        for ( BuildPlatform platform : platforms )
         {
             for ( BuildConfiguration configuration : platform.getConfigurations() )
             {
-                for ( VCProject vcProject : getParsedProjects( platform, configuration, 
+                for ( VCProject vcProject : getParsedProjects( platform, configuration,
                         vera.getExcludeProjectRegex() ) )
                 {
-                    getLog().info( "Running coding style analysis for project " + vcProject.getName() + ", platform=" 
+                    getLog().info( "Running coding style analysis for project " + vcProject.getName() + ", platform="
                             + vcProject.getPlatform() + ", configuration=" + vcProject.getConfiguration() );
-                    
-                    try 
+
+                    try
                     {
                         wasExecutionSuccessful &= runVera( vcProject );
                     }
@@ -96,20 +96,20 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
                 }
             }
         }
-        
+
         if ( ! wasExecutionSuccessful )
         {
             throw new MojoFailureException( "Coding style analysis failed" );
         }
-        
+
         getLog().info( "Coding style analysis complete" );
     }
-    
-    private void validateVeraConfiguration() throws MojoExecutionException 
+
+    private void validateVeraConfiguration() throws MojoExecutionException
     {
-        try 
+        try
         {
-            MojoHelper.validateToolPath( VeraMojo.getVeraExecutablePath( vera.getVeraHome() ), 
+            MojoHelper.validateToolPath( VeraMojo.getVeraExecutablePath( vera.getVeraHome() ),
                     VeraConfiguration.TOOL_NAME, getLog() );
         }
         catch ( FileNotFoundException fnfe )
@@ -120,11 +120,11 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
                     + "POM file using <veraHome>...</veraHome> or "
                     + "or <properties><" + VeraConfiguration.HOME_PROPERTY + ">...</"
                     + VeraConfiguration.HOME_PROPERTY + "></properties>; "
-                    + "alternatively, you can use the command-line parameter -D" 
+                    + "alternatively, you can use the command-line parameter -D"
                     + VeraConfiguration.HOME_PROPERTY + "=... "
                     + "or set the environment variable " + VeraConfiguration.HOME_ENVVAR, fnfe );
         }
-        
+
         validateProjectFile();
         platforms = MojoHelper.validatePlatforms( platforms );
     }
@@ -132,10 +132,10 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
     private String getSourcesForStdin( VCProject vcProject ) throws MojoExecutionException
     {
         StringBuilder stringBuilder = new StringBuilder();
-        
+
         for ( File sourceFile : getProjectSources( vcProject, true, vera.getExcludes() ) )
         {
-            try 
+            try
             {
                 stringBuilder.append( getRelativeFile( vcProject.getBaseDirectory(), sourceFile ) + "\n" );
             }
@@ -144,28 +144,28 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
                 throw new MojoExecutionException( "Failed to compute relative path for file " + sourceFile, ioe );
             }
         }
-        
+
         return stringBuilder.toString();
     }
 
     private Writer createVeraReportWriter( File reportFile ) throws MojoExecutionException
     {
         BufferedWriter veraReportWriter;
-        
-        try 
+
+        try
         {
             FileUtils.forceMkdir( reportFile.getParentFile() );
             veraReportWriter = new BufferedWriter( new FileWriter( reportFile ) );
-        } 
-        catch ( IOException ioe ) 
+        }
+        catch ( IOException ioe )
         {
-            throw new MojoExecutionException( "Failed to create " + VeraConfiguration.TOOL_NAME + " report " 
+            throw new MojoExecutionException( "Failed to create " + VeraConfiguration.TOOL_NAME + " report "
                     + reportFile, ioe );
         }
 
         return veraReportWriter;
     }
-    
+
     private CommandLineRunner createVeraRunner( VCProject vcProject, Writer reportWriter )
             throws MojoExecutionException
     {
@@ -174,11 +174,11 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
         veraRunner.setStandardInputString( getSourcesForStdin( vcProject ) );
         veraRunner.setProfile( vera.getProfile() );
         veraRunner.setParameters( vera.getParameters() );
-        
+
         return veraRunner;
     }
 
-    private boolean executeVeraRunner( CommandLineRunner veraRunner ) 
+    private boolean executeVeraRunner( CommandLineRunner veraRunner )
         throws MojoExecutionException
     {
         try
@@ -194,96 +194,96 @@ public class VeraMojo extends AbstractMSBuildPluginMojo
             throw new MojoExecutionException( "Process interrupted while executing command line ", ie );
         }
     }
-    
+
     private void finaliseReportWriter( Writer reportWriter, File reportFile ) throws MojoExecutionException
     {
-        try 
+        try
         {
             reportWriter.close();
-        } 
-        catch ( IOException ioe ) 
-        { 
-            throw new MojoExecutionException( "Failed to finalise " + VeraConfiguration.TOOL_NAME + " report" 
+        }
+        catch ( IOException ioe )
+        {
+            throw new MojoExecutionException( "Failed to finalise " + VeraConfiguration.TOOL_NAME + " report"
                     + reportFile, ioe );
         }
-    }    
+    }
 
     private boolean runVera( VCProject vcProject ) throws MojoExecutionException, MojoFailureException
     {
         File reportFile = getReportFile( vcProject );
         Writer reportWriter = createVeraReportWriter( reportFile );
-        
-        CommandLineRunner veraRunner = createVeraRunner( vcProject, reportWriter );        
+
+        CommandLineRunner veraRunner = createVeraRunner( vcProject, reportWriter );
         boolean wasExecutionSuccessful = executeVeraRunner( veraRunner );
         finaliseReportWriter( reportWriter, reportFile );
-        
+
         return wasExecutionSuccessful;
     }
-    
-    private File getReportFile( VCProject vcProject ) 
+
+    private File getReportFile( VCProject vcProject )
     {
         File reportDirectory = new File( vcProject.getFile().getParentFile(), REPORT_DIRECTORY );
         return new File( reportDirectory, vera.getReportName() + "-" + vcProject + ".xml" );
     }
-    
+
     private static class VeraRunner extends CommandLineRunner
     {
         /**
          * Construct the CppCheckRunner
          * @param veraHome the path to CppCheck.exe
          * @param sourcePath the relative path from the working directory to the source files to check
-         * @param outputConsumer StreamConsumer for standard output 
+         * @param outputConsumer StreamConsumer for standard output
          * @param errorConsumer StreamConsumer for standard error
          */
         public VeraRunner( File veraHome, Writer reportWriter, Log log )
         {
-            super( VeraConfiguration.TOOL_NAME, new StdoutStreamToLog( log ), 
+            super( VeraConfiguration.TOOL_NAME, new StdoutStreamToLog( log ),
                     new WriterStreamConsumer( reportWriter ) );
 
             this.veraHome = veraHome;
         }
-        
-        public void setProfile( String profile ) 
+
+        public void setProfile( String profile )
         {
             this.profile = profile;
-        }        
-        
-        public void setParameters( Map<String, String> parameters ) 
+        }
+
+        public void setParameters( Map<String, String> parameters )
         {
             this.parameters = parameters;
-        }            
+        }
 
         @Override
-        protected List<String> getCommandLineArguments() 
+        protected List<String> getCommandLineArguments()
         {
             List<String> commandLineArguments = new LinkedList<String>();
-            
+
             commandLineArguments.add( getVeraExecutablePath( veraHome ).toString() );
 
             commandLineArguments.add( "--root" );
             commandLineArguments.add( "\"" + new File( veraHome, "lib/vera++" ).getAbsolutePath() + "\"" );
-            
+
             commandLineArguments.add( "--profile" );
             commandLineArguments.add( profile );
-            
+
             commandLineArguments.add( "--checkstyle-report" );
             commandLineArguments.add( "-" );
-            
+
             for ( String name : parameters.keySet() )
             {
                 commandLineArguments.add( "--parameter" );
                 commandLineArguments.add( name + "=" + parameters.get( name ) );
             }
-            
+
             commandLineArguments.add( "--warning" );
             commandLineArguments.add( "--quiet" );
-            
+
             return commandLineArguments;
         }
-        
+
         private File veraHome;
         private String profile = "full";
         private Map<String, String> parameters;
     }
-    
+
 }
