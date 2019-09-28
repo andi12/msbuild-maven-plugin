@@ -73,6 +73,9 @@
         
         <!-- Release properties -->
         <autoVersionSubmodules>true</autoVersionSubmodules>
+        <!-- Would like to use the following but would need release plugin v2.2 or higher.
+             oss-parent currently uses 2.1
+        <tagNameFormat>msbuild-maven-plugin-@{project.version}</tagNameFormat>-->
     </properties>
 
     <dependencyManagement>
@@ -94,7 +97,6 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
                     <preparationGoals>clean install</preparationGoals>
-                    <tagNameFormat>msbuild-maven-plugin-@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
         </plugins>
