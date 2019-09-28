@@ -73,7 +73,6 @@
         
         <!-- Release properties -->
         <autoVersionSubmodules>true</autoVersionSubmodules>
-        <tagNameFormat>msbuild-maven-plugin-@{project.version}</tagNameFormat>
     </properties>
 
     <dependencyManagement>
@@ -95,6 +94,7 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
                     <preparationGoals>clean install</preparationGoals>
+                    <tagNameFormat>msbuild-maven-plugin-@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
         </plugins>
