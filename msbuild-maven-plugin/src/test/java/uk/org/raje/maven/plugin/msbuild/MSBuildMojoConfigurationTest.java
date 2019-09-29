@@ -198,6 +198,18 @@ public class MSBuildMojoConfigurationTest extends AbstractMSBuildMojoTestCase
                 outputStream.toString().contains( "/maxcpucount:4 " ) );
     }
 
+    @Test
+    public final void testMaxCpuCount0Configuration() throws Exception
+    {
+        MSBuildMojo msbuildMojo = ( MSBuildMojo ) lookupConfiguredMojo( MSBuildMojo.MOJO_NAME, 
+                "/unit/configurations/minimal-solution-with-maxcpucount-zero-pom.xml" );
+        
+        msbuildMojo.execute();
+        
+        assertFalse( "MSBuild command line error /maxcpucount found",
+                outputStream.toString().contains( "/maxcpucount" ) );
+    }
+    
     private PrintStream stdout;
     private ByteArrayOutputStream outputStream;
 }
