@@ -83,7 +83,7 @@ abstract class BaseParser
      */
     public String getConfigurationPlatform() 
     {
-        return configuration + "|" + platform;
+        return configuration.replaceAll( "[ \t]" , "" ) + "|" + platform.replaceAll( "[ \t]" , "" );
     }
     
     /**
