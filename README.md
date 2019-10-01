@@ -61,6 +61,15 @@ Changelog
 
 This section provides a summary of significant changes in each release. For all details see the commitlog.
 
+1.3.1 (1-Oct-2019)
+
+* Support .NET 2.0, don't set maxcpucount when configured value is 0
+
+1.3.0 (29-Sep-2019)
+
+* Minor fixes for Java 8
+* Integration tests passing with Visual Studio 2015 (Community Edition)
+
 1.2.1 (5-Nov-2013)
 
 * Add support for a set of exclude patterns to be specified for CppCheck and Vera
