@@ -675,6 +675,8 @@ public abstract class AbstractMSBuildPluginMojo extends AbstractMojo
     /**
      * The value for 'maxcpucount' to pass to MSBuild.
      * Default value of -1 results in MSBuild being invoked with '/maxcpucount'.
+     * Value of 0 results in MSBuild being invoked without /maxcpucount 
+     * (useful for MSBuild that comes with .Net Framework v2, which doesn't support the maxcpucount param)
      */
     @Parameter(
             defaultValue = "-1",

@@ -173,7 +173,7 @@ class VCSolutionParser extends BaseParser
     
     private static String getPathPattern( String groupName ) 
     {
-        return "\"(?<" + groupName + ">.+\\.vcxproj)\"";
+        return "\"(?<" + groupName + ">.+\\..*proj)\"";
     }
     
     private enum SolutionParserState 
