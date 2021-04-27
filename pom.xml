@@ -55,7 +55,7 @@
 
     <properties>
         <!-- Dependency versions -->
-        <junit.version>4.8.1</junit.version>
+        <junit.version>4.13.1</junit.version>
 
         <!-- Build plugin versions -->
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
