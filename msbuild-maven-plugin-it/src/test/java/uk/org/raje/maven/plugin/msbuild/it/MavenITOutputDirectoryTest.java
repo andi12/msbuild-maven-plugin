@@ -96,7 +96,7 @@ public class MavenITOutputDirectoryTest
 
         File artifactsDir = new File(
                 verifier.getArtifactMetadataPath( GROUPID, LIBPROJ_ARTIFACTID, VERSION ) ).getParentFile();
-        assertDirectoryContents( artifactsDir, 5, Arrays.asList( new String[]{
+        assertDirectoryContents( artifactsDir, 6, Arrays.asList( new String[]{
                 LIBPROJ_ARTIFACTID + "-" + VERSION + ".pom",
                 LIBPROJ_ARTIFACTID + "-" + VERSION + ".lib",
                 LIBPROJ_ARTIFACTID + "-" + VERSION + "-Win32-Debug.lib"} ) );

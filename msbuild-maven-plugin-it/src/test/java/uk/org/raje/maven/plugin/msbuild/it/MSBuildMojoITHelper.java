@@ -96,7 +96,7 @@ class MSBuildMojoITHelper
         List<String> dirContents = Arrays.asList( directory.list() );
         if ( expectedCount != -1 )
         {
-            assertEquals( expectedCount, dirContents.size() );
+            assertEquals( "Found files " + dirContents.toString(), expectedCount, dirContents.size() );
         }
         for ( String fileName: expectedFiles )
         {
