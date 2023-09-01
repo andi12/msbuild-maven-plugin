@@ -41,7 +41,7 @@
 
     <properties>
         <!-- Dependency version -->
-        <maven.api.version>3.0.4</maven.api.version>
+        <maven.api.version>3.8.1</maven.api.version>
         <maven-plugin-plugin.version>3.3</maven-plugin-plugin.version>
         <maven-archiver.version>2.5</maven-archiver.version>
         <maven-filtering.version>1.1</maven-filtering.version>
